@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TechOps — Controle de Demandas</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg-primary: #ffffff; --bg-secondary: #f5f5f4; --bg-tertiary: #f0efea;
+    --text-primary: #1a1a1a; --text-secondary: #6b6b6b; --text-tertiary: #a0a0a0;
+    --border: rgba(0,0,0,0.12); --border-md: rgba(0,0,0,0.2);
+    --success: #3B6D11; --success-bg: #eaf3de;
+    --warning: #854F0B; --warning-bg: #faeeda;
+    --danger: #A32D2D; --danger-bg: #fcebeb;
+    --info: #185FA5; --info-bg: #e6f1fb;
+    --radius: 8px; --radius-lg: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1c1c1e; --bg-secondary: #2c2c2e; --bg-tertiary: #141414;
+      --text-primary: #f0f0f0; --text-secondary: #a0a0a0; --text-tertiary: #666;
+      --border: rgba(255,255,255,0.1); --border-md: rgba(255,255,255,0.2);
+      --success-bg: #173404; --success: #97C459;
+      --warning-bg: #412402; --warning: #FAC775;
+      --danger-bg: #501313; --danger: #F09595;
+      --info-bg: #042C53; --info: #85B7EB;
+    }
+    .tag-blue { background: #042C53 !important; color: #85B7EB !important; }
+    .tag-green { background: #173404 !important; color: #97C459 !important; }
+    .tag-amber { background: #412402 !important; color: #FAC775 !important; }
+    .tag-red { background: #501313 !important; color: #F09595 !important; }
+    .tag-purple { background: #26215C !important; color: #AFA9EC !important; }
+    .tag-gray { background: #2c2c2e !important; color: #a0a0a0 !important; }
+    .rb-blue { background: #0C447C !important; color: #B5D4F4 !important; }
+    .rb-green { background: #27500A !important; color: #C0DD97 !important; }
+    .rb-amber { background: #633806 !important; color: #FAC775 !important; }
+    .rb-purple { background: #3C3489 !important; color: #CECBF6 !important; }
+    .rb-red { background: #791F1F !important; color: #F5C4B3 !important; }
+    .sp-doing { background: #042C53 !important; color: #85B7EB !important; }
+    .sp-review { background: #412402 !important; color: #FAC775 !important; }
+    .sp-done { background: #173404 !important; color: #97C459 !important; }
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg-tertiary); color: var(--text-primary); }
+  .app { display: flex; height: 100vh; }
+  .sidebar { width: 220px; flex-shrink: 0; background: var(--bg-primary); border-right: 0.5px solid var(--border); display: flex; flex-direction: column; }
+  .sidebar-logo { padding: 18px 20px 14px; border-bottom: 0.5px solid var(--border); }
+  .logo-mark { display: flex; align-items: center; gap: 9px; }
+  .logo-icon { width: 28px; height: 28px; background: #1a1a2e; border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+  .logo-icon i { color: #fff; font-size: 15px; }
+  .logo-text { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+  .logo-sub { font-size: 10px; color: var(--text-tertiary); margin-top: 1px; }
+  .nav-section { padding: 14px 10px 6px; }
+  .nav-label { font-size: 10px; font-weight: 500; color: var(--text-tertiary); letter-spacing: 0.6px; text-transform: uppercase; padding: 0 8px; margin-bottom: 4px; }
+  .nav-item { display: flex; align-items: center; gap: 9px; padding: 7px 10px; border-radius: var(--radius); cursor: pointer; font-size: 13px; color: var(--text-secondary); transition: all 0.15s; user-select: none; }
+  .nav-item:hover { background: var(--bg-secondary); color: var(--text-primary); }
+  .nav-item.active { background: #1a1a2e; color: #fff; }
+  .nav-item i { font-size: 15px; width: 16px; text-align: center; }
+  .nav-badge { margin-left: auto; font-size: 10px; background: var(--danger-bg); color: var(--danger); padding: 1px 6px; border-radius: 10px; font-weight: 500; }
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar { background: var(--bg-primary); border-bottom: 0.5px solid var(--border); padding: 0 24px; height: 52px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+  .topbar-title { font-size: 15px; font-weight: 500; color: var(--text-primary); flex: 1; }
+  .view-toggle { display: flex; border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .view-btn { padding: 5px 10px; font-size: 12px; cursor: pointer; background: transparent; border: none; color: var(--text-secondary); display: flex; align-items: center; gap: 5px; transition: all 0.15s; }
+  .view-btn.active { background: #1a1a2e; color: #fff; }
+  .view-btn i { font-size: 13px; }
+  .btn-new { display: flex; align-items: center; gap: 6px; padding: 6px 14px; background: #1a1a2e; color: #fff; border: none; border-radius: var(--radius); font-size: 12px; font-weight: 500; cursor: pointer; transition: opacity 0.15s; }
+  .btn-new:hover { opacity: 0.85; }
+  .search-box { display: flex; align-items: center; gap: 7px; background: var(--bg-secondary); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 5px 10px; }
+  .search-box input { border: none; background: transparent; font-size: 12px; color: var(--text-primary); outline: none; width: 140px; }
+  .search-box i { font-size: 13px; color: var(--text-tertiary); }
+  .content { flex: 1; overflow-y: auto; padding: 20px 24px; }
+  .filters-row { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+  .filter-chip { display: flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; border: 0.5px solid var(--border-md); background: var(--bg-primary); font-size: 12px; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; user-select: none; }
+  .filter-chip:hover, .filter-chip.active { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+  .filter-chip i { font-size: 12px; }
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 22px; }
+  .stat-card { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; }
+  .stat-label { font-size: 11px; color: var(--text-tertiary); margin-bottom: 6px; font-weight: 500; }
+  .stat-value { font-size: 22px; font-weight: 500; color: var(--text-primary); }
+  .stat-delta { font-size: 11px; margin-top: 3px; display: flex; align-items: center; gap: 3px; }
+  .delta-up { color: var(--success); } .delta-down { color: var(--danger); }
+  .kanban { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .kanban-col { background: var(--bg-secondary); border-radius: var(--radius-lg); border: 0.5px solid var(--border); padding: 12px; min-height: 400px; }
+  .col-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .col-title { font-size: 12px; font-weight: 500; color: var(--text-secondary); display: flex; align-items: center; gap: 7px; }
+  .col-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .col-count { font-size: 11px; color: var(--text-tertiary); background: var(--bg-primary); border: 0.5px solid var(--border); padding: 1px 7px; border-radius: 10px; }
+  .card { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 12px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s; }
+  .card:hover { border-color: var(--border-md); transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .card-title { font-size: 13px; font-weight: 500; color: var(--text-primary); line-height: 1.4; }
+  .card-id { font-size: 10px; color: var(--text-tertiary); font-family: monospace; white-space: nowrap; }
+  .card-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 9px; }
+  .tag { font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 500; }
+  .tag-blue { background: #e6f1fb; color: #185FA5; }
+  .tag-green { background: #eaf3de; color: #3B6D11; }
+  .tag-amber { background: #faeeda; color: #854F0B; }
+  .tag-red { background: #fcebeb; color: #A32D2D; }
+  .tag-purple { background: #EEEDFE; color: #3C3489; }
+  .tag-gray { background: var(--bg-secondary); color: var(--text-secondary); }
+  .card-footer { display: flex; align-items: center; justify-content: space-between; }
+  .card-meta { display: flex; align-items: center; gap: 8px; }
+  .priority-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .p-high { background: #E24B4A; } .p-med { background: #EF9F27; } .p-low { background: #639922; }
+  .card-date { font-size: 10px; color: var(--text-tertiary); display: flex; align-items: center; gap: 3px; }
+  .card-date i { font-size: 11px; }
+  .avatars { display: flex; }
+  .avatar { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 500; border: 1.5px solid var(--bg-primary); margin-left: -5px; }
+  .avatar:first-child { margin-left: 0; }
+  .av-a { background: #B5D4F4; color: #0C447C; }
+  .av-b { background: #9FE1CB; color: #085041; }
+  .av-c { background: #F4C0D1; color: #72243E; }
+  .av-d { background: #FAC775; color: #633806; }
+  .av-e { background: #CECBF6; color: #3C3489; }
+  .progress-bar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 2px; }
+  .list-view, .roadmap-view { display: none; }
+  .list-table { width: 100%; border-collapse: collapse; background: var(--bg-primary); border-radius: var(--radius-lg); overflow: hidden; border: 0.5px solid var(--border); }
+  .list-table th { padding: 10px 14px; font-size: 11px; font-weight: 500; color: var(--text-tertiary); text-align: left; background: var(--bg-secondary); border-bottom: 0.5px solid var(--border); }
+  .list-table td { padding: 10px 14px; font-size: 12px; color: var(--text-primary); border-bottom: 0.5px solid var(--border); vertical-align: middle; }
+  .list-table tr:last-child td { border-bottom: none; }
+  .list-table tr:hover td { background: var(--bg-secondary); }
+  .status-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 20px; font-size: 10px; font-weight: 500; }
+  .sp-todo { background: var(--bg-secondary); color: var(--text-secondary); }
+  .sp-doing { background: #e6f1fb; color: #185FA5; }
+  .sp-review { background: #FAEEDA; color: #854F0B; }
+  .sp-done { background: #EAF3DE; color: #3B6D11; }
+  .sp-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  .section-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .section-title i { font-size: 15px; color: var(--text-secondary); }
+  .roadmap-timeline { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .roadmap-header { display: grid; grid-template-columns: 200px repeat(6, 1fr); border-bottom: 0.5px solid var(--border); }
+  .rh-cell { padding: 10px 14px; font-size: 11px; font-weight: 500; color: var(--text-tertiary); text-align: center; border-right: 0.5px solid var(--border); }
+  .rh-cell:last-child { border-right: none; }
+  .rh-cell:first-child { text-align: left; }
+  .roadmap-row { display: grid; grid-template-columns: 200px repeat(6, 1fr); border-bottom: 0.5px solid var(--border); align-items: center; min-height: 52px; }
+  .roadmap-row:last-child { border-bottom: none; }
+  .roadmap-row:hover { background: var(--bg-secondary); }
+  .rr-name { padding: 10px 14px; font-size: 12px; color: var(--text-primary); font-weight: 500; border-right: 0.5px solid var(--border); }
+  .rr-name span { font-size: 10px; color: var(--text-tertiary); display: block; margin-top: 1px; font-weight: 400; }
+  .rr-cell { padding: 10px 6px; border-right: 0.5px solid var(--border); height: 100%; }
+  .rr-cell:last-child { border-right: none; }
+  .roadmap-bar { height: 20px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; }
+  .rb-blue { background: #B5D4F4; color: #185FA5; }
+  .rb-green { background: #C0DD97; color: #3B6D11; }
+  .rb-amber { background: #FAC775; color: #633806; }
+  .rb-purple { background: #CECBF6; color: #3C3489; }
+  .rb-red { background: #F5C4B3; color: #993C1D; }
+  .sidebar-bottom { margin-top: auto; padding: 14px 10px; }
+  .user-card { display: flex; align-items: center; gap: 9px; padding: 10px; background: var(--bg-secondary); border-radius: var(--radius); border: 0.5px solid var(--border); }
+  .user-info { flex: 1; }
+  .user-name { font-size: 12px; font-weight: 500; color: var(--text-primary); }
+  .user-role { font-size: 10px; color: var(--text-tertiary); }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; align-items: flex-start; justify-content: center; padding-top: 40px; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--bg-primary); border-radius: var(--radius-lg); border: 0.5px solid var(--border-md); width: 540px; max-height: 80vh; overflow-y: auto; }
+  .modal-header { padding: 18px 20px 14px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .modal-title { font-size: 15px; font-weight: 500; color: var(--text-primary); }
+  .modal-close { cursor: pointer; color: var(--text-tertiary); font-size: 18px; background: none; border: none; padding: 2px 6px; border-radius: var(--radius); }
+  .modal-close:hover { background: var(--bg-secondary); color: var(--text-primary); }
+  .modal-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
+  .field-label { font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-bottom: 5px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  select, input[type=text], textarea { width: 100%; padding: 7px 10px; border: 0.5px solid var(--border-md); border-radius: var(--radius); font-size: 13px; background: var(--bg-primary); color: var(--text-primary); outline: none; font-family: inherit; }
+  select:focus, input[type=text]:focus, textarea:focus { border-color: #1a1a2e; }
+  textarea { resize: vertical; min-height: 80px; }
+  .modal-footer { padding: 12px 20px; border-top: 0.5px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+  .btn-cancel { padding: 7px 16px; border: 0.5px solid var(--border-md); background: transparent; border-radius: var(--radius); font-size: 13px; color: var(--text-secondary); cursor: pointer; }
+  .btn-cancel:hover { background: var(--bg-secondary); }
+  .btn-save { padding: 7px 16px; background: #1a1a2e; border: none; border-radius: var(--radius); font-size: 13px; color: #fff; cursor: pointer; font-weight: 500; }
+  .btn-save:hover { opacity: 0.85; }
+  @media (max-width: 900px) {
+    .sidebar { width: 52px; }
+    .sidebar .logo-text, .sidebar .logo-sub, .sidebar .nav-label, .nav-item span:not(.nav-badge), .sidebar-bottom .user-info, .sidebar-bottom .ti-dots { display: none; }
+    .nav-item { justify-content: center; padding: 10px; }
+    .stats-row { grid-template-columns: repeat(2,1fr); }
+    .kanban { grid-template-columns: repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <div class="logo-icon"><i class="ti ti-command"></i></div>
+        <div>
+          <div class="logo-text">TechOps</div>
+          <div class="logo-sub">Controle de Demandas</div>
+        </div>
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Principal</div>
+      <div class="nav-item active" onclick="setNav(this,'board')"><i class="ti ti-layout-kanban"></i> <span>Board Kanban</span></div>
+      <div class="nav-item" onclick="setNav(this,'list')"><i class="ti ti-list"></i> <span>Lista de Projetos</span></div>
+      <div class="nav-item" onclick="setNav(this,'roadmap')"><i class="ti ti-road"></i> <span>Roadmap</span></div>
+      <div class="nav-item" onclick=""><i class="ti ti-chart-bar"></i> <span>Métricas <span class="nav-badge">em breve</span></span></div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Equipe</div>
+      <div class="nav-item"><i class="ti ti-users"></i> <span>Membros</span></div>
+      <div class="nav-item"><i class="ti ti-bell"></i> <span>Notificações</span></div>
+      <div class="nav-item"><i class="ti ti-settings"></i> <span>Configurações</span></div>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="user-card">
+        <div class="avatar av-a" style="width:28px;height:28px;font-size:10px;border:none;flex-shrink:0;">VC</div>
+        <div class="user-info">
+          <div class="user-name">Você</div>
+          <div class="user-role">Admin</div>
+        </div>
+        <i class="ti ti-dots" style="font-size:14px;color:var(--text-tertiary);cursor:pointer;"></i>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <span class="topbar-title" id="page-title">Board de Demandas</span>
+      <div class="search-box">
+        <i class="ti ti-search"></i>
+        <input type="text" placeholder="Buscar projetos..." id="search-input" oninput="filterCards()">
+      </div>
+      <div class="view-toggle">
+        <button class="view-btn active" onclick="switchView('board',this)" id="btn-board"><i class="ti ti-layout-kanban"></i> Board</button>
+        <button class="view-btn" onclick="switchView('list',this)" id="btn-list"><i class="ti ti-list"></i> Lista</button>
+        <button class="view-btn" onclick="switchView('roadmap',this)" id="btn-road"><i class="ti ti-road"></i> Roadmap</button>
+      </div>
+      <button class="btn-new" onclick="openModal()"><i class="ti ti-plus"></i> Novo Projeto</button>
+    </div>
+
+    <div class="content">
+      <div id="board-view">
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-label">Total de Projetos</div><div class="stat-value" id="s-total">12</div><div class="stat-delta delta-up"><i class="ti ti-trending-up"></i> 3 novos este mês</div></div>
+          <div class="stat-card"><div class="stat-label">Em Desenvolvimento</div><div class="stat-value" id="s-doing">5</div><div class="stat-delta delta-up"><i class="ti ti-activity"></i> 2 com prazo próximo</div></div>
+          <div class="stat-card"><div class="stat-label">Concluídos</div><div class="stat-value" id="s-done">3</div><div class="stat-delta delta-up"><i class="ti ti-check"></i> +1 essa semana</div></div>
+          <div class="stat-card"><div class="stat-label">Alta Prioridade</div><div class="stat-value" id="s-high">4</div><div class="stat-delta delta-down"><i class="ti ti-alert-triangle"></i> Requer atenção</div></div>
+        </div>
+        <div class="filters-row">
+          <div class="filter-chip active" onclick="filterBy('all',this)"><i class="ti ti-app-window"></i> Todos</div>
+          <div class="filter-chip" onclick="filterBy('backend',this)"><i class="ti ti-server"></i> Backend</div>
+          <div class="filter-chip" onclick="filterBy('frontend',this)"><i class="ti ti-browser"></i> Frontend</div>
+          <div class="filter-chip" onclick="filterBy('infra',this)"><i class="ti ti-cloud"></i> Infra</div>
+          <div class="filter-chip" onclick="filterBy('data',this)"><i class="ti ti-database"></i> Data</div>
+          <div class="filter-chip" onclick="filterBy('mobile',this)"><i class="ti ti-device-mobile"></i> Mobile</div>
+        </div>
+        <div class="kanban">
+          <div class="kanban-col"><div class="col-header"><span class="col-title"><span class="col-dot" style="background:#B4B2A9"></span> Backlog</span><span class="col-count" id="cnt-todo">0</span></div><div id="cards-todo"></div></div>
+          <div class="kanban-col"><div class="col-header"><span class="col-title"><span class="col-dot" style="background:#378ADD"></span> Em Dev</span><span class="col-count" id="cnt-doing">0</span></div><div id="cards-doing"></div></div>
+          <div class="kanban-col"><div class="col-header"><span class="col-title"><span class="col-dot" style="background:#EF9F27"></span> Em Review</span><span class="col-count" id="cnt-review">0</span></div><div id="cards-review"></div></div>
+          <div class="kanban-col"><div class="col-header"><span class="col-title"><span class="col-dot" style="background:#639922"></span> Concluído</span><span class="col-count" id="cnt-done">0</span></div><div id="cards-done"></div></div>
+        </div>
+      </div>
+
+      <div id="list-view" class="list-view">
+        <table class="list-table">
+          <thead><tr><th>ID</th><th>Projeto</th><th>Área</th><th>Responsável</th><th>Prioridade</th><th>Status</th><th>Prazo</th><th>Progresso</th></tr></thead>
+          <tbody id="list-body"></tbody>
+        </table>
+      </div>
+
+      <div id="roadmap-view" class="roadmap-view">
+        <div class="section-title"><i class="ti ti-road"></i> Roadmap 2025 — Visão semestral</div>
+        <div class="roadmap-timeline">
+          <div class="roadmap-header">
+            <div class="rh-cell">Projeto</div>
+            <div class="rh-cell">Jan–Fev</div><div class="rh-cell">Mar–Abr</div><div class="rh-cell">Mai–Jun</div>
+            <div class="rh-cell">Jul–Ago</div><div class="rh-cell">Set–Out</div><div class="rh-cell">Nov–Dez</div>
+          </div>
+          <div id="roadmap-rows"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Novo Projeto</span>
+      <button class="modal-close" onclick="closeModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div><div class="field-label">Nome do Projeto *</div><input type="text" id="f-name" placeholder="Ex: Migração para Microserviços"></div>
+      <div><div class="field-label">Descrição</div><textarea id="f-desc" placeholder="Descreva o objetivo e escopo do projeto..."></textarea></div>
+      <div class="field-row">
+        <div><div class="field-label">Área</div><select id="f-area"><option value="backend">Backend</option><option value="frontend">Frontend</option><option value="infra">Infra</option><option value="data">Data</option><option value="mobile">Mobile</option></select></div>
+        <div><div class="field-label">Prioridade</div><select id="f-priority"><option value="high">Alta</option><option value="med">Média</option><option value="low">Baixa</option></select></div>
+      </div>
+      <div class="field-row">
+        <div><div class="field-label">Responsável</div><select id="f-owner"><option>Ana Lima</option><option>Bruno Costa</option><option>Carla Melo</option><option>Diego Faria</option><option>Ester Rocha</option></select></div>
+        <div><div class="field-label">Prazo</div><input type="text" id="f-date" placeholder="DD/MM/AAAA"></div>
+      </div>
+      <div><div class="field-label">Critérios de Aceite</div><textarea id="f-criteria" placeholder="Quais critérios devem ser atendidos para concluir este projeto?" style="min-height:60px;"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" onclick="saveProject()">Criar Projeto</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const areas={backend:'tag-blue',frontend:'tag-purple',infra:'tag-amber',data:'tag-green',mobile:'tag-red'};
+const areaLabels={backend:'Backend',frontend:'Frontend',infra:'Infra',data:'Data',mobile:'Mobile'};
+const initials={'Ana Lima':'AL','Bruno Costa':'BC','Carla Melo':'CM','Diego Faria':'DF','Ester Rocha':'ER'};
+const avClass={'Ana Lima':'av-a','Bruno Costa':'av-b','Carla Melo':'av-c','Diego Faria':'av-d','Ester Rocha':'av-e'};
+let projects=[
+  {id:'TK-001',title:'Migração para Microserviços',area:'backend',priority:'high',status:'doing',owner:'Ana Lima',date:'30/06/25',progress:45,start:2,span:3},
+  {id:'TK-002',title:'Redesign do App Mobile',area:'mobile',priority:'high',status:'doing',owner:'Bruno Costa',date:'15/07/25',progress:60,start:1,span:2},
+  {id:'TK-003',title:'Data Lake na AWS',area:'data',priority:'med',status:'doing',owner:'Carla Melo',date:'31/08/25',progress:30,start:3,span:3},
+  {id:'TK-004',title:'CI/CD Pipeline Upgrade',area:'infra',priority:'high',status:'review',owner:'Diego Faria',date:'20/05/25',progress:85,start:1,span:2},
+  {id:'TK-005',title:'Portal do Colaborador',area:'frontend',priority:'med',status:'todo',owner:'Ester Rocha',date:'30/09/25',progress:10,start:4,span:3},
+  {id:'TK-006',title:'API Gateway Unificado',area:'backend',priority:'high',status:'doing',owner:'Ana Lima',date:'15/06/25',progress:55,start:2,span:2},
+  {id:'TK-007',title:'Dashboard Executivo',area:'data',priority:'med',status:'done',owner:'Carla Melo',date:'10/04/25',progress:100,start:1,span:1},
+  {id:'TK-008',title:'SSO com Azure AD',area:'infra',priority:'high',status:'done',owner:'Diego Faria',date:'05/04/25',progress:100,start:1,span:2},
+  {id:'TK-009',title:'Testes Automatizados E2E',area:'backend',priority:'med',status:'review',owner:'Bruno Costa',date:'30/05/25',progress:75,start:2,span:2},
+  {id:'TK-010',title:'Monitoramento com Datadog',area:'infra',priority:'low',status:'todo',owner:'Diego Faria',date:'31/07/25',progress:5,start:4,span:2},
+  {id:'TK-011',title:'Refatoração do Frontend',area:'frontend',priority:'low',status:'todo',owner:'Ester Rocha',date:'30/08/25',progress:0,start:3,span:3},
+  {id:'TK-012',title:'App de Onboarding',area:'mobile',priority:'med',status:'done',owner:'Bruno Costa',date:'01/04/25',progress:100,start:1,span:2},
+];
+let currentFilter='all',currentView='board';
+function renderBoard(list){
+  ['todo','doing','review','done'].forEach(s=>document.getElementById('cards-'+s).innerHTML='');
+  const c={todo:0,doing:0,review:0,done:0};
+  list.forEach(p=>{
+    c[p.status]++;
+    const el=document.createElement('div');
+    el.className='card';
+    el.innerHTML=`<div class="card-top"><div class="card-title">${p.title}</div><span class="card-id">${p.id}</span></div>
+    <div class="card-tags"><span class="tag ${areas[p.area]}">${areaLabels[p.area]}</span>${p.priority==='high'?'<span class="tag tag-red">Alta</span>':p.priority==='med'?'<span class="tag tag-amber">Média</span>':'<span class="tag tag-gray">Baixa</span>'}</div>
+    <div class="card-footer"><div class="card-meta"><span class="priority-dot p-${p.priority}"></span><span class="card-date"><i class="ti ti-calendar"></i>${p.date}</span></div><div class="avatars"><div class="avatar ${avClass[p.owner]}">${initials[p.owner]}</div></div></div>
+    ${p.status!=='done'?`<div class="progress-bar"><div class="progress-fill" style="width:${p.progress}%;background:${p.status==='doing'?'#378ADD':p.status==='review'?'#EF9F27':'#B4B2A9'}"></div></div>`:''}`;
+    document.getElementById('cards-'+p.status).appendChild(el);
+  });
+  document.getElementById('cnt-todo').textContent=c.todo;
+  document.getElementById('cnt-doing').textContent=c.doing;
+  document.getElementById('cnt-review').textContent=c.review;
+  document.getElementById('cnt-done').textContent=c.done;
+}
+function renderList(list){
+  const tb=document.getElementById('list-body');tb.innerHTML='';
+  list.forEach(p=>{
+    const lbl={todo:'Backlog',doing:'Em Dev',review:'Review',done:'Concluído'}[p.status];
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="font-family:monospace;font-size:11px;color:var(--text-tertiary)">${p.id}</td>
+    <td style="font-weight:500">${p.title}</td>
+    <td><span class="tag ${areas[p.area]}">${areaLabels[p.area]}</span></td>
+    <td><div style="display:flex;align-items:center;gap:7px"><div class="avatar ${avClass[p.owner]}" style="width:22px;height:22px;font-size:8px;border:none;flex-shrink:0">${initials[p.owner]}</div>${p.owner}</div></td>
+    <td><span class="priority-dot p-${p.priority}" style="display:inline-block;vertical-align:middle;margin-right:5px"></span>${p.priority==='high'?'Alta':p.priority==='med'?'Média':'Baixa'}</td>
+    <td><span class="status-pill sp-${p.status}"><span class="sp-dot"></span>${lbl}</span></td>
+    <td>${p.date}</td>
+    <td style="width:110px"><div style="display:flex;align-items:center;gap:7px"><div class="progress-bar" style="flex:1;margin:0"><div class="progress-fill" style="width:${p.progress}%;background:#378ADD"></div></div><span style="font-size:10px;color:var(--text-tertiary);min-width:28px">${p.progress}%</span></div></td>`;
+    tb.appendChild(tr);
+  });
+}
+const colors=['rb-blue','rb-green','rb-amber','rb-purple','rb-red'];
+function renderRoadmap(){
+  const container=document.getElementById('roadmap-rows');container.innerHTML='';
+  projects.forEach((p,i)=>{
+    const row=document.createElement('div');
+    row.className='roadmap-row';
+    let cells=`<div class="rr-name">${p.title}<span>${areaLabels[p.area]} · ${p.owner.split(' ')[0]}</span></div>`;
+    for(let c=1;c<=6;c++){
+      if(c===p.start){cells+=`<div class="rr-cell" style="grid-column:span ${p.span}"><div class="roadmap-bar ${colors[i%5]}">${p.span>1?p.title.split(' ').slice(0,2).join(' '):''}</div></div>`;c+=p.span-1;}
+      else cells+=`<div class="rr-cell"></div>`;
+    }
+    row.innerHTML=cells;row.style.gridTemplateColumns='200px repeat(6,1fr)';
+    container.appendChild(row);
+  });
+}
+function getFiltered(){
+  const s=document.getElementById('search-input').value.toLowerCase();
+  return projects.filter(p=>(currentFilter==='all'||p.area===currentFilter)&&(!s||p.title.toLowerCase().includes(s)||p.id.toLowerCase().includes(s)));
+}
+function filterCards(){const list=getFiltered();if(currentView==='board')renderBoard(list);else if(currentView==='list')renderList(list);}
+function filterBy(area,el){currentFilter=area;document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');filterCards();}
+function switchView(view,btn){
+  currentView=view;
+  document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+  const titles={board:'Board de Demandas',list:'Lista de Projetos',roadmap:'Roadmap 2025'};
+  document.getElementById('page-title').textContent=titles[view];
+  document.getElementById('board-view').style.display=view==='board'?'block':'none';
+  document.getElementById('list-view').style.display=view==='list'?'block':'none';
+  document.getElementById('roadmap-view').style.display=view==='roadmap'?'block':'none';
+  if(view==='roadmap')renderRoadmap();else filterCards();
+}
+function setNav(el,view){document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));el.classList.add('active');const btn=document.getElementById('btn-'+view);if(btn)switchView(view,btn);}
+function openModal(){document.getElementById('modal').classList.add('open');}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+function closeModalOutside(e){if(e.target===document.getElementById('modal'))closeModal();}
+function saveProject(){
+  const name=document.getElementById('f-name').value.trim();
+  if(!name){document.getElementById('f-name').focus();return;}
+  const area=document.getElementById('f-area').value;
+  const priority=document.getElementById('f-priority').value;
+  const owner=document.getElementById('f-owner').value;
+  const date=document.getElementById('f-date').value||'31/12/25';
+  const n=projects.length+1;
+  const id='TK-'+(n<10?'00':n<100?'0':'')+n;
+  projects.push({id,title:name,area,priority,status:'todo',owner,date,progress:0,start:1,span:1});
+  document.getElementById('s-total').textContent=projects.length;
+  closeModal();filterCards();
+  ['f-name','f-desc','f-date','f-criteria'].forEach(id=>document.getElementById(id).value='');
+}
+renderBoard(projects);
+</script>
+</body>
+</html>
