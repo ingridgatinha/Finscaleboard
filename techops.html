@@ -3,411 +3,1062 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TechOps — Controle de Demandas</title>
+<title>TechOps</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg-primary: #ffffff; --bg-secondary: #f5f5f4; --bg-tertiary: #f0efea;
-    --text-primary: #1a1a1a; --text-secondary: #6b6b6b; --text-tertiary: #a0a0a0;
-    --border: rgba(0,0,0,0.12); --border-md: rgba(0,0,0,0.2);
-    --success: #3B6D11; --success-bg: #eaf3de;
-    --warning: #854F0B; --warning-bg: #faeeda;
-    --danger: #A32D2D; --danger-bg: #fcebeb;
-    --info: #185FA5; --info-bg: #e6f1fb;
-    --radius: 8px; --radius-lg: 12px;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg-primary: #1c1c1e; --bg-secondary: #2c2c2e; --bg-tertiary: #141414;
-      --text-primary: #f0f0f0; --text-secondary: #a0a0a0; --text-tertiary: #666;
-      --border: rgba(255,255,255,0.1); --border-md: rgba(255,255,255,0.2);
-      --success-bg: #173404; --success: #97C459;
-      --warning-bg: #412402; --warning: #FAC775;
-      --danger-bg: #501313; --danger: #F09595;
-      --info-bg: #042C53; --info: #85B7EB;
-    }
-    .tag-blue { background: #042C53 !important; color: #85B7EB !important; }
-    .tag-green { background: #173404 !important; color: #97C459 !important; }
-    .tag-amber { background: #412402 !important; color: #FAC775 !important; }
-    .tag-red { background: #501313 !important; color: #F09595 !important; }
-    .tag-purple { background: #26215C !important; color: #AFA9EC !important; }
-    .tag-gray { background: #2c2c2e !important; color: #a0a0a0 !important; }
-    .rb-blue { background: #0C447C !important; color: #B5D4F4 !important; }
-    .rb-green { background: #27500A !important; color: #C0DD97 !important; }
-    .rb-amber { background: #633806 !important; color: #FAC775 !important; }
-    .rb-purple { background: #3C3489 !important; color: #CECBF6 !important; }
-    .rb-red { background: #791F1F !important; color: #F5C4B3 !important; }
-    .sp-doing { background: #042C53 !important; color: #85B7EB !important; }
-    .sp-review { background: #412402 !important; color: #FAC775 !important; }
-    .sp-done { background: #173404 !important; color: #97C459 !important; }
-  }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg-tertiary); color: var(--text-primary); }
-  .app { display: flex; height: 100vh; }
-  .sidebar { width: 220px; flex-shrink: 0; background: var(--bg-primary); border-right: 0.5px solid var(--border); display: flex; flex-direction: column; }
-  .sidebar-logo { padding: 18px 20px 14px; border-bottom: 0.5px solid var(--border); }
-  .logo-mark { display: flex; align-items: center; gap: 9px; }
-  .logo-icon { width: 28px; height: 28px; background: #1a1a2e; border-radius: 7px; display: flex; align-items: center; justify-content: center; }
-  .logo-icon i { color: #fff; font-size: 15px; }
-  .logo-text { font-size: 14px; font-weight: 500; color: var(--text-primary); }
-  .logo-sub { font-size: 10px; color: var(--text-tertiary); margin-top: 1px; }
-  .nav-section { padding: 14px 10px 6px; }
-  .nav-label { font-size: 10px; font-weight: 500; color: var(--text-tertiary); letter-spacing: 0.6px; text-transform: uppercase; padding: 0 8px; margin-bottom: 4px; }
-  .nav-item { display: flex; align-items: center; gap: 9px; padding: 7px 10px; border-radius: var(--radius); cursor: pointer; font-size: 13px; color: var(--text-secondary); transition: all 0.15s; user-select: none; }
-  .nav-item:hover { background: var(--bg-secondary); color: var(--text-primary); }
-  .nav-item.active { background: #1a1a2e; color: #fff; }
-  .nav-item i { font-size: 15px; width: 16px; text-align: center; }
-  .nav-badge { margin-left: auto; font-size: 10px; background: var(--danger-bg); color: var(--danger); padding: 1px 6px; border-radius: 10px; font-weight: 500; }
-  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-  .topbar { background: var(--bg-primary); border-bottom: 0.5px solid var(--border); padding: 0 24px; height: 52px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-  .topbar-title { font-size: 15px; font-weight: 500; color: var(--text-primary); flex: 1; }
-  .view-toggle { display: flex; border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-  .view-btn { padding: 5px 10px; font-size: 12px; cursor: pointer; background: transparent; border: none; color: var(--text-secondary); display: flex; align-items: center; gap: 5px; transition: all 0.15s; }
-  .view-btn.active { background: #1a1a2e; color: #fff; }
-  .view-btn i { font-size: 13px; }
-  .btn-new { display: flex; align-items: center; gap: 6px; padding: 6px 14px; background: #1a1a2e; color: #fff; border: none; border-radius: var(--radius); font-size: 12px; font-weight: 500; cursor: pointer; transition: opacity 0.15s; }
-  .btn-new:hover { opacity: 0.85; }
-  .search-box { display: flex; align-items: center; gap: 7px; background: var(--bg-secondary); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 5px 10px; }
-  .search-box input { border: none; background: transparent; font-size: 12px; color: var(--text-primary); outline: none; width: 140px; }
-  .search-box i { font-size: 13px; color: var(--text-tertiary); }
-  .content { flex: 1; overflow-y: auto; padding: 20px 24px; }
-  .filters-row { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
-  .filter-chip { display: flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; border: 0.5px solid var(--border-md); background: var(--bg-primary); font-size: 12px; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; user-select: none; }
-  .filter-chip:hover, .filter-chip.active { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
-  .filter-chip i { font-size: 12px; }
-  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 22px; }
-  .stat-card { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; }
-  .stat-label { font-size: 11px; color: var(--text-tertiary); margin-bottom: 6px; font-weight: 500; }
-  .stat-value { font-size: 22px; font-weight: 500; color: var(--text-primary); }
-  .stat-delta { font-size: 11px; margin-top: 3px; display: flex; align-items: center; gap: 3px; }
-  .delta-up { color: var(--success); } .delta-down { color: var(--danger); }
-  .kanban { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-  .kanban-col { background: var(--bg-secondary); border-radius: var(--radius-lg); border: 0.5px solid var(--border); padding: 12px; min-height: 400px; }
-  .col-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-  .col-title { font-size: 12px; font-weight: 500; color: var(--text-secondary); display: flex; align-items: center; gap: 7px; }
-  .col-dot { width: 8px; height: 8px; border-radius: 50%; }
-  .col-count { font-size: 11px; color: var(--text-tertiary); background: var(--bg-primary); border: 0.5px solid var(--border); padding: 1px 7px; border-radius: 10px; }
-  .card { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 12px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s; }
-  .card:hover { border-color: var(--border-md); transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
-  .card-title { font-size: 13px; font-weight: 500; color: var(--text-primary); line-height: 1.4; }
-  .card-id { font-size: 10px; color: var(--text-tertiary); font-family: monospace; white-space: nowrap; }
-  .card-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 9px; }
-  .tag { font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 500; }
-  .tag-blue { background: #e6f1fb; color: #185FA5; }
-  .tag-green { background: #eaf3de; color: #3B6D11; }
-  .tag-amber { background: #faeeda; color: #854F0B; }
-  .tag-red { background: #fcebeb; color: #A32D2D; }
-  .tag-purple { background: #EEEDFE; color: #3C3489; }
-  .tag-gray { background: var(--bg-secondary); color: var(--text-secondary); }
-  .card-footer { display: flex; align-items: center; justify-content: space-between; }
-  .card-meta { display: flex; align-items: center; gap: 8px; }
-  .priority-dot { width: 6px; height: 6px; border-radius: 50%; }
-  .p-high { background: #E24B4A; } .p-med { background: #EF9F27; } .p-low { background: #639922; }
-  .card-date { font-size: 10px; color: var(--text-tertiary); display: flex; align-items: center; gap: 3px; }
-  .card-date i { font-size: 11px; }
-  .avatars { display: flex; }
-  .avatar { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 500; border: 1.5px solid var(--bg-primary); margin-left: -5px; }
-  .avatar:first-child { margin-left: 0; }
-  .av-a { background: #B5D4F4; color: #0C447C; }
-  .av-b { background: #9FE1CB; color: #085041; }
-  .av-c { background: #F4C0D1; color: #72243E; }
-  .av-d { background: #FAC775; color: #633806; }
-  .av-e { background: #CECBF6; color: #3C3489; }
-  .progress-bar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 8px; overflow: hidden; }
-  .progress-fill { height: 100%; border-radius: 2px; }
-  .list-view, .roadmap-view { display: none; }
-  .list-table { width: 100%; border-collapse: collapse; background: var(--bg-primary); border-radius: var(--radius-lg); overflow: hidden; border: 0.5px solid var(--border); }
-  .list-table th { padding: 10px 14px; font-size: 11px; font-weight: 500; color: var(--text-tertiary); text-align: left; background: var(--bg-secondary); border-bottom: 0.5px solid var(--border); }
-  .list-table td { padding: 10px 14px; font-size: 12px; color: var(--text-primary); border-bottom: 0.5px solid var(--border); vertical-align: middle; }
-  .list-table tr:last-child td { border-bottom: none; }
-  .list-table tr:hover td { background: var(--bg-secondary); }
-  .status-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 20px; font-size: 10px; font-weight: 500; }
-  .sp-todo { background: var(--bg-secondary); color: var(--text-secondary); }
-  .sp-doing { background: #e6f1fb; color: #185FA5; }
-  .sp-review { background: #FAEEDA; color: #854F0B; }
-  .sp-done { background: #EAF3DE; color: #3B6D11; }
-  .sp-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
-  .section-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-  .section-title i { font-size: 15px; color: var(--text-secondary); }
-  .roadmap-timeline { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
-  .roadmap-header { display: grid; grid-template-columns: 200px repeat(6, 1fr); border-bottom: 0.5px solid var(--border); }
-  .rh-cell { padding: 10px 14px; font-size: 11px; font-weight: 500; color: var(--text-tertiary); text-align: center; border-right: 0.5px solid var(--border); }
-  .rh-cell:last-child { border-right: none; }
-  .rh-cell:first-child { text-align: left; }
-  .roadmap-row { display: grid; grid-template-columns: 200px repeat(6, 1fr); border-bottom: 0.5px solid var(--border); align-items: center; min-height: 52px; }
-  .roadmap-row:last-child { border-bottom: none; }
-  .roadmap-row:hover { background: var(--bg-secondary); }
-  .rr-name { padding: 10px 14px; font-size: 12px; color: var(--text-primary); font-weight: 500; border-right: 0.5px solid var(--border); }
-  .rr-name span { font-size: 10px; color: var(--text-tertiary); display: block; margin-top: 1px; font-weight: 400; }
-  .rr-cell { padding: 10px 6px; border-right: 0.5px solid var(--border); height: 100%; }
-  .rr-cell:last-child { border-right: none; }
-  .roadmap-bar { height: 20px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; }
-  .rb-blue { background: #B5D4F4; color: #185FA5; }
-  .rb-green { background: #C0DD97; color: #3B6D11; }
-  .rb-amber { background: #FAC775; color: #633806; }
-  .rb-purple { background: #CECBF6; color: #3C3489; }
-  .rb-red { background: #F5C4B3; color: #993C1D; }
-  .sidebar-bottom { margin-top: auto; padding: 14px 10px; }
-  .user-card { display: flex; align-items: center; gap: 9px; padding: 10px; background: var(--bg-secondary); border-radius: var(--radius); border: 0.5px solid var(--border); }
-  .user-info { flex: 1; }
-  .user-name { font-size: 12px; font-weight: 500; color: var(--text-primary); }
-  .user-role { font-size: 10px; color: var(--text-tertiary); }
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; align-items: flex-start; justify-content: center; padding-top: 40px; }
-  .modal-overlay.open { display: flex; }
-  .modal { background: var(--bg-primary); border-radius: var(--radius-lg); border: 0.5px solid var(--border-md); width: 540px; max-height: 80vh; overflow-y: auto; }
-  .modal-header { padding: 18px 20px 14px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-  .modal-title { font-size: 15px; font-weight: 500; color: var(--text-primary); }
-  .modal-close { cursor: pointer; color: var(--text-tertiary); font-size: 18px; background: none; border: none; padding: 2px 6px; border-radius: var(--radius); }
-  .modal-close:hover { background: var(--bg-secondary); color: var(--text-primary); }
-  .modal-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
-  .field-label { font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-bottom: 5px; }
-  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  select, input[type=text], textarea { width: 100%; padding: 7px 10px; border: 0.5px solid var(--border-md); border-radius: var(--radius); font-size: 13px; background: var(--bg-primary); color: var(--text-primary); outline: none; font-family: inherit; }
-  select:focus, input[type=text]:focus, textarea:focus { border-color: #1a1a2e; }
-  textarea { resize: vertical; min-height: 80px; }
-  .modal-footer { padding: 12px 20px; border-top: 0.5px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
-  .btn-cancel { padding: 7px 16px; border: 0.5px solid var(--border-md); background: transparent; border-radius: var(--radius); font-size: 13px; color: var(--text-secondary); cursor: pointer; }
-  .btn-cancel:hover { background: var(--bg-secondary); }
-  .btn-save { padding: 7px 16px; background: #1a1a2e; border: none; border-radius: var(--radius); font-size: 13px; color: #fff; cursor: pointer; font-weight: 500; }
-  .btn-save:hover { opacity: 0.85; }
-  @media (max-width: 900px) {
-    .sidebar { width: 52px; }
-    .sidebar .logo-text, .sidebar .logo-sub, .sidebar .nav-label, .nav-item span:not(.nav-badge), .sidebar-bottom .user-info, .sidebar-bottom .ti-dots { display: none; }
-    .nav-item { justify-content: center; padding: 10px; }
-    .stats-row { grid-template-columns: repeat(2,1fr); }
-    .kanban { grid-template-columns: repeat(2,1fr); }
-  }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#fff;--bg2:#f5f5f4;--bg3:#f0efea;--t1:#1a1a1a;--t2:#6b6b6b;--t3:#a0a0a0;
+  --b:rgba(0,0,0,.12);--bm:rgba(0,0,0,.2);
+  --ok:#3B6D11;--ok-bg:#eaf3de;--warn:#854F0B;--warn-bg:#faeeda;
+  --err:#A32D2D;--err-bg:#fcebeb;--info:#185FA5;--info-bg:#e6f1fb;
+  --r:8px;--rl:12px;--acc:#1a1a2e;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1c1c1e;--bg2:#2c2c2e;--bg3:#141414;--t1:#f0f0f0;--t2:#a0a0a0;--t3:#666;
+  --b:rgba(255,255,255,.1);--bm:rgba(255,255,255,.2);
+  --ok:#97C459;--ok-bg:#173404;--warn:#FAC775;--warn-bg:#412402;
+  --err:#F09595;--err-bg:#501313;--info:#85B7EB;--info-bg:#042C53;
+}}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);color:var(--t1);}
+.app{display:flex;height:100vh;}
+/* SIDEBAR */
+.sidebar{width:220px;flex-shrink:0;background:var(--bg);border-right:.5px solid var(--b);display:flex;flex-direction:column;}
+.s-logo{padding:18px 20px 14px;border-bottom:.5px solid var(--b);}
+.logo-mark{display:flex;align-items:center;gap:9px;}
+.logo-icon{width:28px;height:28px;background:var(--acc);border-radius:7px;display:flex;align-items:center;justify-content:center;}
+.logo-icon i{color:#fff;font-size:15px;}
+.logo-text{font-size:14px;font-weight:500;color:var(--t1);}
+.logo-sub{font-size:10px;color:var(--t3);margin-top:1px;}
+.nav-sec{padding:14px 10px 6px;}
+.nav-lbl{font-size:10px;font-weight:500;color:var(--t3);letter-spacing:.6px;text-transform:uppercase;padding:0 8px;margin-bottom:4px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:var(--r);cursor:pointer;font-size:13px;color:var(--t2);transition:all .15s;user-select:none;}
+.nav-item:hover{background:var(--bg2);color:var(--t1);}
+.nav-item.active{background:var(--acc);color:#fff;}
+.nav-item i{font-size:15px;width:16px;text-align:center;}
+.nbadge{margin-left:auto;font-size:10px;background:var(--err-bg);color:var(--err);padding:1px 6px;border-radius:10px;font-weight:500;}
+.s-bottom{margin-top:auto;padding:14px 10px;}
+.user-card{display:flex;align-items:center;gap:9px;padding:10px;background:var(--bg2);border-radius:var(--r);border:.5px solid var(--b);}
+/* TOPBAR */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{background:var(--bg);border-bottom:.5px solid var(--b);padding:0 24px;height:52px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.topbar-title{font-size:15px;font-weight:500;color:var(--t1);flex:1;}
+.view-toggle{display:flex;border:.5px solid var(--b);border-radius:var(--r);overflow:hidden;}
+.vbtn{padding:5px 10px;font-size:12px;cursor:pointer;background:transparent;border:none;color:var(--t2);display:flex;align-items:center;gap:5px;transition:all .15s;}
+.vbtn.active,.vbtn:hover{background:var(--acc);color:#fff;}
+.vbtn i{font-size:13px;}
+.btn-new{display:flex;align-items:center;gap:6px;padding:6px 14px;background:var(--acc);color:#fff;border:none;border-radius:var(--r);font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;}
+.btn-new:hover{opacity:.85;}
+.sbox{display:flex;align-items:center;gap:7px;background:var(--bg2);border:.5px solid var(--b);border-radius:var(--r);padding:5px 10px;}
+.sbox input{border:none;background:transparent;font-size:12px;color:var(--t1);outline:none;width:140px;}
+.sbox i{font-size:13px;color:var(--t3);}
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:20px 24px;}
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px;}
+.stat-card{background:var(--bg);border:.5px solid var(--b);border-radius:var(--rl);padding:14px 16px;}
+.stat-lbl{font-size:11px;color:var(--t3);margin-bottom:6px;font-weight:500;}
+.stat-val{font-size:22px;font-weight:500;color:var(--t1);}
+.stat-d{font-size:11px;margin-top:3px;display:flex;align-items:center;gap:3px;}
+.d-up{color:var(--ok);}.d-dn{color:var(--err);}
+/* FILTERS */
+.frow{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
+.chip{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;border:.5px solid var(--bm);background:var(--bg);font-size:12px;color:var(--t2);cursor:pointer;transition:all .15s;user-select:none;}
+.chip:hover,.chip.active{background:var(--acc);color:#fff;border-color:var(--acc);}
+.chip i{font-size:12px;}
+/* KANBAN */
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:start;}
+.kcol{background:var(--bg2);border-radius:var(--rl);border:.5px solid var(--b);padding:12px;min-height:400px;transition:background .15s;}
+.kcol.drag-over{background:var(--info-bg);border-color:var(--info);}
+.col-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.col-ttl{font-size:12px;font-weight:500;color:var(--t2);display:flex;align-items:center;gap:7px;}
+.cdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.ccnt{font-size:11px;color:var(--t3);background:var(--bg);border:.5px solid var(--b);padding:1px 7px;border-radius:10px;}
+/* CARD */
+.card{background:var(--bg);border:.5px solid var(--b);border-radius:var(--rl);padding:12px;margin-bottom:8px;cursor:grab;transition:all .15s;}
+.card:hover{border-color:var(--bm);box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.card.dragging{opacity:.4;cursor:grabbing;}
+.card.overdue{border-left:3px solid var(--err);}
+.card.due-soon{border-left:3px solid var(--warn);}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;}
+.card-title{font-size:13px;font-weight:500;color:var(--t1);line-height:1.4;flex:1;}
+.card-id{font-size:10px;color:var(--t3);font-family:monospace;white-space:nowrap;}
+.card-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px;}
+.tag{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:500;}
+.tag-blue{background:#e6f1fb;color:#185FA5;}.tag-purple{background:#EEEDFE;color:#3C3489;}
+.tag-teal{background:#E1F5EE;color:#0F6E56;}.tag-red{background:#fcebeb;color:#A32D2D;}
+.tag-amber{background:#faeeda;color:#854F0B;}.tag-gray{background:var(--bg2);color:var(--t2);}
+.card-footer{display:flex;align-items:center;justify-content:space-between;}
+.card-meta{display:flex;align-items:center;gap:8px;}
+.pdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.p-high{background:#E24B4A;}.p-med{background:#EF9F27;}.p-low{background:#639922;}
+.card-date{font-size:10px;color:var(--t3);display:flex;align-items:center;gap:3px;}
+.card-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s;}
+.card:hover .card-actions{opacity:1;}
+.cbtn{background:none;border:none;cursor:pointer;padding:3px 5px;border-radius:5px;color:var(--t3);font-size:13px;}
+.cbtn:hover{background:var(--bg2);color:var(--t1);}
+.cbtn.del:hover{background:var(--err-bg);color:var(--err);}
+.avatar{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:500;border:1.5px solid var(--bg);}
+.av-a{background:#B5D4F4;color:#0C447C;}.av-b{background:#9FE1CB;color:#085041;}
+.av-c{background:#F4C0D1;color:#72243E;}.av-d{background:#FAC775;color:#633806;}.av-e{background:#CECBF6;color:#3C3489;}
+.pbar{height:3px;background:var(--b);border-radius:2px;margin-top:8px;overflow:hidden;}
+.pfill{height:100%;border-radius:2px;}
+.epic-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;padding:2px 6px;border-radius:4px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;}
+.ep-conta{background:#e6f1fb;color:#185FA5;}.ep-cartao{background:#EEEDFE;color:#3C3489;}
+.ep-pix{background:#eaf3de;color:#3B6D11;}.ep-credito{background:#faeeda;color:#854F0B;}
+.proj-tag{display:inline-flex;align-items:center;gap:4px;font-size:9px;padding:2px 7px;border-radius:4px;font-weight:600;background:var(--acc);color:#fff;}
+/* ALERT BADGES */
+.alert-badge{display:inline-flex;align-items:center;gap:3px;font-size:9px;padding:2px 6px;border-radius:4px;font-weight:600;}
+.ab-overdue{background:var(--err-bg);color:var(--err);}
+.ab-soon{background:var(--warn-bg);color:var(--warn);}
+/* SPRINT BADGE */
+.sprint-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;padding:2px 7px;border-radius:4px;font-weight:600;background:#e6f1fb;color:#185FA5;border:.5px solid #B5D4F4;}
+/* PROJECTS VIEW */
+.projects-view{display:none;}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.pcard{background:var(--bg);border:.5px solid var(--b);border-radius:var(--rl);padding:18px;transition:all .15s;cursor:pointer;}
+.pcard:hover{border-color:var(--bm);box-shadow:0 3px 10px rgba(0,0,0,.07);transform:translateY(-1px);}
+.pcard-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
+.pcard-name{font-size:15px;font-weight:500;color:var(--t1);}
+.pcard-meta{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+.pmeta-row{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--t2);}
+.pmeta-row i{font-size:13px;color:var(--t3);width:14px;flex-shrink:0;}
+.pcard-scope{font-size:11px;color:var(--t3);line-height:1.5;margin-bottom:14px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.pcard-foot{display:flex;align-items:center;justify-content:space-between;border-top:.5px solid var(--b);padding-top:12px;}
+.pstats{display:flex;gap:16px;}
+.pstat{text-align:center;}
+.pstat-v{font-size:18px;font-weight:500;color:var(--t1);}
+.pstat-l{font-size:10px;color:var(--t3);}
+.pbtn{background:none;border:.5px solid var(--b);cursor:pointer;padding:5px 8px;border-radius:var(--r);color:var(--t3);font-size:13px;transition:all .15s;}
+.pbtn:hover{background:var(--bg2);color:var(--t1);}
+.pbtn.del:hover{background:var(--err-bg);color:var(--err);border-color:var(--err);}
+.psdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;}
+.ps-ativo{background:#639922;}.ps-pausado{background:#EF9F27;}.ps-concluido{background:#378ADD;}
+/* HEALTH INDICATOR */
+.health-bar{display:flex;align-items:center;gap:8px;margin-top:8px;}
+.hb-track{flex:1;height:6px;background:var(--b);border-radius:3px;overflow:hidden;}
+.hb-fill{height:100%;border-radius:3px;transition:width .3s;}
+.health-label{font-size:10px;font-weight:600;min-width:50px;text-align:right;}
+/* LIST VIEW */
+.list-view{display:none;}
+.ltable{width:100%;border-collapse:collapse;background:var(--bg);border-radius:var(--rl);overflow:hidden;border:.5px solid var(--b);}
+.ltable th{padding:10px 14px;font-size:11px;font-weight:500;color:var(--t3);text-align:left;background:var(--bg2);border-bottom:.5px solid var(--b);}
+.ltable td{padding:10px 14px;font-size:12px;color:var(--t1);border-bottom:.5px solid var(--b);vertical-align:middle;}
+.ltable tr:last-child td{border-bottom:none;}
+.ltable tr:hover td{background:var(--bg2);}
+.spill{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:500;}
+.sp-todo{background:var(--bg2);color:var(--t2);}.sp-doing{background:#e6f1fb;color:#185FA5;}
+.sp-testing{background:#FAEEDA;color:#854F0B;}.sp-done{background:#EAF3DE;color:#3B6D11;}
+.sp-dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+/* ROADMAP */
+.roadmap-view{display:none;}
+.sec-ttl{font-size:13px;font-weight:500;color:var(--t1);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.rm-wrap{background:var(--bg);border:.5px solid var(--b);border-radius:var(--rl);overflow:hidden;}
+.rm-hdr{display:grid;grid-template-columns:220px repeat(6,1fr);border-bottom:.5px solid var(--b);}
+.rh{padding:10px 14px;font-size:11px;font-weight:500;color:var(--t3);text-align:center;border-right:.5px solid var(--b);}
+.rh:last-child{border-right:none;}.rh:first-child{text-align:left;}
+.rm-row{display:grid;grid-template-columns:220px repeat(6,1fr);border-bottom:.5px solid var(--b);align-items:center;min-height:50px;}
+.rm-row:last-child{border-bottom:none;}.rm-row:hover{background:var(--bg2);}
+.rr-name{padding:10px 14px;font-size:12px;color:var(--t1);font-weight:500;border-right:.5px solid var(--b);}
+.rr-name span{font-size:10px;color:var(--t3);display:block;margin-top:1px;font-weight:400;}
+.rr-cell{padding:6px;border-right:.5px solid var(--b);height:100%;display:flex;align-items:center;}
+.rr-cell:last-child{border-right:none;}
+.rm-bar{height:22px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;width:100%;}
+.rb-blue{background:#B5D4F4;color:#185FA5;}.rb-green{background:#C0DD97;color:#3B6D11;}
+.rb-amber{background:#FAC775;color:#633806;}.rb-purple{background:#CECBF6;color:#3C3489;}
+/* SPRINTS VIEW */
+.sprints-view{display:none;}
+.sprint-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.sprint-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+.sprint-card{background:var(--bg);border:.5px solid var(--b);border-radius:var(--rl);overflow:hidden;}
+.sprint-card.active-sprint{border-color:var(--info);border-width:1.5px;}
+.sprint-card-hdr{padding:14px 16px;border-bottom:.5px solid var(--b);display:flex;align-items:center;justify-content:space-between;}
+.sprint-name{font-size:13px;font-weight:500;color:var(--t1);}
+.sprint-dates{font-size:11px;color:var(--t3);}
+.sprint-body{padding:14px 16px;}
+.sprint-progress{margin-bottom:12px;}
+.sprint-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+.sprint-stat{text-align:center;background:var(--bg2);border-radius:var(--r);padding:8px;}
+.sprint-stat-v{font-size:16px;font-weight:500;color:var(--t1);}
+.sprint-stat-l{font-size:10px;color:var(--t3);}
+.sprint-cards-list{max-height:180px;overflow-y:auto;border:.5px solid var(--b);border-radius:var(--r);}
+.sprint-card-row{display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:.5px solid var(--b);font-size:12px;}
+.sprint-card-row:last-child{border-bottom:none;}
+.sprint-card-row:hover{background:var(--bg2);}
+.sprint-actions{display:flex;gap:6px;}
+/* DASHBOARD */
+.dash-view{display:none;}
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.dash-card{background:var(--bg);border:.5px solid var(--b);border-radius:var(--rl);padding:16px;}
+.dash-num{font-size:28px;font-weight:500;color:var(--t1);margin:4px 0;}
+.dash-lbl{font-size:11px;color:var(--t3);font-weight:500;}
+.dash-sub{font-size:11px;color:var(--t2);margin-top:4px;}
+.dash-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+.dash-section{background:var(--bg);border:.5px solid var(--b);border-radius:var(--rl);padding:16px;}
+.dash-section-title{font-size:12px;font-weight:500;color:var(--t2);margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+.bar-chart{display:flex;flex-direction:column;gap:8px;}
+.bar-row{display:flex;align-items:center;gap:10px;}
+.bar-label{font-size:11px;color:var(--t2);min-width:80px;}
+.bar-track{flex:1;height:8px;background:var(--b);border-radius:4px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;}
+.bar-val{font-size:11px;color:var(--t3);min-width:24px;text-align:right;}
+.donut-wrap{display:flex;gap:16px;align-items:center;}
+.donut-legend{display:flex;flex-direction:column;gap:6px;}
+.donut-leg-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--t2);}
+.donut-leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.throughput-bars{display:flex;align-items:flex-end;gap:6px;height:80px;}
+.tp-bar-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
+.tp-bar{width:100%;border-radius:3px 3px 0 0;background:var(--info-bg);min-height:4px;transition:height .3s;}
+.tp-lbl{font-size:9px;color:var(--t3);}
+.overdue-list{display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto;}
+.overdue-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--err-bg);border-radius:var(--r);font-size:12px;}
+.overdue-item i{color:var(--err);font-size:14px;flex-shrink:0;}
+/* MODALS */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:flex-start;justify-content:center;padding-top:40px;overflow-y:auto;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg);border-radius:var(--rl);border:.5px solid var(--bm);width:560px;margin-bottom:40px;}
+.modal-wide{width:660px;}
+.modal-hdr{padding:18px 20px 14px;border-bottom:.5px solid var(--b);display:flex;align-items:center;justify-content:space-between;}
+.modal-ttl{font-size:15px;font-weight:500;color:var(--t1);}
+.modal-x{cursor:pointer;color:var(--t3);font-size:18px;background:none;border:none;padding:2px 6px;border-radius:var(--r);}
+.modal-x:hover{background:var(--bg2);}
+.modal-body{padding:18px 20px;display:flex;flex-direction:column;gap:14px;}
+.flbl{font-size:12px;font-weight:500;color:var(--t2);margin-bottom:5px;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+select,input[type=text],input[type=date],input[type=email],input[type=tel],input[type=number],textarea{width:100%;padding:7px 10px;border:.5px solid var(--bm);border-radius:var(--r);font-size:13px;background:var(--bg);color:var(--t1);outline:none;font-family:inherit;}
+select:focus,input:focus,textarea:focus{border-color:var(--acc);}
+textarea{resize:vertical;min-height:80px;}
+.modal-foot{padding:12px 20px;border-top:.5px solid var(--b);display:flex;gap:10px;justify-content:flex-end;}
+.btn-cancel{padding:7px 16px;border:.5px solid var(--bm);background:transparent;border-radius:var(--r);font-size:13px;color:var(--t2);cursor:pointer;}
+.btn-cancel:hover{background:var(--bg2);}
+.btn-save{padding:7px 16px;background:var(--acc);border:none;border-radius:var(--r);font-size:13px;color:#fff;cursor:pointer;font-weight:500;}
+.btn-save:hover{opacity:.85;}
+.btn-danger{padding:7px 20px;background:#E24B4A;border:none;border-radius:var(--r);font-size:13px;color:#fff;cursor:pointer;font-weight:500;}
+/* DETAIL */
+.det-sec{border-top:.5px solid var(--b);padding-top:14px;margin-top:2px;}
+.det-row{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start;}
+.det-key{font-size:11px;color:var(--t3);min-width:120px;padding-top:2px;}
+.det-val{font-size:12px;color:var(--t1);flex:1;}
+.time-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;background:var(--warn-bg);color:var(--warn);padding:2px 8px;border-radius:20px;font-weight:500;}
+/* COMMENTS */
+.comments-section{border-top:.5px solid var(--b);padding-top:14px;margin-top:2px;}
+.comments-title{font-size:12px;font-weight:500;color:var(--t2);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.comment-list{display:flex;flex-direction:column;gap:8px;max-height:200px;overflow-y:auto;margin-bottom:10px;}
+.comment-item{background:var(--bg2);border-radius:var(--r);padding:10px 12px;}
+.comment-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.comment-author{font-size:11px;font-weight:500;color:var(--t1);}
+.comment-time{font-size:10px;color:var(--t3);}
+.comment-text{font-size:12px;color:var(--t2);line-height:1.5;}
+.comment-del{background:none;border:none;cursor:pointer;color:var(--t3);font-size:12px;padding:2px 4px;border-radius:4px;}
+.comment-del:hover{color:var(--err);background:var(--err-bg);}
+.comment-input-row{display:flex;gap:8px;}
+.comment-input-row textarea{min-height:36px;font-size:12px;padding:6px 9px;}
+.comment-input-row button{padding:6px 12px;background:var(--acc);color:#fff;border:none;border-radius:var(--r);font-size:12px;cursor:pointer;flex-shrink:0;}
+/* LINKED CARDS */
+.linked-list{max-height:200px;overflow-y:auto;border:.5px solid var(--b);border-radius:var(--r);}
+.linked-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:.5px solid var(--b);font-size:12px;}
+.linked-row:last-child{border-bottom:none;}
+.linked-row:hover{background:var(--bg2);}
+/* CONFIRM */
+.confirm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;align-items:center;justify-content:center;}
+.confirm-overlay.open{display:flex;}
+.confirm-box{background:var(--bg);border-radius:var(--rl);border:.5px solid var(--bm);width:360px;padding:24px;text-align:center;}
+.confirm-box p{font-size:14px;color:var(--t1);margin-bottom:6px;font-weight:500;}
+.confirm-box small{font-size:12px;color:var(--t2);}
+.confirm-btns{display:flex;gap:10px;justify-content:center;margin-top:18px;}
+/* PROJ DETAIL STATS */
+.pd-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px;}
+.pd-stat{background:var(--bg2);border-radius:var(--r);padding:10px 14px;text-align:center;}
+.pd-stat-v{font-size:20px;font-weight:500;color:var(--t1);}
+.pd-stat-l{font-size:10px;color:var(--t3);margin-top:2px;}
 </style>
 </head>
 <body>
 <div class="app">
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-mark">
-        <div class="logo-icon"><i class="ti ti-command"></i></div>
+<aside class="sidebar">
+  <div class="s-logo">
+    <div class="logo-mark">
+      <div class="logo-icon"><i class="ti ti-command"></i></div>
+      <div><div class="logo-text">TechOps</div><div class="logo-sub">Controle de Demandas</div></div>
+    </div>
+  </div>
+  <div class="nav-sec">
+    <div class="nav-lbl">Principal</div>
+    <div class="nav-item active" onclick="setNav(this,'board')"><i class="ti ti-layout-kanban"></i> Board Kanban</div>
+    <div class="nav-item" onclick="setNav(this,'projects')"><i class="ti ti-folder"></i> Projetos</div>
+    <div class="nav-item" onclick="setNav(this,'sprints')"><i class="ti ti-run"></i> Sprints</div>
+    <div class="nav-item" onclick="setNav(this,'dashboard')"><i class="ti ti-chart-bar"></i> Dashboard</div>
+    <div class="nav-item" onclick="setNav(this,'list')"><i class="ti ti-list"></i> Lista de Cards</div>
+    <div class="nav-item" onclick="setNav(this,'roadmap')"><i class="ti ti-road"></i> Roadmap</div>
+  </div>
+  <div class="nav-sec">
+    <div class="nav-lbl">Equipe</div>
+    <div class="nav-item"><i class="ti ti-users"></i> Membros</div>
+    <div class="nav-item"><i class="ti ti-settings"></i> Configuracoes</div>
+  </div>
+  <div class="s-bottom">
+    <div class="user-card">
+      <div class="avatar av-a" style="width:28px;height:28px;font-size:10px;border:none;flex-shrink:0;">VC</div>
+      <div style="flex:1;"><div style="font-size:12px;font-weight:500;color:var(--t1);">Voce</div><div style="font-size:10px;color:var(--t3);">Admin</div></div>
+      <i class="ti ti-dots" style="font-size:14px;color:var(--t3);cursor:pointer;"></i>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <span class="topbar-title" id="page-title">Board de Demandas</span>
+    <div class="sbox"><i class="ti ti-search"></i><input type="text" placeholder="Buscar..." id="search-input" oninput="onSearch()"></div>
+    <div class="view-toggle" id="view-toggle-board">
+      <button class="vbtn active" onclick="switchView('board',this)" id="btn-board"><i class="ti ti-layout-kanban"></i> Board</button>
+      <button class="vbtn" onclick="switchView('list',this)" id="btn-list"><i class="ti ti-list"></i> Cards</button>
+      <button class="vbtn" onclick="switchView('roadmap',this)" id="btn-road"><i class="ti ti-road"></i> Roadmap</button>
+    </div>
+    <button class="btn-new" onclick="handleNewBtn()"><i class="ti ti-plus"></i> <span id="btn-new-label">Novo Card</span></button>
+  </div>
+
+  <div class="content">
+
+    <!-- BOARD -->
+    <div id="board-view">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-lbl">Total de Cards</div><div class="stat-val" id="s-total">0</div><div class="stat-d d-up"><i class="ti ti-layers"></i> todos os cards</div></div>
+        <div class="stat-card"><div class="stat-lbl">Em Desenvolvimento</div><div class="stat-val" id="s-doing">0</div><div class="stat-d d-up"><i class="ti ti-activity"></i> em andamento</div></div>
+        <div class="stat-card"><div class="stat-lbl">Concluidos</div><div class="stat-val" id="s-done">0</div><div class="stat-d d-up"><i class="ti ti-circle-check"></i> finalizados</div></div>
+        <div class="stat-card"><div class="stat-lbl">Alta Prioridade</div><div class="stat-val" id="s-high">0</div><div class="stat-d d-dn"><i class="ti ti-alert-triangle"></i> requer atencao</div></div>
+      </div>
+      <div class="frow" id="board-filters">
+        <div class="chip active" onclick="filterBy('all',this)"><i class="ti ti-app-window"></i> Todos</div>
+        <div class="chip" onclick="filterBy('backend',this)"><i class="ti ti-server"></i> Backend</div>
+        <div class="chip" onclick="filterBy('frontend',this)"><i class="ti ti-browser"></i> Frontend</div>
+        <div class="chip" onclick="filterBy('design',this)"><i class="ti ti-palette"></i> Design</div>
+      </div>
+      <div class="kanban">
+        <div class="kcol" ondragover="onDragOver(event)" ondrop="onDrop(event,'todo')" ondragleave="onDragLeave(event)">
+          <div class="col-hdr"><span class="col-ttl"><span class="cdot" style="background:#B4B2A9"></span> Backlog</span><span class="ccnt" id="cnt-todo">0</span></div>
+          <div id="cards-todo"></div>
+        </div>
+        <div class="kcol" ondragover="onDragOver(event)" ondrop="onDrop(event,'doing')" ondragleave="onDragLeave(event)">
+          <div class="col-hdr"><span class="col-ttl"><span class="cdot" style="background:#378ADD"></span> Em Desenvolvimento</span><span class="ccnt" id="cnt-doing">0</span></div>
+          <div id="cards-doing"></div>
+        </div>
+        <div class="kcol" ondragover="onDragOver(event)" ondrop="onDrop(event,'testing')" ondragleave="onDragLeave(event)">
+          <div class="col-hdr"><span class="col-ttl"><span class="cdot" style="background:#EF9F27"></span> Em Testes</span><span class="ccnt" id="cnt-testing">0</span></div>
+          <div id="cards-testing"></div>
+        </div>
+        <div class="kcol" ondragover="onDragOver(event)" ondrop="onDrop(event,'done')" ondragleave="onDragLeave(event)">
+          <div class="col-hdr"><span class="col-ttl"><span class="cdot" style="background:#639922"></span> Concluido</span><span class="ccnt" id="cnt-done">0</span></div>
+          <div id="cards-done"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROJETOS -->
+    <div id="projects-view" class="projects-view">
+      <div style="margin-bottom:20px;">
+        <div style="font-size:15px;font-weight:500;color:var(--t1);margin-bottom:3px;">Projetos de Desenvolvimento</div>
+        <div style="font-size:12px;color:var(--t3);">Cada projeto agrupa os cards do Kanban e define o escopo entregue ao time dev.</div>
+      </div>
+      <div class="pgrid" id="projects-grid"></div>
+      <div id="projects-empty" style="display:none;text-align:center;padding:60px 0;color:var(--t3);">
+        <i class="ti ti-folder-off" style="font-size:36px;display:block;margin-bottom:10px;"></i>
+        <div style="font-size:13px;">Nenhum projeto cadastrado ainda.</div>
+      </div>
+    </div>
+
+    <!-- SPRINTS -->
+    <div id="sprints-view" class="sprints-view">
+      <div class="sprint-header-row">
         <div>
-          <div class="logo-text">TechOps</div>
-          <div class="logo-sub">Teste</div>
+          <div style="font-size:15px;font-weight:500;color:var(--t1);margin-bottom:3px;">Controle de Sprints</div>
+          <div style="font-size:12px;color:var(--t3);">Sprints semanais agrupando os cards do Kanban.</div>
         </div>
       </div>
-    </div>
-    <div class="nav-section">
-      <div class="nav-label">Principal</div>
-      <div class="nav-item active" onclick="setNav(this,'board')"><i class="ti ti-layout-kanban"></i> <span>Board Kanban</span></div>
-      <div class="nav-item" onclick="setNav(this,'list')"><i class="ti ti-list"></i> <span>Lista de Projetos</span></div>
-      <div class="nav-item" onclick="setNav(this,'roadmap')"><i class="ti ti-road"></i> <span>Roadmap</span></div>
-      <div class="nav-item" onclick=""><i class="ti ti-chart-bar"></i> <span>Métricas <span class="nav-badge">em breve</span></span></div>
-    </div>
-    <div class="nav-section">
-      <div class="nav-label">Equipe</div>
-      <div class="nav-item"><i class="ti ti-users"></i> <span>Membros</span></div>
-      <div class="nav-item"><i class="ti ti-bell"></i> <span>Notificações</span></div>
-      <div class="nav-item"><i class="ti ti-settings"></i> <span>Configurações</span></div>
-    </div>
-    <div class="sidebar-bottom">
-      <div class="user-card">
-        <div class="avatar av-a" style="width:28px;height:28px;font-size:10px;border:none;flex-shrink:0;">VC</div>
-        <div class="user-info">
-          <div class="user-name">Você</div>
-          <div class="user-role">Admin</div>
-        </div>
-        <i class="ti ti-dots" style="font-size:14px;color:var(--text-tertiary);cursor:pointer;"></i>
+      <div class="sprint-grid" id="sprints-grid"></div>
+      <div id="sprints-empty" style="display:none;text-align:center;padding:60px 0;color:var(--t3);">
+        <i class="ti ti-run" style="font-size:36px;display:block;margin-bottom:10px;"></i>
+        <div style="font-size:13px;">Nenhum sprint cadastrado. Clique em Novo Sprint.</div>
       </div>
-    </div>
-  </aside>
-
-  <main class="main">
-    <div class="topbar">
-      <span class="topbar-title" id="page-title">Board de Demandas</span>
-      <div class="search-box">
-        <i class="ti ti-search"></i>
-        <input type="text" placeholder="Buscar projetos..." id="search-input" oninput="filterCards()">
-      </div>
-      <div class="view-toggle">
-        <button class="view-btn active" onclick="switchView('board',this)" id="btn-board"><i class="ti ti-layout-kanban"></i> Board</button>
-        <button class="view-btn" onclick="switchView('list',this)" id="btn-list"><i class="ti ti-list"></i> Lista</button>
-        <button class="view-btn" onclick="switchView('roadmap',this)" id="btn-road"><i class="ti ti-road"></i> Roadmap</button>
-      </div>
-      <button class="btn-new" onclick="openModal()"><i class="ti ti-plus"></i> Novo Projeto</button>
     </div>
 
-    <div class="content">
-      <div id="board-view">
-        <div class="stats-row">
-          <div class="stat-card"><div class="stat-label">Total de Projetos</div><div class="stat-value" id="s-total">12</div><div class="stat-delta delta-up"><i class="ti ti-trending-up"></i> 3 novos este mês</div></div>
-          <div class="stat-card"><div class="stat-label">Em Desenvolvimento</div><div class="stat-value" id="s-doing">5</div><div class="stat-delta delta-up"><i class="ti ti-activity"></i> 2 com prazo próximo</div></div>
-          <div class="stat-card"><div class="stat-label">Concluídos</div><div class="stat-value" id="s-done">3</div><div class="stat-delta delta-up"><i class="ti ti-check"></i> +1 essa semana</div></div>
-          <div class="stat-card"><div class="stat-label">Alta Prioridade</div><div class="stat-value" id="s-high">4</div><div class="stat-delta delta-down"><i class="ti ti-alert-triangle"></i> Requer atenção</div></div>
+    <!-- DASHBOARD -->
+    <div id="dashboard-view" class="dash-view">
+      <div style="font-size:15px;font-weight:500;color:var(--t1);margin-bottom:18px;">Dashboard de Metricas</div>
+      <div class="dash-grid" id="dash-kpis"></div>
+      <div class="dash-row">
+        <div class="dash-section">
+          <div class="dash-section-title"><i class="ti ti-chart-bar"></i> Cards por Status</div>
+          <div class="bar-chart" id="dash-status-chart"></div>
         </div>
-        <div class="filters-row">
-          <div class="filter-chip active" onclick="filterBy('all',this)"><i class="ti ti-app-window"></i> Todos</div>
-          <div class="filter-chip" onclick="filterBy('backend',this)"><i class="ti ti-server"></i> Backend</div>
-          <div class="filter-chip" onclick="filterBy('frontend',this)"><i class="ti ti-browser"></i> Frontend</div>
-          <div class="filter-chip" onclick="filterBy('infra',this)"><i class="ti ti-cloud"></i> Infra</div>
-          <div class="filter-chip" onclick="filterBy('data',this)"><i class="ti ti-database"></i> Data</div>
-          <div class="filter-chip" onclick="filterBy('mobile',this)"><i class="ti ti-device-mobile"></i> Mobile</div>
-        </div>
-        <div class="kanban">
-          <div class="kanban-col"><div class="col-header"><span class="col-title"><span class="col-dot" style="background:#B4B2A9"></span> Backlog</span><span class="col-count" id="cnt-todo">0</span></div><div id="cards-todo"></div></div>
-          <div class="kanban-col"><div class="col-header"><span class="col-title"><span class="col-dot" style="background:#378ADD"></span> Em Dev</span><span class="col-count" id="cnt-doing">0</span></div><div id="cards-doing"></div></div>
-          <div class="kanban-col"><div class="col-header"><span class="col-title"><span class="col-dot" style="background:#EF9F27"></span> Em Review</span><span class="col-count" id="cnt-review">0</span></div><div id="cards-review"></div></div>
-          <div class="kanban-col"><div class="col-header"><span class="col-title"><span class="col-dot" style="background:#639922"></span> Concluído</span><span class="col-count" id="cnt-done">0</span></div><div id="cards-done"></div></div>
+        <div class="dash-section">
+          <div class="dash-section-title"><i class="ti ti-layers"></i> Cards por Epico</div>
+          <div class="bar-chart" id="dash-epic-chart"></div>
         </div>
       </div>
-
-      <div id="list-view" class="list-view">
-        <table class="list-table">
-          <thead><tr><th>ID</th><th>Projeto</th><th>Área</th><th>Responsável</th><th>Prioridade</th><th>Status</th><th>Prazo</th><th>Progresso</th></tr></thead>
-          <tbody id="list-body"></tbody>
-        </table>
-      </div>
-
-      <div id="roadmap-view" class="roadmap-view">
-        <div class="section-title"><i class="ti ti-road"></i> Roadmap 2025 — Visão semestral</div>
-        <div class="roadmap-timeline">
-          <div class="roadmap-header">
-            <div class="rh-cell">Projeto</div>
-            <div class="rh-cell">Jan–Fev</div><div class="rh-cell">Mar–Abr</div><div class="rh-cell">Mai–Jun</div>
-            <div class="rh-cell">Jul–Ago</div><div class="rh-cell">Set–Out</div><div class="rh-cell">Nov–Dez</div>
-          </div>
-          <div id="roadmap-rows"></div>
+      <div class="dash-row">
+        <div class="dash-section">
+          <div class="dash-section-title"><i class="ti ti-alert-triangle"></i> Cards com Prazo Vencido ou Proximo</div>
+          <div class="overdue-list" id="dash-overdue"></div>
+        </div>
+        <div class="dash-section">
+          <div class="dash-section-title"><i class="ti ti-activity"></i> Saude dos Projetos</div>
+          <div id="dash-health"></div>
         </div>
       </div>
     </div>
-  </main>
+
+    <!-- LISTA CARDS -->
+    <div id="list-view" class="list-view">
+      <table class="ltable">
+        <thead><tr><th>ID</th><th>Card</th><th>Projeto</th><th>Epico</th><th>Area</th><th>Responsavel</th><th>Prioridade</th><th>Status</th><th>Prazo</th><th>Abertura</th></tr></thead>
+        <tbody id="list-body"></tbody>
+      </table>
+    </div>
+
+    <!-- ROADMAP -->
+    <div id="roadmap-view" class="roadmap-view">
+      <div class="sec-ttl"><i class="ti ti-road"></i> Roadmap 2025 - Visao semestral</div>
+      <div class="rm-wrap">
+        <div class="rm-hdr">
+          <div class="rh">Card</div>
+          <div class="rh">Jan-Fev</div><div class="rh">Mar-Abr</div><div class="rh">Mai-Jun</div>
+          <div class="rh">Jul-Ago</div><div class="rh">Set-Out</div><div class="rh">Nov-Dez</div>
+        </div>
+        <div id="roadmap-rows"></div>
+      </div>
+    </div>
+
+  </div>
+</main>
 </div>
 
-<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+<!-- MODAL CARD -->
+<div class="modal-overlay" id="modal-card" onclick="cmo(event,'modal-card',closeCardForm)">
   <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title">Novo Projeto</span>
-      <button class="modal-close" onclick="closeModal()"><i class="ti ti-x"></i></button>
+    <div class="modal-hdr"><span class="modal-ttl" id="card-form-title">Novo Card</span><button class="modal-x" onclick="closeCardForm()"><i class="ti ti-x"></i></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="f-id">
+      <div><div class="flbl">Titulo *</div><input type="text" id="f-name" placeholder="Ex: Cadastro de usuario PF"></div>
+      <div><div class="flbl">Descricao / Criterios de aceite</div><textarea id="f-desc" placeholder="Descreva o escopo, criterios e detalhes..."></textarea></div>
+      <div class="frow">
+        <div><div class="flbl">Projeto</div><select id="f-project"><option value="">- Sem projeto -</option></select></div>
+        <div><div class="flbl">Sprint</div><select id="f-sprint"><option value="">- Sem sprint -</option></select></div>
+      </div>
+      <div class="frow">
+        <div><div class="flbl">Epico</div><select id="f-epic"><option value="conta">Conta Digital</option><option value="cartao">Cartao</option><option value="pix">Jornadas PIX</option><option value="credito">Credito</option></select></div>
+        <div><div class="flbl">Area</div><select id="f-area"><option value="backend">Backend</option><option value="frontend">Frontend</option><option value="design">Design</option></select></div>
+      </div>
+      <div class="frow">
+        <div><div class="flbl">Prioridade</div><select id="f-priority"><option value="high">Alta</option><option value="med">Media</option><option value="low">Baixa</option></select></div>
+        <div><div class="flbl">Status</div><select id="f-status"><option value="todo">Backlog</option><option value="doing">Em Desenvolvimento</option><option value="testing">Em Testes</option><option value="done">Concluido</option></select></div>
+      </div>
+      <div class="frow">
+        <div><div class="flbl">Responsavel</div><select id="f-owner"><option>Ana Lima</option><option>Bruno Costa</option><option>Carla Melo</option><option>Diego Faria</option><option>Ester Rocha</option></select></div>
+        <div><div class="flbl">Prazo estimado</div><input type="date" id="f-date"></div>
+      </div>
+      <div class="frow">
+        <div><div class="flbl">Horas estimadas</div><input type="number" id="f-hours-est" placeholder="0" min="0"></div>
+        <div><div class="flbl">Horas realizadas</div><input type="number" id="f-hours-done" placeholder="0" min="0"></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn-cancel" onclick="closeCardForm()">Cancelar</button><button class="btn-save" onclick="saveCard()">Salvar Card</button></div>
+  </div>
+</div>
+
+<!-- MODAL DETALHE CARD -->
+<div class="modal-overlay" id="modal-detail" onclick="cmo(event,'modal-detail',closeDetail)">
+  <div class="modal modal-wide">
+    <div class="modal-hdr">
+      <div><div id="det-badges" style="margin-bottom:6px;display:flex;gap:5px;flex-wrap:wrap;"></div><div class="modal-ttl" id="det-title"></div></div>
+      <button class="modal-x" onclick="closeDetail()"><i class="ti ti-x"></i></button>
     </div>
     <div class="modal-body">
-      <div><div class="field-label">Nome do Projeto *</div><input type="text" id="f-name" placeholder="Ex: Migração para Microserviços"></div>
-      <div><div class="field-label">Descrição</div><textarea id="f-desc" placeholder="Descreva o objetivo e escopo do projeto..."></textarea></div>
-      <div class="field-row">
-        <div><div class="field-label">Área</div><select id="f-area"><option value="backend">Backend</option><option value="frontend">Frontend</option><option value="infra">Infra</option><option value="data">Data</option><option value="mobile">Mobile</option></select></div>
-        <div><div class="field-label">Prioridade</div><select id="f-priority"><option value="high">Alta</option><option value="med">Média</option><option value="low">Baixa</option></select></div>
+      <div id="det-desc" style="font-size:13px;color:var(--t2);line-height:1.6;"></div>
+      <div class="det-sec">
+        <div class="det-row"><span class="det-key">ID</span><span class="det-val" id="det-id" style="font-family:monospace;font-size:11px;"></span></div>
+        <div class="det-row"><span class="det-key">Projeto</span><span class="det-val" id="det-project"></span></div>
+        <div class="det-row"><span class="det-key">Sprint</span><span class="det-val" id="det-sprint"></span></div>
+        <div class="det-row"><span class="det-key">Epico</span><span class="det-val" id="det-epic"></span></div>
+        <div class="det-row"><span class="det-key">Area</span><span class="det-val" id="det-area"></span></div>
+        <div class="det-row"><span class="det-key">Responsavel</span><span class="det-val" id="det-owner"></span></div>
+        <div class="det-row"><span class="det-key">Prioridade</span><span class="det-val" id="det-priority"></span></div>
+        <div class="det-row"><span class="det-key">Status</span><span class="det-val" id="det-status"></span></div>
+        <div class="det-row"><span class="det-key">Prazo</span><span class="det-val" id="det-date"></span></div>
+        <div class="det-row"><span class="det-key">Tempo aberto</span><span class="det-val" id="det-age"></span></div>
+        <div class="det-row"><span class="det-key">Horas est. / real.</span><span class="det-val" id="det-hours"></span></div>
       </div>
-      <div class="field-row">
-        <div><div class="field-label">Responsável</div><select id="f-owner"><option>Ana Lima</option><option>Bruno Costa</option><option>Carla Melo</option><option>Diego Faria</option><option>Ester Rocha</option></select></div>
-        <div><div class="field-label">Prazo</div><input type="text" id="f-date" placeholder="DD/MM/AAAA"></div>
+      <div class="comments-section">
+        <div class="comments-title"><i class="ti ti-message-circle"></i> Comentarios <span id="det-comment-count" style="color:var(--t3);font-weight:400;"></span></div>
+        <div class="comment-list" id="comment-list"></div>
+        <div class="comment-input-row">
+          <textarea id="comment-input" placeholder="Escreva um comentario..." rows="2"></textarea>
+          <button onclick="addComment()">Enviar</button>
+        </div>
       </div>
-      <div><div class="field-label">Critérios de Aceite</div><textarea id="f-criteria" placeholder="Quais critérios devem ser atendidos para concluir este projeto?" style="min-height:60px;"></textarea></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
-      <button class="btn-save" onclick="saveProject()">Criar Projeto</button>
+    <div class="modal-foot"><button class="btn-cancel" onclick="closeDetail()">Fechar</button><button class="btn-save" id="det-edit-btn">Editar Card</button></div>
+  </div>
+</div>
+
+<!-- MODAL PROJETO -->
+<div class="modal-overlay" id="modal-project" onclick="cmo(event,'modal-project',closeProjectForm)">
+  <div class="modal modal-wide">
+    <div class="modal-hdr"><span class="modal-ttl" id="proj-form-title">Novo Projeto</span><button class="modal-x" onclick="closeProjectForm()"><i class="ti ti-x"></i></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="pf-id">
+      <div><div class="flbl">Nome do Projeto *</div><input type="text" id="pf-name" placeholder="Ex: Ulrik, Hub22, Eco Sistemas..."></div>
+      <div class="frow">
+        <div><div class="flbl">Responsavel *</div><input type="text" id="pf-owner" placeholder="Nome completo"></div>
+        <div><div class="flbl">E-mail</div><input type="email" id="pf-email" placeholder="email@empresa.com"></div>
+      </div>
+      <div class="frow">
+        <div><div class="flbl">Telefone</div><input type="tel" id="pf-phone" placeholder="(11) 99999-9999"></div>
+        <div><div class="flbl">Data de entrada</div><input type="date" id="pf-date"></div>
+      </div>
+      <div><div class="flbl">Status</div><select id="pf-status"><option value="ativo">Ativo</option><option value="pausado">Pausado</option><option value="concluido">Concluido</option></select></div>
+      <div><div class="flbl">Escopo considerado</div><textarea id="pf-scope" style="min-height:100px;" placeholder="Descreva as funcionalidades, modulos e entregas previstas..."></textarea></div>
     </div>
+    <div class="modal-foot"><button class="btn-cancel" onclick="closeProjectForm()">Cancelar</button><button class="btn-save" onclick="saveProject()">Salvar Projeto</button></div>
+  </div>
+</div>
+
+<!-- MODAL DETALHE PROJETO -->
+<div class="modal-overlay" id="modal-proj-detail" onclick="cmo(event,'modal-proj-detail',closeProjDetail)">
+  <div class="modal modal-wide">
+    <div class="modal-hdr">
+      <div><div style="font-size:11px;color:var(--t3);margin-bottom:4px;" id="pd-id-lbl"></div><div class="modal-ttl" id="pd-name"></div></div>
+      <button class="modal-x" onclick="closeProjDetail()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="pd-stats" id="pd-stats"></div>
+      <div style="margin-top:12px;">
+        <div class="flbl" style="margin-bottom:6px;">Saude do projeto</div>
+        <div id="pd-health-bar"></div>
+      </div>
+      <div class="det-sec">
+        <div class="det-row"><span class="det-key">Responsavel</span><span class="det-val" id="pd-owner"></span></div>
+        <div class="det-row"><span class="det-key">E-mail</span><span class="det-val" id="pd-email"></span></div>
+        <div class="det-row"><span class="det-key">Telefone</span><span class="det-val" id="pd-phone"></span></div>
+        <div class="det-row"><span class="det-key">Data de entrada</span><span class="det-val" id="pd-date"></span></div>
+        <div class="det-row"><span class="det-key">Status</span><span class="det-val" id="pd-status"></span></div>
+        <div class="det-row"><span class="det-key">Escopo</span><span class="det-val" id="pd-scope" style="white-space:pre-wrap;line-height:1.6;"></span></div>
+      </div>
+      <div style="margin-top:14px;">
+        <div style="font-size:12px;font-weight:500;color:var(--t2);margin-bottom:8px;">Cards vinculados</div>
+        <div class="linked-list" id="pd-cards"></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn-cancel" onclick="closeProjDetail()">Fechar</button><button class="btn-save" id="pd-edit-btn">Editar Projeto</button></div>
+  </div>
+</div>
+
+<!-- MODAL SPRINT -->
+<div class="modal-overlay" id="modal-sprint" onclick="cmo(event,'modal-sprint',closeSprintForm)">
+  <div class="modal">
+    <div class="modal-hdr"><span class="modal-ttl" id="sprint-form-title">Novo Sprint</span><button class="modal-x" onclick="closeSprintForm()"><i class="ti ti-x"></i></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="sf-id">
+      <div><div class="flbl">Nome do Sprint *</div><input type="text" id="sf-name" placeholder="Ex: Sprint 1, Sprint 15-22 Jun..."></div>
+      <div class="frow">
+        <div><div class="flbl">Data de inicio *</div><input type="date" id="sf-start"></div>
+        <div><div class="flbl">Data de fim *</div><input type="date" id="sf-end"></div>
+      </div>
+      <div><div class="flbl">Objetivo do Sprint</div><textarea id="sf-goal" placeholder="O que o time deve entregar nesse sprint?"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn-cancel" onclick="closeSprintForm()">Cancelar</button><button class="btn-save" onclick="saveSprint()">Salvar Sprint</button></div>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div class="confirm-overlay" id="confirm-del">
+  <div class="confirm-box">
+    <i class="ti ti-trash" style="font-size:28px;color:var(--err);margin-bottom:10px;display:block;"></i>
+    <p id="confirm-msg">Excluir este item?</p><small id="confirm-sub">Esta acao nao pode ser desfeita.</small>
+    <div class="confirm-btns"><button class="btn-cancel" onclick="closeConfirm()">Cancelar</button><button class="btn-danger" onclick="confirmDelete()">Excluir</button></div>
   </div>
 </div>
 
 <script>
-const areas={backend:'tag-blue',frontend:'tag-purple',infra:'tag-amber',data:'tag-green',mobile:'tag-red'};
-const areaLabels={backend:'Backend',frontend:'Frontend',infra:'Infra',data:'Data',mobile:'Mobile'};
-const initials={'Ana Lima':'AL','Bruno Costa':'BC','Carla Melo':'CM','Diego Faria':'DF','Ester Rocha':'ER'};
-const avClass={'Ana Lima':'av-a','Bruno Costa':'av-b','Carla Melo':'av-c','Diego Faria':'av-d','Ester Rocha':'av-e'};
-let projects=[
-  {id:'TK-001',title:'Migração para Microserviços',area:'backend',priority:'high',status:'doing',owner:'Ana Lima',date:'30/06/25',progress:45,start:2,span:3},
-  {id:'TK-002',title:'Redesign do App Mobile',area:'mobile',priority:'high',status:'doing',owner:'Bruno Costa',date:'15/07/25',progress:60,start:1,span:2},
-  {id:'TK-003',title:'Data Lake na AWS',area:'data',priority:'med',status:'doing',owner:'Carla Melo',date:'31/08/25',progress:30,start:3,span:3},
-  {id:'TK-004',title:'CI/CD Pipeline Upgrade',area:'infra',priority:'high',status:'review',owner:'Diego Faria',date:'20/05/25',progress:85,start:1,span:2},
-  {id:'TK-005',title:'Portal do Colaborador',area:'frontend',priority:'med',status:'todo',owner:'Ester Rocha',date:'30/09/25',progress:10,start:4,span:3},
-  {id:'TK-006',title:'API Gateway Unificado',area:'backend',priority:'high',status:'doing',owner:'Ana Lima',date:'15/06/25',progress:55,start:2,span:2},
-  {id:'TK-007',title:'Dashboard Executivo',area:'data',priority:'med',status:'done',owner:'Carla Melo',date:'10/04/25',progress:100,start:1,span:1},
-  {id:'TK-008',title:'SSO com Azure AD',area:'infra',priority:'high',status:'done',owner:'Diego Faria',date:'05/04/25',progress:100,start:1,span:2},
-  {id:'TK-009',title:'Testes Automatizados E2E',area:'backend',priority:'med',status:'review',owner:'Bruno Costa',date:'30/05/25',progress:75,start:2,span:2},
-  {id:'TK-010',title:'Monitoramento com Datadog',area:'infra',priority:'low',status:'todo',owner:'Diego Faria',date:'31/07/25',progress:5,start:4,span:2},
-  {id:'TK-011',title:'Refatoração do Frontend',area:'frontend',priority:'low',status:'todo',owner:'Ester Rocha',date:'30/08/25',progress:0,start:3,span:3},
-  {id:'TK-012',title:'App de Onboarding',area:'mobile',priority:'med',status:'done',owner:'Bruno Costa',date:'01/04/25',progress:100,start:1,span:2},
+const CK='techops_cards_v3',PK='techops_projects_v1',SK='techops_sprints_v1';
+const AREAS={backend:'tag-blue',frontend:'tag-purple',design:'tag-teal'};
+const AREA_L={backend:'Backend',frontend:'Frontend',design:'Design'};
+const EPIC_L={conta:'Conta Digital',cartao:'Cartao',pix:'Jornadas PIX',credito:'Credito'};
+const EPIC_C={conta:'ep-conta',cartao:'ep-cartao',pix:'ep-pix',credito:'ep-credito'};
+const AVC={'Ana Lima':'av-a','Bruno Costa':'av-b','Carla Melo':'av-c','Diego Faria':'av-d','Ester Rocha':'av-e'};
+const INI={'Ana Lima':'AL','Bruno Costa':'BC','Carla Melo':'CM','Diego Faria':'DF','Ester Rocha':'ER'};
+const RM_C={conta:'rb-blue',cartao:'rb-purple',pix:'rb-green',credito:'rb-amber'};
+const ST_L={todo:'Backlog',doing:'Em Desenvolvimento',testing:'Em Testes',done:'Concluido'};
+const PS_M={ativo:{label:'Ativo',cls:'ps-ativo'},pausado:{label:'Pausado',cls:'ps-pausado'},concluido:{label:'Concluido',cls:'ps-concluido'}};
+
+function ld(k,d){try{const s=localStorage.getItem(k);if(s)return JSON.parse(s);}catch(e){}return JSON.parse(JSON.stringify(d));}
+function sv(k,v){localStorage.setItem(k,JSON.stringify(v));}
+
+const DP=[
+  {id:'PRJ-001',name:'Ulrik',owner:'Ana Lima',email:'ana.lima@empresa.com',phone:'(11) 99001-0001',date:'2025-01-10',status:'ativo',scope:'Desenvolvimento completo do aplicativo mobile (Android e iOS) incluindo abertura de conta PF/PJ, login com autenticacao por dispositivo, home dashboard, transferencias, pagamento de boletos, extrato e perfil.'},
+  {id:'PRJ-002',name:'Eco Sistemas',owner:'Bruno Costa',email:'bruno.costa@empresa.com',phone:'(11) 99001-0002',date:'2025-02-01',status:'ativo',scope:'Modulo completo de PIX: cadastro e gestao de chaves, transferencia por chave e dados bancarios, QR Code estatico e dinamico, PIX Copia e Cola, extrato, reembolso e gestao de limites.'},
+  {id:'PRJ-003',name:'Hub22',owner:'Diego Faria',email:'diego.faria@empresa.com',phone:'(11) 99001-0003',date:'2025-03-01',status:'ativo',scope:'Wallet de cartao de credito: solicitacao, ativacao, historico de faturas, pagamento, gestao de limites e configuracoes.'},
 ];
-let currentFilter='all',currentView='board';
+const DS=[
+  {id:'SP-001',name:'Sprint 1',start:'2025-01-06',end:'2025-01-12',goal:'Setup inicial do projeto e cadastro PF'},
+  {id:'SP-002',name:'Sprint 2',start:'2025-01-13',end:'2025-01-19',goal:'Login e autenticacao por dispositivo'},
+  {id:'SP-003',name:'Sprint 3',start:'2025-05-19',end:'2025-05-25',goal:'Home dashboard e extrato'},
+];
+const DC=[
+  {id:'TK-001',title:'Cadastro PF - Abertura de Conta',desc:'Fluxo de abertura de conta para pessoa fisica. Informar CPF, dados pessoais, endereco (autocomplete via CEP), telefone e envio de documentos.',epic:'conta',area:'backend',priority:'high',status:'doing',owner:'Ana Lima',date:'2025-07-30',created:'2025-01-10',project:'PRJ-001',sprint:'SP-001',hoursEst:16,hoursDone:8,comments:[],roadmapStart:1,roadmapSpan:2},
+  {id:'TK-002',title:'Login - Verificacao de Status de Conta',desc:'Ao inserir o CPF, o sistema verifica 3 estados: conta ativa, CPF nao cadastrado ou documentacao pendente. Bloqueio apos 3 tentativas.',epic:'conta',area:'backend',priority:'high',status:'doing',owner:'Bruno Costa',date:'2025-06-30',created:'2025-01-10',project:'PRJ-001',sprint:'SP-002',hoursEst:12,hoursDone:10,comments:[],roadmapStart:1,roadmapSpan:2},
+  {id:'TK-003',title:'Login - Autenticacao em Novo Dispositivo',desc:'Ao logar em dispositivo diferente do cadastrado, o sistema envia codigo de seguranca por SMS/e-mail para validacao.',epic:'conta',area:'backend',priority:'high',status:'todo',owner:'Ana Lima',date:'2025-07-15',created:'2025-01-15',project:'PRJ-001',sprint:'SP-002',hoursEst:8,hoursDone:0,comments:[],roadmapStart:2,roadmapSpan:1},
+  {id:'TK-004',title:'Esqueci Minha Senha',desc:'Fluxo de reset: usuario informa CPF, recebe token por e-mail, insere senha temporaria e cadastra nova senha transacional.',epic:'conta',area:'frontend',priority:'med',status:'todo',owner:'Carla Melo',date:'2025-07-30',created:'2025-01-20',project:'PRJ-001',sprint:'',hoursEst:6,hoursDone:0,comments:[],roadmapStart:2,roadmapSpan:1},
+  {id:'TK-005',title:'Home - Dashboard da Conta',desc:'Tela principal com acesso a: saldo, credito, PIX, extrato, pagamento de boleto, TED e transferencia. Layout com atalhos rapidos.',epic:'conta',area:'design',priority:'high',status:'testing',owner:'Diego Faria',date:'2025-06-15',created:'2025-01-05',project:'PRJ-001',sprint:'SP-003',hoursEst:20,hoursDone:18,comments:[],roadmapStart:1,roadmapSpan:3},
+  {id:'TK-006',title:'Perfil - Dados Cadastrais e Foto',desc:'Visualizacao e edicao de dados cadastrais. Upload de foto de perfil. Edicao permitida apenas para endereco.',epic:'conta',area:'frontend',priority:'low',status:'todo',owner:'Ester Rocha',date:'2025-08-30',created:'2025-02-01',project:'PRJ-001',sprint:'',hoursEst:8,hoursDone:0,comments:[],roadmapStart:3,roadmapSpan:2},
+  {id:'TK-007',title:'Perfil - Autenticacao Biometrica',desc:'Habilitacao de face ID ou touch ID para substituir senha de acesso. Disponivel apenas para dispositivos compativeis.',epic:'conta',area:'frontend',priority:'med',status:'todo',owner:'Bruno Costa',date:'2025-09-30',created:'2025-02-01',project:'PRJ-001',sprint:'',hoursEst:10,hoursDone:0,comments:[],roadmapStart:4,roadmapSpan:2},
+  {id:'TK-008',title:'Extrato - Listagem de Transacoes',desc:'Extrato com saldo atual e historico de transacoes cash-in (+) e cash-out (-). Acesso ao detalhe de cada transacao.',epic:'conta',area:'frontend',priority:'high',status:'doing',owner:'Ana Lima',date:'2025-07-15',created:'2025-01-10',project:'PRJ-001',sprint:'SP-003',hoursEst:14,hoursDone:6,comments:[],roadmapStart:2,roadmapSpan:2},
+  {id:'TK-009',title:'PIX - Home e Tutorial de Primeiro Acesso',desc:'Tela home do PIX com todas funcionalidades. No primeiro acesso exibe tutorial explicativo.',epic:'pix',area:'design',priority:'high',status:'doing',owner:'Diego Faria',date:'2025-06-30',created:'2025-01-15',project:'PRJ-002',sprint:'SP-003',hoursEst:12,hoursDone:8,comments:[],roadmapStart:2,roadmapSpan:2},
+  {id:'TK-010',title:'PIX - Cadastro e Gestao de Chaves',desc:'Cadastro de chaves PIX: CPF, celular, e-mail ou chave aleatoria. Limite de 5 chaves por PF. Portabilidade e reivindicacao.',epic:'pix',area:'backend',priority:'high',status:'todo',owner:'Ana Lima',date:'2025-08-30',created:'2025-02-01',project:'PRJ-002',sprint:'',hoursEst:16,hoursDone:0,comments:[],roadmapStart:3,roadmapSpan:2},
+  {id:'TK-011',title:'PIX - Transferencia por Chave',desc:'Transferencia informando tipo de chave. Confirmacao, senha transacional e token. Opcao de salvar favorito e agendar.',epic:'pix',area:'backend',priority:'high',status:'todo',owner:'Bruno Costa',date:'2025-08-30',created:'2025-02-01',project:'PRJ-002',sprint:'',hoursEst:14,hoursDone:0,comments:[],roadmapStart:3,roadmapSpan:2},
+  {id:'TK-012',title:'PIX - Pagar com QR Code e Copia e Cola',desc:'Leitura de QR Code via camera. Validacao de dados do destinatario. Suporte a QR estatico e dinamico.',epic:'pix',area:'frontend',priority:'med',status:'todo',owner:'Carla Melo',date:'2025-09-30',created:'2025-02-15',project:'PRJ-002',sprint:'',hoursEst:12,hoursDone:0,comments:[],roadmapStart:4,roadmapSpan:2},
+  {id:'TK-013',title:'PIX - Cobrar por QR Code',desc:'Geracao de QR Code estatico e dinamico para recebimento. Dinamico inclui dados do devedor, vencimento, juros e multa.',epic:'pix',area:'frontend',priority:'med',status:'todo',owner:'Ester Rocha',date:'2025-10-30',created:'2025-03-01',project:'PRJ-002',sprint:'',hoursEst:10,hoursDone:0,comments:[],roadmapStart:4,roadmapSpan:2},
+  {id:'TK-014',title:'PIX - Meus Limites e Notificacoes',desc:'Gestao de limites PIX. Notificacoes de PIX recebido, realizado, agendado e portabilidade.',epic:'pix',area:'backend',priority:'low',status:'todo',owner:'Ana Lima',date:'2025-11-30',created:'2025-03-01',project:'PRJ-002',sprint:'',hoursEst:8,hoursDone:0,comments:[],roadmapStart:5,roadmapSpan:1},
+  {id:'TK-015',title:'Cartao - Solicitacao de Cartao de Credito',desc:'Fluxo para clientes com credito disponivel. Escolha de limite minimo R$5.000. Cartao enviado a unidade de relacionamento.',epic:'cartao',area:'backend',priority:'high',status:'todo',owner:'Diego Faria',date:'2025-09-30',created:'2025-02-01',project:'PRJ-003',sprint:'',hoursEst:20,hoursDone:0,comments:[],roadmapStart:3,roadmapSpan:3},
+  {id:'TK-016',title:'Cartao - Ativacao e Criacao de Senha',desc:'Ativacao informando digitos do cartao e criando senha de 4 digitos numericos nao sequenciais.',epic:'cartao',area:'frontend',priority:'high',status:'todo',owner:'Ester Rocha',date:'2025-09-30',created:'2025-02-15',project:'PRJ-003',sprint:'',hoursEst:8,hoursDone:0,comments:[],roadmapStart:4,roadmapSpan:2},
+  {id:'TK-017',title:'Cartao - Historico de Faturas',desc:'Fatura atual com transacoes: data/hora, valor, nome do estabelecimento. Acesso a faturas pagas.',epic:'cartao',area:'frontend',priority:'med',status:'todo',owner:'Bruno Costa',date:'2025-10-30',created:'2025-03-01',project:'PRJ-003',sprint:'',hoursEst:10,hoursDone:0,comments:[],roadmapStart:4,roadmapSpan:2},
+  {id:'TK-018',title:'Cartao - Pagamento de Fatura',desc:'Pagamento total da fatura com senha transacional. Limite liberado apos confirmacao.',epic:'cartao',area:'backend',priority:'high',status:'todo',owner:'Ana Lima',date:'2025-10-30',created:'2025-03-01',project:'PRJ-003',sprint:'',hoursEst:10,hoursDone:0,comments:[],roadmapStart:4,roadmapSpan:2},
+  {id:'TK-019',title:'Cartao - Configuracoes',desc:'Bloqueio/desbloqueio sem senha. Alteracao de senha. Cancelamento com confirmacao e opcao de reativacao.',epic:'cartao',area:'frontend',priority:'med',status:'todo',owner:'Carla Melo',date:'2025-11-30',created:'2025-03-15',project:'PRJ-003',sprint:'',hoursEst:8,hoursDone:0,comments:[],roadmapStart:5,roadmapSpan:2},
+  {id:'TK-020',title:'Credito - Simulador e Contratacao',desc:'Simulacao de credito com limites, parcelas (1 a 3x). Contratacao com assinatura digital e aprovacao manual.',epic:'credito',area:'backend',priority:'high',status:'todo',owner:'Diego Faria',date:'2025-10-30',created:'2025-02-01',project:'',sprint:'',hoursEst:24,hoursDone:0,comments:[],roadmapStart:4,roadmapSpan:3},
+  {id:'TK-021',title:'Credito - Controle de Limite e Meus Contratos',desc:'Visualizacao de credito total, disponivel e utilizado. Contratos agrupados com boletos parcelados.',epic:'credito',area:'frontend',priority:'med',status:'todo',owner:'Ester Rocha',date:'2025-11-30',created:'2025-03-01',project:'',sprint:'',hoursEst:12,hoursDone:0,comments:[],roadmapStart:5,roadmapSpan:2},
+  {id:'TK-022',title:'Credito - Majoracao de Limite',desc:'Solicitacao de aumento de limite com envio de documentos. Analise manual. Retorna para contratacao se aprovado.',epic:'credito',area:'backend',priority:'low',status:'todo',owner:'Bruno Costa',date:'2025-12-30',created:'2025-03-15',project:'',sprint:'',hoursEst:10,hoursDone:0,comments:[],roadmapStart:5,roadmapSpan:2},
+];
+
+let cards=ld(CK,DC);
+let projs=ld(PK,DP);
+let sprints=ld(SK,DS);
+function svC(){sv(CK,cards);}
+function svP(){sv(PK,projs);}
+function svS(){sv(SK,sprints);}
+
+let curFilter='all',curView='board',dragId=null,delId=null,delType=null;
+let editCardId=null,editProjId=null,editSprintId=null,detailCardId=null;
+
+function fmtDate(d){return d?new Date(d+'T12:00:00').toLocaleDateString('pt-BR'):'--';}
+function fmtDT(ts){if(!ts)return'--';const d=new Date(ts);return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
+function daysOpen(d){return d?Math.floor((Date.now()-new Date(d+'T12:00:00').getTime())/86400000):0;}
+function daysUntil(d){return d?Math.ceil((new Date(d+'T12:00:00').getTime()-Date.now())/86400000):999;}
+function getProjName(pid){const p=projs.find(x=>x.id===pid);return p?p.name:'--';}
+function getSprintName(sid){const s=sprints.find(x=>x.id===sid);return s?s.name:'--';}
+function isActive(sp){const n=new Date();return new Date(sp.start+'T00:00:00')<=n&&new Date(sp.end+'T23:59:59')>=n;}
+
+function cardAlertClass(c){
+  if(c.status==='done')return'';
+  const d=daysUntil(c.date);
+  if(d<0)return'overdue';
+  if(d<=3)return'due-soon';
+  return'';
+}
+
+function rebuildSelect(selId,items,valFn,labelFn,selVal){
+  const s=document.getElementById(selId);
+  const first=s.options[0]?s.options[0].outerHTML:'';
+  s.innerHTML=first;
+  items.forEach(it=>{const o=document.createElement('option');o.value=valFn(it);o.textContent=labelFn(it);if(valFn(it)===selVal)o.selected=true;s.appendChild(o);});
+}
+
+function updateStats(){
+  document.getElementById('s-total').textContent=cards.length;
+  document.getElementById('s-doing').textContent=cards.filter(c=>c.status==='doing').length;
+  document.getElementById('s-done').textContent=cards.filter(c=>c.status==='done').length;
+  document.getElementById('s-high').textContent=cards.filter(c=>c.priority==='high').length;
+}
+
+// PROJECT HEALTH
+function projHealth(pid){
+  const linked=cards.filter(c=>c.project===pid);
+  if(!linked.length)return{pct:0,label:'Sem cards',color:'#B4B2A9'};
+  const done=linked.filter(c=>c.status==='done').length;
+  const overdue=linked.filter(c=>c.status!=='done'&&daysUntil(c.date)<0).length;
+  const pct=Math.round(done/linked.length*100);
+  let color='#639922',label='Saudavel';
+  if(overdue>0){color='#E24B4A';label='Atencao ('+overdue+' vencido'+(overdue>1?'s':'')+')';}
+  else if(pct<30){color='#EF9F27';label='Em andamento';}
+  return{pct,label,color};
+}
+
+// BOARD
 function renderBoard(list){
-  ['todo','doing','review','done'].forEach(s=>document.getElementById('cards-'+s).innerHTML='');
-  const c={todo:0,doing:0,review:0,done:0};
+  ['todo','doing','testing','done'].forEach(s=>document.getElementById('cards-'+s).innerHTML='');
+  const cnt={todo:0,doing:0,testing:0,done:0};
   list.forEach(p=>{
-    c[p.status]++;
+    if(!cnt.hasOwnProperty(p.status))return;
+    cnt[p.status]++;
     const el=document.createElement('div');
-    el.className='card';
-    el.innerHTML=`<div class="card-top"><div class="card-title">${p.title}</div><span class="card-id">${p.id}</span></div>
-    <div class="card-tags"><span class="tag ${areas[p.area]}">${areaLabels[p.area]}</span>${p.priority==='high'?'<span class="tag tag-red">Alta</span>':p.priority==='med'?'<span class="tag tag-amber">Média</span>':'<span class="tag tag-gray">Baixa</span>'}</div>
-    <div class="card-footer"><div class="card-meta"><span class="priority-dot p-${p.priority}"></span><span class="card-date"><i class="ti ti-calendar"></i>${p.date}</span></div><div class="avatars"><div class="avatar ${avClass[p.owner]}">${initials[p.owner]}</div></div></div>
-    ${p.status!=='done'?`<div class="progress-bar"><div class="progress-fill" style="width:${p.progress}%;background:${p.status==='doing'?'#378ADD':p.status==='review'?'#EF9F27':'#B4B2A9'}"></div></div>`:''}`;
+    el.className='card '+cardAlertClass(p);
+    el.draggable=true;el.dataset.id=p.id;
+    el.addEventListener('dragstart',onDragStart);el.addEventListener('dragend',onDragEnd);
+    const pn=p.project?getProjName(p.project):null;
+    const sn=p.sprint?getSprintName(p.sprint):null;
+    const du=daysUntil(p.date);
+    const alertHtml=p.status!=='done'?(du<0?`<span class="alert-badge ab-overdue"><i class="ti ti-alert-circle"></i>${Math.abs(du)}d vencido</span>`:du<=3?`<span class="alert-badge ab-soon"><i class="ti ti-clock"></i>vence em ${du}d`+'</span>':''):'';
+    const commCnt=p.comments&&p.comments.length?`<span style="font-size:10px;color:var(--t3);display:flex;align-items:center;gap:3px;"><i class="ti ti-message-circle"></i>${p.comments.length}</span>`:'';
+    el.innerHTML=`<div class="card-top"><div style="flex:1;"><div style="margin-bottom:4px;display:flex;gap:4px;flex-wrap:wrap;align-items:center;"><span class="epic-badge ${EPIC_C[p.epic]||''}">${EPIC_L[p.epic]||p.epic}</span>${pn?`<span class="proj-tag"><i class="ti ti-folder" style="font-size:9px;"></i>${pn}</span>`:''}</div><div class="card-title">${p.title}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;"><span class="card-id">${p.id}</span><div class="card-actions"><button class="cbtn" onclick="openDetail('${p.id}',event)"><i class="ti ti-eye"></i></button><button class="cbtn" onclick="openEditCard('${p.id}',event)"><i class="ti ti-edit"></i></button><button class="cbtn del" onclick="askDel('card','${p.id}',event)"><i class="ti ti-trash"></i></button></div></div></div><div class="card-tags"><span class="tag ${AREAS[p.area]||'tag-gray'}">${AREA_L[p.area]||p.area}</span>${p.priority==='high'?'<span class="tag tag-red">Alta</span>':p.priority==='med'?'<span class="tag tag-amber">Media</span>':'<span class="tag tag-gray">Baixa</span>'}</div>${alertHtml?`<div style="margin-bottom:8px;">${alertHtml}</div>`:''}<div class="card-footer"><div class="card-meta"><span class="pdot p-${p.priority}"></span><span class="card-date"><i class="ti ti-calendar"></i>${fmtDate(p.date)}</span>${commCnt}</div><div class="avatar ${AVC[p.owner]||'av-a'}" title="${p.owner}">${INI[p.owner]||'??'}</div></div>${p.status!=='done'?`<div class="pbar"><div class="pfill" style="width:${p.progress||0}%;background:${p.status==='doing'?'#378ADD':p.status==='testing'?'#EF9F27':'#B4B2A9'}"></div></div>`:''}`;
     document.getElementById('cards-'+p.status).appendChild(el);
   });
-  document.getElementById('cnt-todo').textContent=c.todo;
-  document.getElementById('cnt-doing').textContent=c.doing;
-  document.getElementById('cnt-review').textContent=c.review;
-  document.getElementById('cnt-done').textContent=c.done;
+  ['todo','doing','testing','done'].forEach(s=>document.getElementById('cnt-'+s).textContent=cnt[s]);
+  updateStats();
 }
+
+function onDragStart(e){dragId=e.currentTarget.dataset.id;e.currentTarget.classList.add('dragging');e.dataTransfer.effectAllowed='move';}
+function onDragEnd(e){e.currentTarget.classList.remove('dragging');}
+function onDragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');}
+function onDragLeave(e){e.currentTarget.classList.remove('drag-over');}
+function onDrop(e,ns){e.preventDefault();e.currentTarget.classList.remove('drag-over');if(!dragId)return;const p=cards.find(x=>x.id===dragId);if(p&&p.status!==ns){p.status=ns;svC();filterCards();}dragId=null;}
+
 function renderList(list){
   const tb=document.getElementById('list-body');tb.innerHTML='';
   list.forEach(p=>{
-    const lbl={todo:'Backlog',doing:'Em Dev',review:'Review',done:'Concluído'}[p.status];
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="font-family:monospace;font-size:11px;color:var(--text-tertiary)">${p.id}</td>
-    <td style="font-weight:500">${p.title}</td>
-    <td><span class="tag ${areas[p.area]}">${areaLabels[p.area]}</span></td>
-    <td><div style="display:flex;align-items:center;gap:7px"><div class="avatar ${avClass[p.owner]}" style="width:22px;height:22px;font-size:8px;border:none;flex-shrink:0">${initials[p.owner]}</div>${p.owner}</div></td>
-    <td><span class="priority-dot p-${p.priority}" style="display:inline-block;vertical-align:middle;margin-right:5px"></span>${p.priority==='high'?'Alta':p.priority==='med'?'Média':'Baixa'}</td>
-    <td><span class="status-pill sp-${p.status}"><span class="sp-dot"></span>${lbl}</span></td>
-    <td>${p.date}</td>
-    <td style="width:110px"><div style="display:flex;align-items:center;gap:7px"><div class="progress-bar" style="flex:1;margin:0"><div class="progress-fill" style="width:${p.progress}%;background:#378ADD"></div></div><span style="font-size:10px;color:var(--text-tertiary);min-width:28px">${p.progress}%</span></div></td>`;
+    const lbl=ST_L[p.status]||p.status;
+    const sp={todo:'sp-todo',doing:'sp-doing',testing:'sp-testing',done:'sp-done'}[p.status]||'sp-todo';
+    const du=daysUntil(p.date);
+    const alertCell=p.status!=='done'?(du<0?`<span class="alert-badge ab-overdue">${Math.abs(du)}d vencido</span>`:du<=3?`<span class="alert-badge ab-soon">vence em ${du}d</span>`:''):'';
+    const tr=document.createElement('tr');tr.style.cursor='pointer';
+    tr.onclick=()=>openDetail(p.id,{stopPropagation:()=>{}});
+    tr.innerHTML=`<td style="font-family:monospace;font-size:11px;color:var(--t3)">${p.id}</td><td style="font-weight:500">${p.title}</td><td>${p.project?`<span class="proj-tag" style="font-size:10px;"><i class="ti ti-folder" style="font-size:9px;"></i>${getProjName(p.project)}</span>`:'--'}</td><td><span class="epic-badge ${EPIC_C[p.epic]||''}">${EPIC_L[p.epic]||p.epic}</span></td><td><span class="tag ${AREAS[p.area]||'tag-gray'}">${AREA_L[p.area]||p.area}</span></td><td><div style="display:flex;align-items:center;gap:7px"><div class="avatar ${AVC[p.owner]||'av-a'}" style="width:22px;height:22px;font-size:8px;border:none;flex-shrink:0">${INI[p.owner]||'??'}</div>${p.owner}</div></td><td>${p.priority==='high'?'Alta':p.priority==='med'?'Media':'Baixa'}</td><td><span class="spill ${sp}"><span class="sp-dot"></span>${lbl}</span></td><td>${alertCell||fmtDate(p.date)}</td><td>${fmtDate(p.created)}</td>`;
     tb.appendChild(tr);
   });
 }
-const colors=['rb-blue','rb-green','rb-amber','rb-purple','rb-red'];
+
 function renderRoadmap(){
-  const container=document.getElementById('roadmap-rows');container.innerHTML='';
-  projects.forEach((p,i)=>{
-    const row=document.createElement('div');
-    row.className='roadmap-row';
-    let cells=`<div class="rr-name">${p.title}<span>${areaLabels[p.area]} · ${p.owner.split(' ')[0]}</span></div>`;
-    for(let c=1;c<=6;c++){
-      if(c===p.start){cells+=`<div class="rr-cell" style="grid-column:span ${p.span}"><div class="roadmap-bar ${colors[i%5]}">${p.span>1?p.title.split(' ').slice(0,2).join(' '):''}</div></div>`;c+=p.span-1;}
-      else cells+=`<div class="rr-cell"></div>`;
-    }
-    row.innerHTML=cells;row.style.gridTemplateColumns='200px repeat(6,1fr)';
-    container.appendChild(row);
+  const c=document.getElementById('roadmap-rows');c.innerHTML='';
+  cards.forEach(p=>{
+    const s=p.roadmapStart||1,sp=p.roadmapSpan||1;
+    const row=document.createElement('div');row.className='rm-row';row.style.gridTemplateColumns='220px repeat(6,1fr)';
+    let cells=`<div class="rr-name">${p.title}<span>${EPIC_L[p.epic]||''}</span></div>`;
+    for(let i=1;i<=6;i++){if(i===s){cells+=`<div class="rr-cell" style="grid-column:span ${sp}"><div class="rm-bar ${RM_C[p.epic]||'rb-blue'}">${sp>1?EPIC_L[p.epic]:''}</div></div>`;i+=sp-1;}else cells+=`<div class="rr-cell"></div>`;}
+    row.innerHTML=cells;c.appendChild(row);
   });
 }
-function getFiltered(){
+
+// PROJECTS
+function renderProjects(search){
+  const grid=document.getElementById('projects-grid');
+  const empty=document.getElementById('projects-empty');
+  grid.innerHTML='';
+  let list=projs;
+  if(search)list=list.filter(p=>p.name.toLowerCase().includes(search)||p.owner.toLowerCase().includes(search));
+  if(!list.length){empty.style.display='block';return;}
+  empty.style.display='none';
+  list.forEach(pr=>{
+    const linked=cards.filter(c=>c.project===pr.id);
+    const done=linked.filter(c=>c.status==='done').length;
+    const doing=linked.filter(c=>c.status==='doing').length;
+    const sm=PS_M[pr.status]||PS_M.ativo;
+    const h=projHealth(pr.id);
+    const card=document.createElement('div');card.className='pcard';card.onclick=()=>openProjDetail(pr.id);
+    card.innerHTML=`<div class="pcard-hdr"><div><div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;"><span class="psdot ${sm.cls}"></span><span style="font-size:10px;color:var(--t3);">${sm.label}</span></div><div class="pcard-name">${pr.name}</div><div style="font-size:10px;color:var(--t3);font-family:monospace;margin-top:2px;">${pr.id}</div></div><div class="sprint-actions" onclick="event.stopPropagation()"><button class="pbtn" onclick="openEditProj('${pr.id}')" title="Editar"><i class="ti ti-edit"></i></button><button class="pbtn del" onclick="askDel('project','${pr.id}',event)" title="Excluir"><i class="ti ti-trash"></i></button></div></div><div class="pcard-meta"><div class="pmeta-row"><i class="ti ti-user"></i>${pr.owner}</div><div class="pmeta-row"><i class="ti ti-mail"></i>${pr.email||'--'}</div><div class="pmeta-row"><i class="ti ti-phone"></i>${pr.phone||'--'}</div><div class="pmeta-row"><i class="ti ti-calendar"></i>Entrada: ${fmtDate(pr.date)}</div></div><div class="pcard-scope">${pr.scope||'Sem escopo cadastrado.'}</div><div style="margin-bottom:10px;"><div style="font-size:10px;color:var(--t3);margin-bottom:4px;">Saude do projeto</div><div class="health-bar"><div class="hb-track"><div class="hb-fill" style="width:${h.pct}%;background:${h.color};"></div></div><span class="health-label" style="color:${h.color};">${h.pct}%</span></div><div style="font-size:10px;color:${h.color};margin-top:3px;">${h.label}</div></div><div class="pcard-foot"><div class="pstats"><div class="pstat"><div class="pstat-v">${linked.length}</div><div class="pstat-l">cards</div></div><div class="pstat"><div class="pstat-v">${doing}</div><div class="pstat-l">em dev</div></div><div class="pstat"><div class="pstat-v">${done}</div><div class="pstat-l">concluidos</div></div></div><span style="font-size:11px;color:var(--info);font-weight:500;">Ver detalhes</span></div>`;
+    grid.appendChild(card);
+  });
+}
+
+// SPRINTS
+function renderSprints(){
+  const grid=document.getElementById('sprints-grid');
+  const empty=document.getElementById('sprints-empty');
+  grid.innerHTML='';
+  if(!sprints.length){empty.style.display='block';return;}
+  empty.style.display='none';
+  const sorted=[...sprints].sort((a,b)=>b.start.localeCompare(a.start));
+  sorted.forEach(sp=>{
+    const linked=cards.filter(c=>c.sprint===sp.id);
+    const done=linked.filter(c=>c.status==='done').length;
+    const doing=linked.filter(c=>c.status==='doing').length;
+    const testing=linked.filter(c=>c.status==='testing').length;
+    const todo=linked.filter(c=>c.status==='todo').length;
+    const pct=linked.length?Math.round(done/linked.length*100):0;
+    const active=isActive(sp);
+    const sc=document.createElement('div');
+    sc.className='sprint-card'+(active?' active-sprint':'');
+    sc.innerHTML=`<div class="sprint-card-hdr"><div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">${active?'<span class="sprint-badge"><i class="ti ti-player-play" style="font-size:9px;"></i> Sprint ativo</span>':''}</div><div class="sprint-name">${sp.name}</div><div class="sprint-dates">${fmtDate(sp.start)} - ${fmtDate(sp.end)}</div></div><div class="sprint-actions"><button class="pbtn" onclick="openEditSprint('${sp.id}')" title="Editar"><i class="ti ti-edit"></i></button><button class="pbtn del" onclick="askDel('sprint','${sp.id}',event)" title="Excluir"><i class="ti ti-trash"></i></button></div></div><div class="sprint-body">${sp.goal?`<div style="font-size:12px;color:var(--t2);margin-bottom:12px;font-style:italic;">"${sp.goal}"</div>`:''}<div class="sprint-stats"><div class="sprint-stat"><div class="sprint-stat-v">${linked.length}</div><div class="sprint-stat-l">total</div></div><div class="sprint-stat"><div class="sprint-stat-v" style="color:#378ADD;">${doing}</div><div class="sprint-stat-l">em dev</div></div><div class="sprint-stat"><div class="sprint-stat-v" style="color:#EF9F27;">${testing}</div><div class="sprint-stat-l">em teste</div></div><div class="sprint-stat"><div class="sprint-stat-v" style="color:#639922;">${done}</div><div class="sprint-stat-l">concluidos</div></div></div><div class="sprint-progress"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--t3);margin-bottom:4px;"><span>Progresso</span><span>${pct}%</span></div><div class="pbar" style="height:6px;"><div class="pfill" style="width:${pct}%;background:${pct>=80?'#639922':pct>=50?'#EF9F27':'#378ADD'};"></div></div></div><div class="sprint-cards-list">${linked.length?linked.map(c=>{const sp2={todo:'sp-todo',doing:'sp-doing',testing:'sp-testing',done:'sp-done'}[c.status]||'sp-todo';return`<div class="sprint-card-row"><span style="font-family:monospace;font-size:10px;color:var(--t3);min-width:50px;">${c.id}</span><span style="flex:1;">${c.title}</span><span class="spill ${sp2}" style="flex-shrink:0;font-size:9px;"><span class="sp-dot"></span>${ST_L[c.status]}</span></div>`;}).join(''):'<div style="padding:12px;text-align:center;font-size:12px;color:var(--t3);">Nenhum card neste sprint.</div>'}</div></div>`;
+    grid.appendChild(sc);
+  });
+}
+
+// DASHBOARD
+function renderDashboard(){
+  // KPIs
+  const total=cards.length;
+  const done=cards.filter(c=>c.status==='done').length;
+  const doing=cards.filter(c=>c.status==='doing').length;
+  const overdue=cards.filter(c=>c.status!=='done'&&daysUntil(c.date)<0).length;
+  const soon=cards.filter(c=>c.status!=='done'&&daysUntil(c.date)>=0&&daysUntil(c.date)<=3).length;
+  const totalHE=cards.reduce((a,c)=>a+(c.hoursEst||0),0);
+  const totalHD=cards.reduce((a,c)=>a+(c.hoursDone||0),0);
+  document.getElementById('dash-kpis').innerHTML=`
+    <div class="dash-card"><div class="dash-lbl">Total de Cards</div><div class="dash-num">${total}</div><div class="dash-sub">${done} concluidos (${total?Math.round(done/total*100):0}%)</div></div>
+    <div class="dash-card"><div class="dash-lbl">Em Desenvolvimento</div><div class="dash-num" style="color:#378ADD;">${doing}</div><div class="dash-sub">${cards.filter(c=>c.status==='testing').length} em testes</div></div>
+    <div class="dash-card"><div class="dash-lbl">Prazos Vencidos</div><div class="dash-num" style="color:${overdue>0?'#E24B4A':'#639922'};">${overdue}</div><div class="dash-sub">${soon} vencem em ate 3 dias</div></div>
+    <div class="dash-card"><div class="dash-lbl">Horas Est. / Realiz.</div><div class="dash-num">${totalHD}h</div><div class="dash-sub">de ${totalHE}h estimadas (${totalHE?Math.round(totalHD/totalHE*100):0}%)</div></div>
+  `;
+  // Status bars
+  const stMap={todo:cards.filter(c=>c.status==='todo').length,doing,testing:cards.filter(c=>c.status==='testing').length,done};
+  const stColors={todo:'#B4B2A9',doing:'#378ADD',testing:'#EF9F27',done:'#639922'};
+  const stLabels={todo:'Backlog',doing:'Em Dev',testing:'Em Testes',done:'Concluido'};
+  const maxSt=Math.max(...Object.values(stMap),1);
+  document.getElementById('dash-status-chart').innerHTML=Object.entries(stMap).map(([k,v])=>`<div class="bar-row"><span class="bar-label">${stLabels[k]}</span><div class="bar-track"><div class="bar-fill" style="width:${v/maxSt*100}%;background:${stColors[k]};"></div></div><span class="bar-val">${v}</span></div>`).join('');
+  // Epic bars
+  const epics={conta:0,cartao:0,pix:0,credito:0};
+  cards.forEach(c=>{if(epics.hasOwnProperty(c.epic))epics[c.epic]++;});
+  const epColors={conta:'#378ADD',cartao:'#7C6BD1',pix:'#639922',credito:'#EF9F27'};
+  const maxEp=Math.max(...Object.values(epics),1);
+  document.getElementById('dash-epic-chart').innerHTML=Object.entries(epics).map(([k,v])=>`<div class="bar-row"><span class="bar-label">${EPIC_L[k]}</span><div class="bar-track"><div class="bar-fill" style="width:${v/maxEp*100}%;background:${epColors[k]};"></div></div><span class="bar-val">${v}</span></div>`).join('');
+  // Overdue
+  const overdueCards=cards.filter(c=>c.status!=='done'&&(daysUntil(c.date)<0||daysUntil(c.date)<=3)).sort((a,b)=>daysUntil(a.date)-daysUntil(b.date));
+  const ol=document.getElementById('dash-overdue');
+  if(!overdueCards.length){ol.innerHTML='<div style="padding:16px;text-align:center;font-size:12px;color:var(--ok);"><i class="ti ti-circle-check" style="font-size:20px;display:block;margin-bottom:6px;"></i>Nenhum prazo vencido ou proximo!</div>';}
+  else{ol.innerHTML=overdueCards.map(c=>{const du=daysUntil(c.date);const isOv=du<0;return`<div class="overdue-item" style="background:${isOv?'var(--err-bg)':'var(--warn-bg)'};"><i class="ti ti-alert-circle" style="color:${isOv?'var(--err)':'var(--warn)'};"></i><div style="flex:1;"><div style="font-weight:500;">${c.title}</div><div style="font-size:11px;color:var(--t2);">${c.owner} - Prazo: ${fmtDate(c.date)}</div></div><span style="font-size:11px;font-weight:600;color:${isOv?'var(--err)':'var(--warn)'};">${isOv?Math.abs(du)+'d atrasado':'vence em '+du+'d'}</span></div>`;}).join('');}
+  // Health
+  const dh=document.getElementById('dash-health');
+  if(!projs.length){dh.innerHTML='<div style="font-size:12px;color:var(--t3);padding:8px;">Nenhum projeto cadastrado.</div>';return;}
+  dh.innerHTML=projs.map(pr=>{const h=projHealth(pr.id);return`<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span style="font-weight:500;">${pr.name}</span><span style="font-size:11px;color:${h.color};">${h.label}</span></div><div class="hb-track"><div class="hb-fill" style="width:${h.pct}%;background:${h.color};"></div></div></div>`;}).join('');
+}
+
+// FILTER
+function getFilteredCards(){
   const s=document.getElementById('search-input').value.toLowerCase();
-  return projects.filter(p=>(currentFilter==='all'||p.area===currentFilter)&&(!s||p.title.toLowerCase().includes(s)||p.id.toLowerCase().includes(s)));
+  return cards.filter(p=>(curFilter==='all'||p.area===curFilter)&&(!s||p.title.toLowerCase().includes(s)||p.id.toLowerCase().includes(s)||(EPIC_L[p.epic]||'').toLowerCase().includes(s)));
 }
-function filterCards(){const list=getFiltered();if(currentView==='board')renderBoard(list);else if(currentView==='list')renderList(list);}
-function filterBy(area,el){currentFilter=area;document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');filterCards();}
+function filterCards(){
+  const list=getFilteredCards();
+  if(curView==='board')renderBoard(list);
+  else if(curView==='list')renderList(list);
+  else if(curView==='roadmap')renderRoadmap();
+}
+function filterBy(area,el){curFilter=area;document.querySelectorAll('#board-filters .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');filterCards();}
+function onSearch(){if(curView==='projects')renderProjects(document.getElementById('search-input').value.toLowerCase());else if(curView==='sprints')renderSprints();else filterCards();}
+
+const VIEWS=['board','projects','sprints','dashboard','list','roadmap'];
 function switchView(view,btn){
-  currentView=view;
-  document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
-  const titles={board:'Board de Demandas',list:'Lista de Projetos',roadmap:'Roadmap 2025'};
-  document.getElementById('page-title').textContent=titles[view];
-  document.getElementById('board-view').style.display=view==='board'?'block':'none';
-  document.getElementById('list-view').style.display=view==='list'?'block':'none';
-  document.getElementById('roadmap-view').style.display=view==='roadmap'?'block':'none';
-  if(view==='roadmap')renderRoadmap();else filterCards();
+  curView=view;
+  document.querySelectorAll('.vbtn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  const titles={board:'Board de Demandas',list:'Lista de Cards',roadmap:'Roadmap',projects:'Projetos',sprints:'Controle de Sprints',dashboard:'Dashboard de Metricas'};
+  document.getElementById('page-title').textContent=titles[view]||view;
+  VIEWS.forEach(v=>document.getElementById(v+'-view').style.display=v===view?'block':'none');
+  document.getElementById('view-toggle-board').style.display=['projects','sprints','dashboard'].includes(view)?'none':'flex';
+  const lblMap={board:'Novo Card',list:'Novo Card',roadmap:'Novo Card',projects:'Novo Projeto',sprints:'Novo Sprint',dashboard:''};
+  document.getElementById('btn-new-label').textContent=lblMap[view]||'Novo';
+  document.getElementById('search-input').placeholder=view==='projects'?'Buscar projetos...':view==='sprints'?'Buscar sprints...':'Buscar cards...';
+  if(view==='projects')renderProjects();
+  else if(view==='sprints')renderSprints();
+  else if(view==='dashboard')renderDashboard();
+  else filterCards();
 }
-function setNav(el,view){document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));el.classList.add('active');const btn=document.getElementById('btn-'+view);if(btn)switchView(view,btn);}
-function openModal(){document.getElementById('modal').classList.add('open');}
-function closeModal(){document.getElementById('modal').classList.remove('open');}
-function closeModalOutside(e){if(e.target===document.getElementById('modal'))closeModal();}
+function setNav(el,view){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));el.classList.add('active');
+  if(['projects','sprints','dashboard'].includes(view)){switchView(view,null);return;}
+  const btn=document.getElementById('btn-'+view);switchView(view,btn||null);
+  if(btn){document.querySelectorAll('.vbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+}
+function handleNewBtn(){
+  if(curView==='projects')openNewProj();
+  else if(curView==='sprints')openNewSprint();
+  else if(curView==='dashboard')return;
+  else openNewCard();
+}
+
+// CARD MODAL
+function openNewCard(){
+  editCardId=null;
+  document.getElementById('card-form-title').textContent='Novo Card';
+  ['f-id','f-name','f-desc','f-date'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-epic').value='conta';document.getElementById('f-area').value='backend';
+  document.getElementById('f-priority').value='med';document.getElementById('f-status').value='todo';
+  document.getElementById('f-owner').value='Ana Lima';
+  document.getElementById('f-hours-est').value='';document.getElementById('f-hours-done').value='';
+  rebuildSelect('f-project',projs,p=>p.id,p=>p.name,'');
+  rebuildSelect('f-sprint',sprints,s=>s.id,s=>s.name,'');
+  document.getElementById('modal-card').classList.add('open');
+}
+function openEditCard(id,e){
+  if(e)e.stopPropagation();
+  const p=cards.find(x=>x.id===id);if(!p)return;
+  editCardId=id;
+  document.getElementById('card-form-title').textContent='Editar Card';
+  document.getElementById('f-id').value=p.id;document.getElementById('f-name').value=p.title;
+  document.getElementById('f-desc').value=p.desc||'';document.getElementById('f-epic').value=p.epic||'conta';
+  document.getElementById('f-area').value=p.area||'backend';document.getElementById('f-priority').value=p.priority||'med';
+  document.getElementById('f-status').value=p.status||'todo';document.getElementById('f-owner').value=p.owner||'Ana Lima';
+  document.getElementById('f-date').value=p.date||'';
+  document.getElementById('f-hours-est').value=p.hoursEst||'';document.getElementById('f-hours-done').value=p.hoursDone||'';
+  rebuildSelect('f-project',projs,x=>x.id,x=>x.name,p.project||'');
+  rebuildSelect('f-sprint',sprints,x=>x.id,x=>x.name,p.sprint||'');
+  document.getElementById('modal-detail').classList.remove('open');
+  document.getElementById('modal-card').classList.add('open');
+}
+function closeCardForm(){document.getElementById('modal-card').classList.remove('open');}
+function saveCard(){
+  const name=document.getElementById('f-name').value.trim();if(!name){document.getElementById('f-name').focus();return;}
+  if(editCardId){
+    const p=cards.find(x=>x.id===editCardId);
+    if(p){p.title=name;p.desc=document.getElementById('f-desc').value;p.epic=document.getElementById('f-epic').value;p.area=document.getElementById('f-area').value;p.priority=document.getElementById('f-priority').value;p.status=document.getElementById('f-status').value;p.owner=document.getElementById('f-owner').value;p.date=document.getElementById('f-date').value;p.project=document.getElementById('f-project').value;p.sprint=document.getElementById('f-sprint').value;p.hoursEst=parseInt(document.getElementById('f-hours-est').value)||0;p.hoursDone=parseInt(document.getElementById('f-hours-done').value)||0;}
+  } else {
+    const n=cards.length+1;const id='TK-'+String(n).padStart(3,'0');const today=new Date().toISOString().split('T')[0];
+    cards.push({id,title:name,desc:document.getElementById('f-desc').value,epic:document.getElementById('f-epic').value,area:document.getElementById('f-area').value,priority:document.getElementById('f-priority').value,status:document.getElementById('f-status').value,owner:document.getElementById('f-owner').value,date:document.getElementById('f-date').value,project:document.getElementById('f-project').value,sprint:document.getElementById('f-sprint').value,hoursEst:parseInt(document.getElementById('f-hours-est').value)||0,hoursDone:parseInt(document.getElementById('f-hours-done').value)||0,created:today,progress:0,comments:[],roadmapStart:1,roadmapSpan:1});
+  }
+  svC();closeCardForm();filterCards();
+}
+
+// CARD DETAIL + COMMENTS
+function openDetail(id,e){
+  if(e)e.stopPropagation();
+  const p=cards.find(x=>x.id===id);if(!p)return;
+  detailCardId=id;
+  document.getElementById('det-badges').innerHTML=`<span class="epic-badge ${EPIC_C[p.epic]||''}">${EPIC_L[p.epic]||p.epic}</span>${p.project?`<span class="proj-tag"><i class="ti ti-folder" style="font-size:9px;"></i>${getProjName(p.project)}</span>`:''}${p.sprint?`<span class="sprint-badge"><i class="ti ti-run" style="font-size:9px;"></i>${getSprintName(p.sprint)}</span>`:''}`;
+  document.getElementById('det-title').textContent=p.title;
+  document.getElementById('det-desc').textContent=p.desc||'Sem descricao cadastrada.';
+  document.getElementById('det-id').textContent=p.id;
+  document.getElementById('det-project').textContent=p.project?getProjName(p.project):'--';
+  document.getElementById('det-sprint').textContent=p.sprint?getSprintName(p.sprint):'--';
+  document.getElementById('det-epic').textContent=EPIC_L[p.epic]||p.epic;
+  document.getElementById('det-area').textContent=AREA_L[p.area]||p.area;
+  document.getElementById('det-owner').textContent=p.owner;
+  document.getElementById('det-priority').textContent=p.priority==='high'?'Alta':p.priority==='med'?'Media':'Baixa';
+  document.getElementById('det-status').textContent=ST_L[p.status]||p.status;
+  document.getElementById('det-date').textContent=fmtDate(p.date);
+  const age=daysOpen(p.created);
+  document.getElementById('det-age').innerHTML=`<span class="time-badge"><i class="ti ti-clock"></i> ${age} dia${age!==1?'s':''} aberto${age!==1?'s':''}</span>`;
+  document.getElementById('det-hours').textContent=`${p.hoursDone||0}h realizadas de ${p.hoursEst||0}h estimadas`;
+  renderComments(p);
+  document.getElementById('det-edit-btn').onclick=()=>openEditCard(id,null);
+  document.getElementById('modal-detail').classList.add('open');
+}
+function renderComments(p){
+  const list=document.getElementById('comment-list');
+  const comms=p.comments||[];
+  document.getElementById('det-comment-count').textContent=comms.length?`(${comms.length})`:'';
+  if(!comms.length){list.innerHTML='<div style="padding:12px;text-align:center;font-size:12px;color:var(--t3);">Sem comentarios ainda.</div>';return;}
+  list.innerHTML=comms.map(c=>`<div class="comment-item"><div class="comment-meta"><span class="comment-author">${c.author}</span><div style="display:flex;align-items:center;gap:6px;"><span class="comment-time">${fmtDT(c.ts)}</span><button class="comment-del" onclick="deleteComment('${p.id}','${c.id}')" title="Excluir"><i class="ti ti-trash"></i></button></div></div><div class="comment-text">${c.text}</div></div>`).join('');
+  list.scrollTop=list.scrollHeight;
+}
+function addComment(){
+  const text=document.getElementById('comment-input').value.trim();
+  if(!text||!detailCardId)return;
+  const p=cards.find(x=>x.id===detailCardId);if(!p)return;
+  if(!p.comments)p.comments=[];
+  p.comments.push({id:'CM-'+Date.now(),author:'Voce',text,ts:Date.now()});
+  document.getElementById('comment-input').value='';
+  svC();renderComments(p);
+}
+function deleteComment(cardId,cmId){
+  const p=cards.find(x=>x.id===cardId);if(!p)return;
+  p.comments=(p.comments||[]).filter(c=>c.id!==cmId);
+  svC();renderComments(p);
+}
+function closeDetail(){document.getElementById('modal-detail').classList.remove('open');detailCardId=null;}
+
+// PROJECT MODAL
+function openNewProj(){
+  editProjId=null;
+  document.getElementById('proj-form-title').textContent='Novo Projeto';
+  ['pf-id','pf-name','pf-owner','pf-email','pf-phone','pf-scope'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pf-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('pf-status').value='ativo';
+  document.getElementById('modal-project').classList.add('open');
+}
+function openEditProj(id){
+  const p=projs.find(x=>x.id===id);if(!p)return;
+  editProjId=id;
+  document.getElementById('proj-form-title').textContent='Editar Projeto';
+  document.getElementById('pf-id').value=p.id;document.getElementById('pf-name').value=p.name;
+  document.getElementById('pf-owner').value=p.owner;document.getElementById('pf-email').value=p.email||'';
+  document.getElementById('pf-phone').value=p.phone||'';document.getElementById('pf-date').value=p.date||'';
+  document.getElementById('pf-status').value=p.status||'ativo';document.getElementById('pf-scope').value=p.scope||'';
+  document.getElementById('modal-proj-detail').classList.remove('open');
+  document.getElementById('modal-project').classList.add('open');
+}
+function closeProjectForm(){document.getElementById('modal-project').classList.remove('open');}
 function saveProject(){
-  const name=document.getElementById('f-name').value.trim();
-  if(!name){document.getElementById('f-name').focus();return;}
-  const area=document.getElementById('f-area').value;
-  const priority=document.getElementById('f-priority').value;
-  const owner=document.getElementById('f-owner').value;
-  const date=document.getElementById('f-date').value||'31/12/25';
-  const n=projects.length+1;
-  const id='TK-'+(n<10?'00':n<100?'0':'')+n;
-  projects.push({id,title:name,area,priority,status:'todo',owner,date,progress:0,start:1,span:1});
-  document.getElementById('s-total').textContent=projects.length;
-  closeModal();filterCards();
-  ['f-name','f-desc','f-date','f-criteria'].forEach(id=>document.getElementById(id).value='');
+  const name=document.getElementById('pf-name').value.trim();if(!name){document.getElementById('pf-name').focus();return;}
+  const owner=document.getElementById('pf-owner').value.trim();
+  if(editProjId){
+    const p=projs.find(x=>x.id===editProjId);
+    if(p){p.name=name;p.owner=owner;p.email=document.getElementById('pf-email').value;p.phone=document.getElementById('pf-phone').value;p.date=document.getElementById('pf-date').value;p.status=document.getElementById('pf-status').value;p.scope=document.getElementById('pf-scope').value;}
+  } else {
+    const n=projs.length+1;const id='PRJ-'+String(n).padStart(3,'0');
+    projs.push({id,name,owner,email:document.getElementById('pf-email').value,phone:document.getElementById('pf-phone').value,date:document.getElementById('pf-date').value,status:document.getElementById('pf-status').value,scope:document.getElementById('pf-scope').value});
+  }
+  svP();closeProjectForm();renderProjects();
 }
-renderBoard(projects);
+
+// PROJECT DETAIL
+function openProjDetail(id){
+  const pr=projs.find(x=>x.id===id);if(!pr)return;
+  const linked=cards.filter(c=>c.project===id);
+  const sm=PS_M[pr.status]||PS_M.ativo;
+  const h=projHealth(id);
+  document.getElementById('pd-id-lbl').textContent=pr.id;
+  document.getElementById('pd-name').textContent=pr.name;
+  document.getElementById('pd-owner').textContent=pr.owner;
+  document.getElementById('pd-email').textContent=pr.email||'--';
+  document.getElementById('pd-phone').textContent=pr.phone||'--';
+  document.getElementById('pd-date').textContent=fmtDate(pr.date);
+  document.getElementById('pd-status').innerHTML=`<span style="display:inline-flex;align-items:center;gap:6px;"><span class="psdot ${sm.cls}"></span>${sm.label}</span>`;
+  document.getElementById('pd-scope').textContent=pr.scope||'Sem escopo cadastrado.';
+  const done=linked.filter(c=>c.status==='done').length;
+  const doing=linked.filter(c=>c.status==='doing').length;
+  document.getElementById('pd-stats').innerHTML=`<div class="pd-stat"><div class="pd-stat-v">${linked.length}</div><div class="pd-stat-l">total de cards</div></div><div class="pd-stat"><div class="pd-stat-v">${doing}</div><div class="pd-stat-l">em desenvolvimento</div></div><div class="pd-stat"><div class="pd-stat-v">${done}</div><div class="pd-stat-l">concluidos</div></div>`;
+  document.getElementById('pd-health-bar').innerHTML=`<div class="health-bar"><div class="hb-track"><div class="hb-fill" style="width:${h.pct}%;background:${h.color};height:8px;"></div></div><span class="health-label" style="color:${h.color};">${h.pct}%</span></div><div style="font-size:11px;color:${h.color};margin-top:3px;">${h.label}</div>`;
+  const cl=document.getElementById('pd-cards');cl.innerHTML='';
+  if(!linked.length){cl.innerHTML='<div style="padding:16px;text-align:center;font-size:12px;color:var(--t3);">Nenhum card vinculado ainda.</div>';}
+  else{linked.forEach(c=>{const sp={todo:'sp-todo',doing:'sp-doing',testing:'sp-testing',done:'sp-done'}[c.status]||'sp-todo';const lbl=ST_L[c.status]||c.status;const row=document.createElement('div');row.className='linked-row';row.innerHTML=`<span style="font-family:monospace;font-size:10px;color:var(--t3);min-width:55px;">${c.id}</span><span style="flex:1;font-weight:500;">${c.title}</span><span class="spill ${sp}" style="flex-shrink:0;"><span class="sp-dot"></span>${lbl}</span>`;cl.appendChild(row);});}
+  document.getElementById('pd-edit-btn').onclick=()=>openEditProj(id);
+  document.getElementById('modal-proj-detail').classList.add('open');
+}
+function closeProjDetail(){document.getElementById('modal-proj-detail').classList.remove('open');}
+
+// SPRINT MODAL
+function openNewSprint(){
+  editSprintId=null;
+  document.getElementById('sprint-form-title').textContent='Novo Sprint';
+  ['sf-id','sf-name','sf-goal'].forEach(id=>document.getElementById(id).value='');
+  const today=new Date().toISOString().split('T')[0];
+  const next=new Date();next.setDate(next.getDate()+6);
+  document.getElementById('sf-start').value=today;
+  document.getElementById('sf-end').value=next.toISOString().split('T')[0];
+  document.getElementById('modal-sprint').classList.add('open');
+}
+function openEditSprint(id){
+  const s=sprints.find(x=>x.id===id);if(!s)return;
+  editSprintId=id;
+  document.getElementById('sprint-form-title').textContent='Editar Sprint';
+  document.getElementById('sf-id').value=s.id;document.getElementById('sf-name').value=s.name;
+  document.getElementById('sf-start').value=s.start;document.getElementById('sf-end').value=s.end;
+  document.getElementById('sf-goal').value=s.goal||'';
+  document.getElementById('modal-sprint').classList.add('open');
+}
+function closeSprintForm(){document.getElementById('modal-sprint').classList.remove('open');}
+function saveSprint(){
+  const name=document.getElementById('sf-name').value.trim();if(!name){document.getElementById('sf-name').focus();return;}
+  const start=document.getElementById('sf-start').value;
+  const end=document.getElementById('sf-end').value;
+  if(editSprintId){
+    const s=sprints.find(x=>x.id===editSprintId);
+    if(s){s.name=name;s.start=start;s.end=end;s.goal=document.getElementById('sf-goal').value;}
+  } else {
+    const n=sprints.length+1;const id='SP-'+String(n).padStart(3,'0');
+    sprints.push({id,name,start,end,goal:document.getElementById('sf-goal').value});
+  }
+  svS();closeSprintForm();renderSprints();
+}
+
+// DELETE
+function askDel(type,id,e){if(e)e.stopPropagation();delType=type;delId=id;document.getElementById('confirm-msg').textContent=type==='project'?'Excluir este projeto?':type==='sprint'?'Excluir este sprint?':'Excluir este card?';document.getElementById('confirm-sub').textContent=type==='project'?'Os cards vinculados perdem o vinculo.':type==='sprint'?'Os cards do sprint perdem o vinculo.':'Esta acao nao pode ser desfeita.';document.getElementById('confirm-del').classList.add('open');}
+function closeConfirm(){delId=null;delType=null;document.getElementById('confirm-del').classList.remove('open');}
+function confirmDelete(){
+  if(delType==='project'){cards.forEach(c=>{if(c.project===delId)c.project='';});projs=projs.filter(p=>p.id!==delId);svP();svC();renderProjects();}
+  else if(delType==='sprint'){cards.forEach(c=>{if(c.sprint===delId)c.sprint='';});sprints=sprints.filter(s=>s.id!==delId);svS();svC();renderSprints();}
+  else{cards=cards.filter(p=>p.id!==delId);svC();filterCards();}
+  closeConfirm();
+}
+function cmo(e,id,fn){if(e.target===document.getElementById(id))fn();}
+
+filterCards();
 </script>
 </body>
 </html>
