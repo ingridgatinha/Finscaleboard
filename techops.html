@@ -1334,6 +1334,20 @@ const PROD_DATA = {
 let prodEditMode = false;
 let editingProdComp = null;
 
+// Carrega dados salvos do localStorage (se existir)
+const PROD_KEY = 'techops_produtos_v1';
+function saveProdData() { localStorage.setItem(PROD_KEY, JSON.stringify(PROD_DATA)); }
+function loadProdData() {
+  try {
+    const s = localStorage.getItem(PROD_KEY);
+    if (s) {
+      const saved = JSON.parse(s);
+      Object.keys(saved).forEach(k => { if (PROD_DATA[k]) Object.assign(PROD_DATA[k], saved[k]); });
+    }
+  } catch(e) {}
+}
+loadProdData();
+
 function setProdTab(tab, el) {
   curProdTab = tab;
   document.querySelectorAll('.prod-tab').forEach(t=>t.classList.remove('active'));
@@ -1423,6 +1437,7 @@ function toggleEditMode() {
 function updateFeat(fi, vi, val) {
   PROD_DATA[curProdTab].features[fi].vals[vi] = parseFloat(val);
   recalcScore();
+  saveProdData();
 }
 
 function recalcScore() {
@@ -1432,11 +1447,13 @@ function recalcScore() {
     const sum = d.features.reduce((a,f) => a + (f.vals[ci]||0), 0);
     d.scores[ci] = total ? Math.round(sum/total*100) : 0;
   });
+  saveProdData();
 }
 
 function removeFeature(fi) {
   PROD_DATA[curProdTab].features.splice(fi, 1);
   recalcScore();
+  saveProdData();
   renderProdutos();
 }
 
@@ -1446,6 +1463,7 @@ function removeCompany(ci) {
   d.compColors.splice(ci, 1);
   d.scores.splice(ci, 1);
   d.features.forEach(f => f.vals.splice(ci, 1));
+  saveProdData();
   renderProdutos();
 }
 
@@ -1458,6 +1476,7 @@ function openAddCompany() {
   d.compColors.push(colors[d.companies.length % colors.length]);
   d.scores.push(0);
   d.features.forEach(f => f.vals.push(0));
+  saveProdData();
   renderProdutos();
 }
 
@@ -1466,6 +1485,7 @@ function openAddFeature() {
   if (!name || !name.trim()) return;
   const d = PROD_DATA[curProdTab];
   d.features.push({name: name.trim(), vals: new Array(d.companies.length).fill(0)});
+  saveProdData();
   renderProdutos();
 }
 
@@ -1474,6 +1494,7 @@ function openEditInsight(ii) {
   const newText = prompt('Editar texto do insight "' + ins.title + '":', ins.text);
   if (newText === null) return;
   ins.text = newText.trim() || ins.text;
+  saveProdData();
   renderProdutos();
 }
 // ── FIM PRODUTOS ──────────────────────────────────────────────────────────────
