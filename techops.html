@@ -5,6 +5,69 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TechOps</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDr3st8SDavSC1zy0PtpsfL6r0d_64JVwo",
+    authDomain: "techops-finscale.firebaseapp.com",
+    projectId: "techops-finscale",
+    storageBucket: "techops-finscale.firebasestorage.app",
+    messagingSenderId: "664708249655",
+    appId: "1:664708249655:web:8dc98b6bf05e994eb367b2"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // ── SAVE TO FIREBASE ──────────────────────────────────────────────────────
+  window.fbSave = async function(key, data) {
+    try {
+      await setDoc(doc(db, 'techops', key), { data: JSON.stringify(data) });
+    } catch(e) { console.error('Firebase save error:', e); }
+  };
+
+  // ── LISTEN TO CHANGES (real-time sync) ───────────────────────────────────
+  window.fbListen = function(key, callback) {
+    onSnapshot(doc(db, 'techops', key), (snap) => {
+      if (snap.exists()) {
+        try { callback(JSON.parse(snap.data().data)); } catch(e) {}
+      }
+    });
+  };
+
+  // ── LOAD ONCE ─────────────────────────────────────────────────────────────
+  window.fbLoad = async function(key) {
+    try {
+      const snap = await getDoc(doc(db, 'techops', key));
+      if (snap.exists()) return JSON.parse(snap.data().data);
+    } catch(e) { console.error('Firebase load error:', e); }
+    return null;
+  };
+
+  // ── INIT: load data then start app ────────────────────────────────────────
+  window.fbReady = false;
+  Promise.all([
+    window.fbLoad('cards'),
+    window.fbLoad('projects'),
+    window.fbLoad('sprints'),
+    window.fbLoad('produtos'),
+  ]).then(([fbCards, fbProjs, fbSprints, fbProdutos]) => {
+    if (fbCards)    { window._fbCards    = fbCards; }
+    if (fbProjs)    { window._fbProjs    = fbProjs; }
+    if (fbSprints)  { window._fbSprints  = fbSprints; }
+    if (fbProdutos) { window._fbProdutos = fbProdutos; }
+    window.fbReady = true;
+    if (window.initApp) window.initApp();
+
+    // Real-time listeners
+    window.fbListen('cards',    d => { if(window.onFbCards)    window.onFbCards(d); });
+    window.fbListen('projects', d => { if(window.onFbProjs)    window.onFbProjs(d); });
+    window.fbListen('sprints',  d => { if(window.onFbSprints)  window.onFbSprints(d); });
+    window.fbListen('produtos', d => { if(window.onFbProdutos) window.onFbProdutos(d); });
+  });
+</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -691,9 +754,18 @@ const DC=[
 let cards=ld(CK,DC);
 let projs=ld(PK,DP);
 let sprints=ld(SK,DS);
-function svC(){sv(CK,cards);}
-function svP(){sv(PK,projs);}
-function svS(){sv(SK,sprints);}
+function svC(){
+  sv(CK,cards);
+  if(window.fbSave) window.fbSave('cards', cards);
+}
+function svP(){
+  sv(PK,projs);
+  if(window.fbSave) window.fbSave('projects', projs);
+}
+function svS(){
+  sv(SK,sprints);
+  if(window.fbSave) window.fbSave('sprints', sprints);
+}
 
 let curFilter='all',curView='board',dragId=null,delId=null,delType=null;
 let editCardId=null,editProjId=null,editSprintId=null,detailCardId=null;
@@ -1336,7 +1408,10 @@ let editingProdComp = null;
 
 // Carrega dados salvos do localStorage (se existir)
 const PROD_KEY = 'techops_produtos_v1';
-function saveProdData() { localStorage.setItem(PROD_KEY, JSON.stringify(PROD_DATA)); }
+function saveProdData() {
+  localStorage.setItem(PROD_KEY, JSON.stringify(PROD_DATA));
+  if(window.fbSave) window.fbSave('produtos', PROD_DATA);
+}
 function loadProdData() {
   try {
     const s = localStorage.getItem(PROD_KEY);
@@ -1501,7 +1576,65 @@ function openEditInsight(ii) {
 
 function cmo(e,id,fn){if(e.target===document.getElementById(id))fn();}
 
-filterCards();
+// ── FIREBASE REAL-TIME CALLBACKS ─────────────────────────────────────────────
+window.onFbCards = function(data) {
+  // Only update if data changed from another session
+  const local = JSON.stringify(cards);
+  const remote = JSON.stringify(data);
+  if (local !== remote) {
+    cards = data;
+    sv(CK, cards);
+    filterCards();
+    updateStats();
+  }
+};
+window.onFbProjs = function(data) {
+  const local = JSON.stringify(projs);
+  if (JSON.stringify(data) !== local) {
+    projs = data;
+    sv(PK, projs);
+    if(curView==='projects') renderProjects();
+  }
+};
+window.onFbSprints = function(data) {
+  const local = JSON.stringify(sprints);
+  if (JSON.stringify(data) !== local) {
+    sprints = data;
+    sv(SK, sprints);
+    if(curView==='sprints') renderSprints();
+  }
+};
+window.onFbProdutos = function(data) {
+  if (data) {
+    Object.keys(data).forEach(k => { if(PROD_DATA[k]) Object.assign(PROD_DATA[k], data[k]); });
+    localStorage.setItem(PROD_KEY, JSON.stringify(PROD_DATA));
+    if(curView==='produtos') renderProdutos();
+  }
+};
+
+// ── INIT APP ─────────────────────────────────────────────────────────────────
+window.initApp = function() {
+  // Override with Firebase data if available
+  if (window._fbCards)    { cards   = window._fbCards;   sv(CK, cards); }
+  if (window._fbProjs)    { projs   = window._fbProjs;   sv(PK, projs); }
+  if (window._fbSprints)  { sprints = window._fbSprints; sv(SK, sprints); }
+  if (window._fbProdutos) {
+    Object.keys(window._fbProdutos).forEach(k => {
+      if(PROD_DATA[k]) Object.assign(PROD_DATA[k], window._fbProdutos[k]);
+    });
+  }
+  filterCards();
+};
+
+// Start: if Firebase already loaded, call initApp; otherwise it calls itself
+if (window.fbReady) {
+  window.initApp();
+} else {
+  // Firebase not ready yet, start with localStorage data
+  setTimeout(() => { if(!window.fbReady) filterCards(); }, 800);
+  // initApp will be called by Firebase when ready
+  filterCards();
+}
 </script>
 </body>
 </html>
