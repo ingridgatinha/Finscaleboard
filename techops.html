@@ -285,6 +285,7 @@ textarea{resize:vertical;min-height:80px;}
 .feat-yes{color:#639922;font-size:16px;}
 .feat-no{color:#E24B4A;font-size:16px;}
 .feat-part{color:#EF9F27;font-size:14px;font-weight:600;}
+.feat-select{border:.5px solid var(--bm);border-radius:var(--r);background:var(--bg);color:var(--t1);font-family:inherit;cursor:pointer;}
 .company-hdr{display:flex;align-items:center;gap:6px;}
 .company-badge{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;}
 .score-bar{height:6px;background:var(--b);border-radius:3px;overflow:hidden;margin-top:4px;}
@@ -1123,8 +1124,8 @@ let curProdTab = 'banking';
 const PROD_DATA = {
   banking: {
     title: 'Conta Digital (Banking)',
-    icon: 'ti-building-bank',
-    color: '#185FA5',
+    companies: ['Finscale','Dock','Celcoin','BancoBS2','Stark Bank','Fiducia','BMP','QI Tech'],
+    compColors: ['#185FA5','#7C3AED','#059669','#DC2626','#D97706','#0F6E56','#3C3489','#854F0B'],
     kpis: [
       {val:'8',lbl:'Empresas mapeadas',sub:'no mercado BR'},
       {val:'34',lbl:'Funcionalidades',sub:'avaliadas'},
@@ -1132,217 +1133,206 @@ const PROD_DATA = {
       {val:'3',lbl:'Gaps',sub:'vs concorrentes'},
     ],
     insights: [
-      {icon:'ti-star',cls:'acc-blue',title:'Destaque Finscale',text:'PIX completo com QR dinamico e gestao de limites ja implementado. Diferenciais claros em UX mobile.'},
-      {icon:'ti-alert-triangle',cls:'acc-amber',title:'Ponto de Atencao',text:'Onboarding PJ ainda nao mapeado. Concorrentes como Dock e Celcoin ja oferecem abertura de conta PJ automatizada.'},
-      {icon:'ti-trending-up',cls:'acc-green',title:'Oportunidade',text:'Integracao com open finance ainda pouco explorada pelos concorrentes. Janela de oportunidade aberta.'},
+      {cls:'acc-blue',title:'Destaque Finscale',text:'PIX completo com QR dinamico e gestao de limites ja implementado. Diferenciais claros em UX mobile.'},
+      {cls:'acc-amber',title:'Ponto de Atencao',text:'Onboarding PJ ainda nao mapeado. Concorrentes como Dock e Celcoin ja oferecem abertura de conta PJ automatizada.'},
+      {cls:'acc-green',title:'Oportunidade',text:'Integracao com open finance ainda pouco explorada pelos concorrentes. Janela de oportunidade aberta.'},
     ],
-    companies: ['Finscale','Dock','Celcoin','BancoBS2','Stark Bank'],
-    compColors: ['#185FA5','#7C3AED','#059669','#DC2626','#D97706'],
     features: [
-      {name:'Abertura de conta PF',vals:[1,1,1,1,1]},
-      {name:'Abertura de conta PJ',vals:[0,1,1,1,1]},
-      {name:'Cartao de debito',vals:[1,1,1,1,0]},
-      {name:'Cartao de credito',vals:[1,0,1,1,0]},
-      {name:'PIX completo',vals:[1,1,1,1,1]},
-      {name:'TED / DOC',vals:[1,1,1,1,1]},
-      {name:'Pagamento de boletos',vals:[1,1,1,1,1]},
-      {name:'Extrato e comprovantes',vals:[1,1,1,1,1]},
-      {name:'Autenticacao biometrica',vals:[1,0,1,1,0]},
-      {name:'Multi-dispositivo / Token',vals:[1,1,1,0,1]},
-      {name:'Open Finance',vals:[0,1,0,1,0]},
-      {name:'Dashboard financeiro',vals:[1,0,1,0,1]},
-      {name:'Notificacoes push',vals:[1,1,1,1,0]},
-      {name:'API Banking as a Service',vals:[0,1,1,1,1]},
+      {name:'Abertura de conta PF',vals:[1,1,1,1,1,1,1,1]},
+      {name:'Abertura de conta PJ',vals:[0,1,1,1,1,1,1,1]},
+      {name:'Cartao de debito',vals:[1,1,1,1,0,1,1,0]},
+      {name:'Cartao de credito',vals:[1,0,1,1,0,0,1,0]},
+      {name:'PIX completo',vals:[1,1,1,1,1,1,1,1]},
+      {name:'TED / DOC',vals:[1,1,1,1,1,1,1,1]},
+      {name:'Pagamento de boletos',vals:[1,1,1,1,1,1,1,1]},
+      {name:'Extrato e comprovantes',vals:[1,1,1,1,1,1,1,1]},
+      {name:'Autenticacao biometrica',vals:[1,0,1,1,0,0,0,0]},
+      {name:'Multi-dispositivo / Token',vals:[1,1,1,0,1,0,1,0]},
+      {name:'Open Finance',vals:[0,1,0,1,0,0,1,1]},
+      {name:'Dashboard financeiro',vals:[1,0,1,0,1,0,0,1]},
+      {name:'Notificacoes push',vals:[1,1,1,1,0,1,0,0]},
+      {name:'API Banking as a Service',vals:[0,1,1,1,1,1,1,1]},
     ],
-    scores:[72,88,91,79,65],
+    scores:[72,88,91,79,65,70,82,76],
   },
   credito: {
     title: 'Credito Pessoal',
-    icon: 'ti-coin',
-    color: '#854F0B',
+    companies: ['Finscale','Rebel','Creditas','Geru','Bx Blue','Fiducia','BMP','QI Tech'],
+    compColors: ['#185FA5','#7C3AED','#059669','#DC2626','#D97706','#0F6E56','#3C3489','#854F0B'],
     kpis: [
-      {val:'6',lbl:'Empresas mapeadas',sub:'no mercado BR'},
+      {val:'8',lbl:'Empresas mapeadas',sub:'no mercado BR'},
       {val:'22',lbl:'Funcionalidades',sub:'avaliadas'},
       {val:'3',lbl:'Diferenciais',sub:'identificados'},
       {val:'4',lbl:'Gaps',sub:'vs concorrentes'},
     ],
     insights: [
-      {icon:'ti-star',cls:'acc-blue',title:'Destaque Finscale',text:'Simulador de credito com politica de credito propria (Creditá/VADU). Assinatura digital integrada via RBM.'},
-      {icon:'ti-alert-triangle',cls:'acc-amber',title:'Ponto de Atencao',text:'Aprovacao manual por analista e processo ainda nao totalmente automatizado. Gera gargalo operacional.'},
-      {icon:'ti-trending-up',cls:'acc-green',title:'Oportunidade',text:'Motor de credito automatizado com score em tempo real e aprovacao instantanea e diferencial nao explorado.'},
+      {cls:'acc-blue',title:'Destaque Finscale',text:'Simulador de credito com politica de credito propria (Credita/VADU). Assinatura digital integrada via RBM.'},
+      {cls:'acc-amber',title:'Ponto de Atencao',text:'Aprovacao manual por analista e processo ainda nao totalmente automatizado. Gera gargalo operacional.'},
+      {cls:'acc-green',title:'Oportunidade',text:'Motor de credito automatizado com score em tempo real e aprovacao instantanea e diferencial nao explorado.'},
     ],
-    companies: ['Finscale','Rebel','Creditas','Geru','Bx Blue'],
-    compColors: ['#185FA5','#7C3AED','#059669','#DC2626','#D97706'],
     features: [
-      {name:'Simulador de credito',vals:[1,1,1,1,1]},
-      {name:'Aprovacao automatica',vals:[0,1,1,1,1]},
-      {name:'Aprovacao manual',vals:[1,0,0,0,0]},
-      {name:'Score em tempo real',vals:[0,1,1,1,1]},
-      {name:'Assinatura digital',vals:[1,1,1,0,1]},
-      {name:'Cedula de credito digital',vals:[1,0,1,0,0]},
-      {name:'Parcelamento flexivel',vals:[0.5,1,1,1,1]},
-      {name:'Portabilidade de credito',vals:[0,1,1,1,0]},
-      {name:'Credito consignado',vals:[0,0,1,0,1]},
-      {name:'Refinanciamento',vals:[0,1,1,1,0]},
-      {name:'Majoracao de limite',vals:[1,1,1,0,1]},
+      {name:'Simulador de credito',vals:[1,1,1,1,1,1,1,1]},
+      {name:'Aprovacao automatica',vals:[0,1,1,1,1,0,1,1]},
+      {name:'Aprovacao manual',vals:[1,0,0,0,0,1,0,0]},
+      {name:'Score em tempo real',vals:[0,1,1,1,1,0,1,1]},
+      {name:'Assinatura digital',vals:[1,1,1,0,1,1,1,1]},
+      {name:'Cedula de credito digital',vals:[1,0,1,0,0,1,1,1]},
+      {name:'Parcelamento flexivel',vals:[0.5,1,1,1,1,0.5,1,1]},
+      {name:'Portabilidade de credito',vals:[0,1,1,1,0,0,1,0]},
+      {name:'Credito consignado',vals:[0,0,1,0,1,1,1,0]},
+      {name:'Refinanciamento',vals:[0,1,1,1,0,0,1,1]},
+      {name:'Majoracao de limite',vals:[1,1,1,0,1,1,0,1]},
     ],
-    scores:[55,82,90,74,68],
+    scores:[55,82,90,74,68,72,85,80],
   },
   antsal: {
     title: 'Antecipacao Salarial',
-    icon: 'ti-calendar-dollar',
-    color: '#0F6E56',
+    companies: ['Finscale','Flash','Creditas','Swile','PicPay','Fiducia','BMP','QI Tech'],
+    compColors: ['#185FA5','#7C3AED','#059669','#DC2626','#D97706','#0F6E56','#3C3489','#854F0B'],
     kpis: [
-      {val:'5',lbl:'Empresas mapeadas',sub:'no mercado BR'},
+      {val:'8',lbl:'Empresas mapeadas',sub:'no mercado BR'},
       {val:'18',lbl:'Funcionalidades',sub:'avaliadas'},
       {val:'2',lbl:'Diferenciais',sub:'identificados'},
       {val:'5',lbl:'Gaps',sub:'vs concorrentes'},
     ],
     insights: [
-      {icon:'ti-alert-triangle',cls:'acc-amber',title:'Ponto de Atencao',text:'Produto ainda nao implementado na Finscale. Mercado crescendo fortemente com players como Flash e Creditas.'},
-      {icon:'ti-trending-up',cls:'acc-green',title:'Oportunidade',text:'Integracao com folha de pagamento e parceria com RH das empresas clientes e diferencial competitivo alto.'},
-      {icon:'ti-star',cls:'acc-blue',title:'Referencia de Mercado',text:'Flash e Swile lideram com integracao nativa ao app de beneficios, gerando alto engajamento dos funcionarios.'},
+      {cls:'acc-amber',title:'Ponto de Atencao',text:'Produto ainda nao implementado na Finscale. Mercado crescendo fortemente com players como Flash e Creditas.'},
+      {cls:'acc-green',title:'Oportunidade',text:'Integracao com folha de pagamento e parceria com RH das empresas clientes e diferencial competitivo alto.'},
+      {cls:'acc-blue',title:'Referencia de Mercado',text:'Flash e Swile lideram com integracao nativa ao app de beneficios, gerando alto engajamento dos funcionarios.'},
     ],
-    companies: ['Finscale','Flash','Creditas','Swile','PicPay'],
-    compColors: ['#185FA5','#7C3AED','#059669','#DC2626','#D97706'],
     features: [
-      {name:'Antecipacao sob demanda',vals:[0,1,1,1,1]},
-      {name:'Limite baseado em salario',vals:[0,1,1,1,1]},
-      {name:'Integracao com DP / RH',vals:[0,1,0,1,0]},
-      {name:'App do colaborador',vals:[0,1,1,1,1]},
-      {name:'Painel do RH',vals:[0,1,0,1,0]},
-      {name:'Taxa zero para colaborador',vals:[0,0,1,0,1]},
-      {name:'Desconto em folha automatico',vals:[0,1,1,1,0]},
-      {name:'Historico de antecipacoes',vals:[0,1,1,1,1]},
-      {name:'Notificacao de disponibilidade',vals:[0,1,0,1,1]},
+      {name:'Antecipacao sob demanda',vals:[0,1,1,1,1,1,0,1]},
+      {name:'Limite baseado em salario',vals:[0,1,1,1,1,1,1,1]},
+      {name:'Integracao com DP / RH',vals:[0,1,0,1,0,1,1,0]},
+      {name:'App do colaborador',vals:[0,1,1,1,1,0,0,0]},
+      {name:'Painel do RH',vals:[0,1,0,1,0,1,1,0]},
+      {name:'Taxa zero para colaborador',vals:[0,0,1,0,1,0,0,0]},
+      {name:'Desconto em folha automatico',vals:[0,1,1,1,0,1,1,1]},
+      {name:'Historico de antecipacoes',vals:[0,1,1,1,1,1,1,1]},
+      {name:'Notificacao de disponibilidade',vals:[0,1,0,1,1,0,0,0]},
     ],
-    scores:[0,85,78,82,60],
+    scores:[0,85,78,82,60,68,65,55],
   },
   antrec: {
     title: 'Antecipacao de Recebiveis',
-    icon: 'ti-receipt',
-    color: '#3C3489',
+    companies: ['Finscale','Blu','Vortx','Liber','BTG PMEs','Fiducia','BMP','QI Tech'],
+    compColors: ['#185FA5','#7C3AED','#059669','#DC2626','#D97706','#0F6E56','#3C3489','#854F0B'],
     kpis: [
-      {val:'6',lbl:'Empresas mapeadas',sub:'no mercado BR'},
+      {val:'8',lbl:'Empresas mapeadas',sub:'no mercado BR'},
       {val:'20',lbl:'Funcionalidades',sub:'avaliadas'},
       {val:'2',lbl:'Diferenciais',sub:'identificados'},
       {val:'4',lbl:'Gaps',sub:'vs concorrentes'},
     ],
     insights: [
-      {icon:'ti-alert-triangle',cls:'acc-amber',title:'Ponto de Atencao',text:'Produto ainda nao implementado na Finscale. Altamente demandado por PMEs que precisam de capital de giro.'},
-      {icon:'ti-trending-up',cls:'acc-green',title:'Oportunidade',text:'Integracao com maquininhas e agenda de recebiveis BACEN abre janela para produto automatizado e competitivo.'},
-      {icon:'ti-star',cls:'acc-blue',title:'Referencia de Mercado',text:'Blu e Vortx se destacam pela velocidade de analise (menos de 2h) e taxas competitivas por volume.'},
+      {cls:'acc-amber',title:'Ponto de Atencao',text:'Produto ainda nao implementado na Finscale. Altamente demandado por PMEs que precisam de capital de giro.'},
+      {cls:'acc-green',title:'Oportunidade',text:'Integracao com maquininhas e agenda de recebiveis BACEN abre janela para produto automatizado e competitivo.'},
+      {cls:'acc-blue',title:'Referencia de Mercado',text:'Blu e Vortx se destacam pela velocidade de analise (menos de 2h) e taxas competitivas por volume.'},
     ],
-    companies: ['Finscale','Blu','Vortx','Liber','BTG PMEs'],
-    compColors: ['#185FA5','#7C3AED','#059669','#DC2626','#D97706'],
     features: [
-      {name:'Antecipacao de duplicatas',vals:[0,1,1,1,1]},
-      {name:'Antecipacao de cartoes',vals:[0,1,0,1,1]},
-      {name:'Analise automatizada',vals:[0,1,1,0,1]},
-      {name:'Consulta agenda BACEN',vals:[0,1,1,1,1]},
-      {name:'Simulador de taxa',vals:[0,1,1,1,1]},
-      {name:'Cedula de credito digital',vals:[0,1,1,0,1]},
-      {name:'Integracao ERP',vals:[0,0,1,1,1]},
-      {name:'Gestao de contratos',vals:[0,1,1,1,1]},
-      {name:'Historico de operacoes',vals:[0,1,1,1,1]},
+      {name:'Antecipacao de duplicatas',vals:[0,1,1,1,1,1,1,1]},
+      {name:'Antecipacao de cartoes',vals:[0,1,0,1,1,0,1,1]},
+      {name:'Analise automatizada',vals:[0,1,1,0,1,0,1,1]},
+      {name:'Consulta agenda BACEN',vals:[0,1,1,1,1,1,1,1]},
+      {name:'Simulador de taxa',vals:[0,1,1,1,1,1,1,1]},
+      {name:'Cedula de credito digital',vals:[0,1,1,0,1,1,1,1]},
+      {name:'Integracao ERP',vals:[0,0,1,1,1,0,1,1]},
+      {name:'Gestao de contratos',vals:[0,1,1,1,1,1,1,1]},
+      {name:'Historico de operacoes',vals:[0,1,1,1,1,1,1,1]},
     ],
-    scores:[0,87,83,71,79],
+    scores:[0,87,83,71,79,75,82,85],
   },
   ponto: {
     title: 'Gestao de Ponto',
-    icon: 'ti-clock-hour-4',
-    color: '#185FA5',
+    companies: ['Finscale','Tangerino','Ahgora','Ponto Mais','Flash','Fiducia','BMP','QI Tech'],
+    compColors: ['#185FA5','#7C3AED','#059669','#DC2626','#D97706','#0F6E56','#3C3489','#854F0B'],
     kpis: [
-      {val:'5',lbl:'Empresas mapeadas',sub:'no mercado BR'},
+      {val:'8',lbl:'Empresas mapeadas',sub:'no mercado BR'},
       {val:'16',lbl:'Funcionalidades',sub:'avaliadas'},
       {val:'1',lbl:'Diferencial',sub:'identificado'},
       {val:'3',lbl:'Gaps',sub:'vs concorrentes'},
     ],
     insights: [
-      {icon:'ti-alert-triangle',cls:'acc-amber',title:'Ponto de Atencao',text:'Produto ainda nao implementado na Finscale. Forte sinergia com antecipacao salarial para fechar o ecossistema RH.'},
-      {icon:'ti-trending-up',cls:'acc-green',title:'Oportunidade',text:'Ponto via reconhecimento facial e GPS ainda e diferencial no segmento de PMEs e trabalhadores externos.'},
-      {icon:'ti-star',cls:'acc-blue',title:'Referencia de Mercado',text:'Tangerino (agora Senior) e Ahgora lideram com app mobile, reconhecimento facial e integracao folha.'},
+      {cls:'acc-amber',title:'Ponto de Atencao',text:'Produto ainda nao implementado na Finscale. Forte sinergia com antecipacao salarial para fechar o ecossistema RH.'},
+      {cls:'acc-green',title:'Oportunidade',text:'Ponto via reconhecimento facial e GPS ainda e diferencial no segmento de PMEs e trabalhadores externos.'},
+      {cls:'acc-blue',title:'Referencia de Mercado',text:'Tangerino e Ahgora lideram com app mobile, reconhecimento facial e integracao folha.'},
     ],
-    companies: ['Finscale','Tangerino','Ahgora','Ponto Mais','Flash'],
-    compColors: ['#185FA5','#7C3AED','#059669','#DC2626','#D97706'],
     features: [
-      {name:'Registro via app mobile',vals:[0,1,1,1,1]},
-      {name:'Reconhecimento facial',vals:[0,1,1,0,1]},
-      {name:'GPS e geofence',vals:[0,1,1,1,0]},
-      {name:'Relatorio de horas',vals:[0,1,1,1,1]},
-      {name:'Integracao com folha',vals:[0,1,1,1,1]},
-      {name:'Banco de horas',vals:[0,1,1,1,0]},
-      {name:'Gestao de escalas',vals:[0,0,1,1,0]},
-      {name:'Painel do gestor',vals:[0,1,1,1,1]},
-      {name:'Exportacao para DP',vals:[0,1,1,1,1]},
+      {name:'Registro via app mobile',vals:[0,1,1,1,1,0,0,0]},
+      {name:'Reconhecimento facial',vals:[0,1,1,0,1,0,0,0]},
+      {name:'GPS e geofence',vals:[0,1,1,1,0,0,0,0]},
+      {name:'Relatorio de horas',vals:[0,1,1,1,1,0,0,0]},
+      {name:'Integracao com folha',vals:[0,1,1,1,1,0,0,0]},
+      {name:'Banco de horas',vals:[0,1,1,1,0,0,0,0]},
+      {name:'Gestao de escalas',vals:[0,0,1,1,0,0,0,0]},
+      {name:'Painel do gestor',vals:[0,1,1,1,1,0,0,0]},
+      {name:'Exportacao para DP',vals:[0,1,1,1,1,0,0,0]},
     ],
-    scores:[0,84,89,72,65],
+    scores:[0,84,89,72,65,0,0,0],
   },
   adq: {
     title: 'Adquirencia',
-    icon: 'ti-device-mobile',
-    color: '#059669',
+    companies: ['Finscale','Stone','Ton','PagSeguro','SumUp','Fiducia','BMP','QI Tech'],
+    compColors: ['#185FA5','#7C3AED','#059669','#DC2626','#D97706','#0F6E56','#3C3489','#854F0B'],
     kpis: [
-      {val:'7',lbl:'Empresas mapeadas',sub:'no mercado BR'},
+      {val:'8',lbl:'Empresas mapeadas',sub:'no mercado BR'},
       {val:'24',lbl:'Funcionalidades',sub:'avaliadas'},
       {val:'3',lbl:'Diferenciais',sub:'identificados'},
       {val:'3',lbl:'Gaps',sub:'vs concorrentes'},
     ],
     insights: [
-      {icon:'ti-alert-triangle',cls:'acc-amber',title:'Ponto de Atencao',text:'Produto nao implementado na Finscale. Alta barreira de entrada por exigencia de licenca BACEN e integracao com bandeiras.'},
-      {icon:'ti-trending-up',cls:'acc-green',title:'Oportunidade',text:'Sub-adquirencia via parceiros (Cielo, Stone) como caminho rapido para oferecer maquininha sem licenca propria.'},
-      {icon:'ti-star',cls:'acc-blue',title:'Referencia de Mercado',text:'Stone e Ton lideram em PMEs com taxas competitivas, antecipacao integrada e suporte 24h.'},
+      {cls:'acc-amber',title:'Ponto de Atencao',text:'Produto nao implementado na Finscale. Alta barreira de entrada por exigencia de licenca BACEN e integracao com bandeiras.'},
+      {cls:'acc-green',title:'Oportunidade',text:'Sub-adquirencia via parceiros (Cielo, Stone) como caminho rapido para oferecer maquininha sem licenca propria.'},
+      {cls:'acc-blue',title:'Referencia de Mercado',text:'Stone e Ton lideram em PMEs com taxas competitivas, antecipacao integrada e suporte 24h.'},
     ],
-    companies: ['Finscale','Stone','Ton','PagSeguro','SumUp'],
-    compColors: ['#185FA5','#7C3AED','#059669','#DC2626','#D97706'],
     features: [
-      {name:'Maquininha fisica',vals:[0,1,1,1,1]},
-      {name:'Link de pagamento',vals:[0,1,1,1,1]},
-      {name:'QR Code / PIX',vals:[0,1,1,1,1]},
-      {name:'Tap on Phone',vals:[0,1,0,1,0]},
-      {name:'Antecipacao de recebiveis',vals:[0,1,1,1,0]},
-      {name:'Gestao de vendas',vals:[0,1,0,1,0]},
-      {name:'Split de pagamento',vals:[0,1,0,0,1]},
-      {name:'Recorrencia / assinatura',vals:[0,0,1,1,1]},
-      {name:'Conciliacao automatica',vals:[0,1,0,1,0]},
-      {name:'Dashboard de vendas',vals:[0,1,1,1,1]},
+      {name:'Maquininha fisica',vals:[0,1,1,1,1,0,0,0]},
+      {name:'Link de pagamento',vals:[0,1,1,1,1,1,1,1]},
+      {name:'QR Code / PIX',vals:[0,1,1,1,1,1,1,1]},
+      {name:'Tap on Phone',vals:[0,1,0,1,0,0,0,0]},
+      {name:'Antecipacao de recebiveis',vals:[0,1,1,1,0,0,1,1]},
+      {name:'Gestao de vendas',vals:[0,1,0,1,0,0,0,0]},
+      {name:'Split de pagamento',vals:[0,1,0,0,1,0,1,1]},
+      {name:'Recorrencia / assinatura',vals:[0,0,1,1,1,0,1,1]},
+      {name:'Conciliacao automatica',vals:[0,1,0,1,0,0,1,1]},
+      {name:'Dashboard de vendas',vals:[0,1,1,1,1,0,0,1]},
     ],
-    scores:[0,91,83,78,70],
+    scores:[0,91,83,78,70,20,60,65],
   },
   plataforma: {
     title: 'Plataforma (Core Banking)',
-    icon: 'ti-server',
-    color: '#7C3AED',
+    companies: ['Finscale','Celcoin','Dock','BMP','QI Tech','Fiducia','Quanto','Stark Bank'],
+    compColors: ['#185FA5','#7C3AED','#059669','#3C3489','#854F0B','#0F6E56','#DC2626','#D97706'],
     kpis: [
-      {val:'6',lbl:'Empresas mapeadas',sub:'no mercado BR'},
+      {val:'8',lbl:'Empresas mapeadas',sub:'no mercado BR'},
       {val:'28',lbl:'Funcionalidades',sub:'avaliadas'},
       {val:'4',lbl:'Diferenciais',sub:'identificados'},
       {val:'2',lbl:'Gaps',sub:'vs concorrentes'},
     ],
     insights: [
-      {icon:'ti-star',cls:'acc-blue',title:'Destaque Finscale',text:'Arquitetura de microservicos em evolucao com API Gateway unificado. Base solida para escalar produtos financeiros.'},
-      {icon:'ti-alert-triangle',cls:'acc-amber',title:'Ponto de Atencao',text:'Observabilidade e monitoramento ainda em implantacao (Datadog). Sem isso, SLA e dificil de garantir.'},
-      {icon:'ti-trending-up',cls:'acc-green',title:'Oportunidade',text:'Oferecer Banking as a Service para terceiros usando a propria plataforma como produto, como faz o Celcoin.'},
+      {cls:'acc-blue',title:'Destaque Finscale',text:'Arquitetura de microservicos em evolucao com API Gateway unificado. Base solida para escalar produtos financeiros.'},
+      {cls:'acc-amber',title:'Ponto de Atencao',text:'Observabilidade e monitoramento ainda em implantacao (Datadog). Sem isso, SLA e dificil de garantir.'},
+      {cls:'acc-green',title:'Oportunidade',text:'Oferecer Banking as a Service para terceiros usando a propria plataforma como produto, como faz o Celcoin.'},
     ],
-    companies: ['Finscale','Celcoin','Dock','BMP','Quanto'],
-    compColors: ['#185FA5','#7C3AED','#059669','#DC2626','#D97706'],
     features: [
-      {name:'API REST moderna',vals:[1,1,1,1,1]},
-      {name:'Microservicos',vals:[0.5,1,1,0,1]},
-      {name:'CI/CD automatizado',vals:[0.5,1,1,1,0]},
-      {name:'Observabilidade (APM)',vals:[0,1,1,1,1]},
-      {name:'Multi-tenant',vals:[0,1,1,0,1]},
-      {name:'SSO / IAM',vals:[1,1,1,1,0]},
-      {name:'Sandbox para parceiros',vals:[0,1,1,0,1]},
-      {name:'Webhooks e eventos',vals:[0,1,1,1,1]},
-      {name:'SLA 99.9%',vals:[0,1,1,1,0]},
-      {name:'Conformidade BACEN',vals:[1,1,1,1,1]},
-      {name:'Open Finance',vals:[0,1,1,0,1]},
-      {name:'Banking as a Service',vals:[0,1,1,0,0]},
+      {name:'API REST moderna',vals:[1,1,1,1,1,1,1,1]},
+      {name:'Microservicos',vals:[0.5,1,1,1,1,0,1,1]},
+      {name:'CI/CD automatizado',vals:[0.5,1,1,1,0,0,1,0]},
+      {name:'Observabilidade (APM)',vals:[0,1,1,1,1,0,1,1]},
+      {name:'Multi-tenant',vals:[0,1,1,0,1,1,1,1]},
+      {name:'SSO / IAM',vals:[1,1,1,1,0,1,0,0]},
+      {name:'Sandbox para parceiros',vals:[0,1,1,0,1,0,1,1]},
+      {name:'Webhooks e eventos',vals:[0,1,1,1,1,0,1,1]},
+      {name:'SLA 99.9%',vals:[0,1,1,1,0,1,0,1]},
+      {name:'Conformidade BACEN',vals:[1,1,1,1,1,1,1,1]},
+      {name:'Open Finance',vals:[0,1,1,0,1,0,1,0]},
+      {name:'Banking as a Service',vals:[0,1,1,1,1,0,0,0]},
     ],
-    scores:[58,92,88,74,70],
+    scores:[58,92,88,82,80,65,74,70],
   },
 };
+
+let prodEditMode = false;
+let editingProdComp = null;
 
 function setProdTab(tab, el) {
   curProdTab = tab;
@@ -1360,18 +1350,22 @@ function renderProdutos() {
   const kpiHtml = `<div class="prod-overview">${d.kpis.map(k=>`<div class="prod-kpi"><div class="prod-kpi-lbl">${k.lbl}</div><div class="prod-kpi-val">${k.val}</div><div class="prod-kpi-sub">${k.sub}</div></div>`).join('')}</div>`;
 
   // Insights
-  const insHtml = `<div class="insight-cards">${d.insights.map(i=>`<div class="insight-card"><div class="insight-icon ${i.cls}"><i class="ti ${i.icon}"></i></div><div class="insight-title">${i.title}</div><div class="insight-text">${i.text}</div></div>`).join('')}</div>`;
+  const insHtml = `<div class="insight-cards">${d.insights.map((ins,ii)=>`<div class="insight-card"><div class="insight-icon ${ins.cls}"><i class="ti ${ins.cls==='acc-blue'?'ti-star':ins.cls==='acc-amber'?'ti-alert-triangle':'ti-trending-up'}"></i></div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;"><div class="insight-title">${ins.title}</div><button class="pbtn" style="padding:3px 7px;font-size:11px;" onclick="openEditInsight(${ii})">Editar</button></div><div class="insight-text">${ins.text}</div></div>`).join('')}</div>`;
 
   // Score row
   const scoreHtml = `<div style="background:var(--bg);border:.5px solid var(--b);border-radius:var(--rl);padding:16px;margin-bottom:20px;">
-    <div class="prod-section-title"><i class="ti ti-award"></i> Score de Completude por Empresa</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div class="prod-section-title" style="margin-bottom:0;border:none;padding:0;"><i class="ti ti-award"></i> Score de Completude por Empresa</div>
+      <button class="pbtn" style="font-size:11px;" onclick="openAddCompany()">+ Adicionar empresa</button>
+    </div>
     <div style="display:grid;grid-template-columns:repeat(${d.companies.length},1fr);gap:12px;">
       ${d.companies.map((c,i)=>{
         const s=d.scores[i];
         const clr=s>=80?'#639922':s>=60?'#EF9F27':s===0?'#B4B2A9':'#E24B4A';
         return `<div style="text-align:center;">
-          <div style="font-size:11px;font-weight:500;color:var(--t1);margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:5px;">
+          <div style="font-size:11px;font-weight:500;color:var(--t1);margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:4px;">
             <span class="company-badge" style="background:${d.compColors[i]};">${c.substring(0,2).toUpperCase()}</span>${c}
+            ${i>0?`<button class="cbtn del" style="opacity:.6;" onclick="removeCompany(${i})" title="Remover"><i class="ti ti-x" style="font-size:10px;"></i></button>`:''}
           </div>
           <div style="font-size:20px;font-weight:500;color:${clr};">${s===0?'--':s+'%'}</div>
           <div class="score-bar"><div class="score-fill" style="width:${s}%;background:${clr};"></div></div>
@@ -1381,31 +1375,106 @@ function renderProdutos() {
     </div>
   </div>`;
 
-  // Feature comparison table
+  // Feature table
+  const editMode = window._prodEditMode || false;
   const tableHtml = `<div style="background:var(--bg);border:.5px solid var(--b);border-radius:var(--rl);overflow:hidden;margin-bottom:8px;">
-    <div style="padding:14px 16px;border-bottom:.5px solid var(--b);">
+    <div style="padding:14px 16px;border-bottom:.5px solid var(--b);display:flex;align-items:center;justify-content:space-between;">
       <div class="prod-section-title" style="margin-bottom:0;border:none;padding:0;"><i class="ti ti-table"></i> Comparativo de Funcionalidades</div>
+      <div style="display:flex;gap:8px;">
+        <button class="pbtn" style="font-size:11px;" onclick="toggleEditMode()">${editMode?'Concluir edicao':'Editar tabela'}</button>
+        ${editMode?'<button class="pbtn" style="font-size:11px;" onclick="openAddFeature()">+ Funcionalidade</button>':''}
+      </div>
     </div>
     <table class="comp-table">
       <thead><tr>
         <th>Funcionalidade</th>
-        ${d.companies.map((c,i)=>`<th><div class="company-hdr"><span class="company-badge" style="background:${d.compColors[i]};">${c.substring(0,2).toUpperCase()}</span>${c}</div></th>`).join('')}
+        ${d.companies.map((c,i)=>`<th><div class="company-hdr"><span class="company-badge" style="background:${d.compColors[i]};">${c.substring(0,2).toUpperCase()}</span>${c}${editMode&&i>0?`<button class="cbtn del" style="margin-left:4px;opacity:.7;" onclick="removeCompany(${i})" title="Remover"><i class="ti ti-x" style="font-size:10px;"></i></button>`:''}</div></th>`).join('')}
+        ${editMode?'<th style="width:50px;"></th>':''}
       </tr></thead>
       <tbody>
-        ${d.features.map(f=>`<tr>
+        ${d.features.map((f,fi)=>`<tr>
           <td>${f.name}</td>
-          ${f.vals.map(v=>v===1?'<td style="text-align:center;"><span class="feat-yes">✓</span></td>':v===0?'<td style="text-align:center;"><span class="feat-no">✗</span></td>':'<td style="text-align:center;"><span class="feat-part">~</span></td>').join('')}
+          ${f.vals.map((v,vi)=>editMode?`<td style="text-align:center;">
+            <select class="feat-select" onchange="updateFeat(${fi},${vi},this.value)" style="width:68px;font-size:11px;padding:3px 4px;">
+              <option value="1" ${v===1?'selected':''}>Sim</option>
+              <option value="0.5" ${v===0.5?'selected':''}>Parcial</option>
+              <option value="0" ${v===0?'selected':''}>Nao</option>
+            </select>
+          </td>`:`<td style="text-align:center;">${v===1?'<span class="feat-yes">&#10003;</span>':v===0.5?'<span class="feat-part">~</span>':'<span class="feat-no">&#10007;</span>'}</td>`).join('')}
+          ${editMode?`<td style="text-align:center;"><button class="cbtn del" onclick="removeFeature(${fi})"><i class="ti ti-trash"></i></button></td>`:''}
         </tr>`).join('')}
       </tbody>
     </table>
   </div>
   <div style="font-size:11px;color:var(--t3);display:flex;gap:16px;margin-bottom:4px;">
-    <span><span class="feat-yes" style="font-size:13px;">✓</span> Disponivel</span>
+    <span><span class="feat-yes">&#10003;</span> Disponivel</span>
     <span><span class="feat-part">~</span> Parcial / Em desenvolvimento</span>
-    <span><span class="feat-no" style="font-size:13px;">✗</span> Nao disponivel</span>
+    <span><span class="feat-no">&#10007;</span> Nao disponivel</span>
   </div>`;
 
   container.innerHTML = kpiHtml + insHtml + scoreHtml + tableHtml;
+}
+
+function toggleEditMode() {
+  window._prodEditMode = !window._prodEditMode;
+  renderProdutos();
+}
+
+function updateFeat(fi, vi, val) {
+  PROD_DATA[curProdTab].features[fi].vals[vi] = parseFloat(val);
+  recalcScore();
+}
+
+function recalcScore() {
+  const d = PROD_DATA[curProdTab];
+  d.companies.forEach((c,ci) => {
+    const total = d.features.length;
+    const sum = d.features.reduce((a,f) => a + (f.vals[ci]||0), 0);
+    d.scores[ci] = total ? Math.round(sum/total*100) : 0;
+  });
+}
+
+function removeFeature(fi) {
+  PROD_DATA[curProdTab].features.splice(fi, 1);
+  recalcScore();
+  renderProdutos();
+}
+
+function removeCompany(ci) {
+  const d = PROD_DATA[curProdTab];
+  d.companies.splice(ci, 1);
+  d.compColors.splice(ci, 1);
+  d.scores.splice(ci, 1);
+  d.features.forEach(f => f.vals.splice(ci, 1));
+  renderProdutos();
+}
+
+function openAddCompany() {
+  const name = prompt('Nome da empresa:');
+  if (!name || !name.trim()) return;
+  const d = PROD_DATA[curProdTab];
+  const colors = ['#185FA5','#7C3AED','#059669','#DC2626','#D97706','#0F6E56','#3C3489','#854F0B','#6B7280','#92400E'];
+  d.companies.push(name.trim());
+  d.compColors.push(colors[d.companies.length % colors.length]);
+  d.scores.push(0);
+  d.features.forEach(f => f.vals.push(0));
+  renderProdutos();
+}
+
+function openAddFeature() {
+  const name = prompt('Nome da funcionalidade:');
+  if (!name || !name.trim()) return;
+  const d = PROD_DATA[curProdTab];
+  d.features.push({name: name.trim(), vals: new Array(d.companies.length).fill(0)});
+  renderProdutos();
+}
+
+function openEditInsight(ii) {
+  const ins = PROD_DATA[curProdTab].insights[ii];
+  const newText = prompt('Editar texto do insight "' + ins.title + '":', ins.text);
+  if (newText === null) return;
+  ins.text = newText.trim() || ins.text;
+  renderProdutos();
 }
 // ── FIM PRODUTOS ──────────────────────────────────────────────────────────────
 
