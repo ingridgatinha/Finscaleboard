@@ -67,8 +67,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .chip:hover,.chip.active{background:var(--acc);color:#fff;border-color:var(--acc);}
 .chip i{font-size:12px;}
 /* KANBAN */
-.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:start;}
-.kcol{background:var(--bg2);border-radius:var(--rl);border:.5px solid var(--b);padding:12px;min-height:400px;transition:background .15s;}
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:stretch;}
+.kcol{background:var(--bg2);border-radius:var(--rl);border:.5px solid var(--b);padding:12px;min-height:calc(100vh - 220px);height:calc(100vh - 220px);overflow-y:auto;transition:background .15s;}
 .kcol.drag-over{background:var(--info-bg);border-color:var(--info);}
 .col-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
 .col-ttl{font-size:12px;font-weight:500;color:var(--t2);display:flex;align-items:center;gap:7px;}
@@ -266,6 +266,43 @@ textarea{resize:vertical;min-height:80px;}
 .confirm-box p{font-size:14px;color:var(--t1);margin-bottom:6px;font-weight:500;}
 .confirm-box small{font-size:12px;color:var(--t2);}
 .confirm-btns{display:flex;gap:10px;justify-content:center;margin-top:18px;}
+/* PRODUCT TABS */
+.prod-tab{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:20px;border:.5px solid var(--bm);background:var(--bg);font-size:12px;color:var(--t2);cursor:pointer;transition:all .15s;font-family:inherit;}
+.prod-tab:hover,.prod-tab.active{background:var(--acc);color:#fff;border-color:var(--acc);}
+.prod-tab i{font-size:13px;}
+/* PRODUCT CARDS */
+.prod-overview{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+.prod-kpi{background:var(--bg);border:.5px solid var(--b);border-radius:var(--rl);padding:14px 16px;}
+.prod-kpi-val{font-size:22px;font-weight:500;color:var(--t1);margin:4px 0;}
+.prod-kpi-lbl{font-size:11px;color:var(--t3);font-weight:500;}
+.prod-kpi-sub{font-size:11px;color:var(--t2);margin-top:3px;}
+.comp-table{width:100%;border-collapse:collapse;background:var(--bg);border-radius:var(--rl);overflow:hidden;border:.5px solid var(--b);margin-bottom:20px;}
+.comp-table th{padding:11px 14px;font-size:11px;font-weight:600;color:var(--t3);text-align:left;background:var(--bg2);border-bottom:.5px solid var(--b);}
+.comp-table td{padding:11px 14px;font-size:12px;color:var(--t1);border-bottom:.5px solid var(--b);vertical-align:middle;}
+.comp-table tr:last-child td{border-bottom:none;}
+.comp-table tr:hover td{background:var(--bg2);}
+.comp-table th:first-child,.comp-table td:first-child{font-weight:500;min-width:180px;}
+.feat-yes{color:#639922;font-size:16px;}
+.feat-no{color:#E24B4A;font-size:16px;}
+.feat-part{color:#EF9F27;font-size:14px;font-weight:600;}
+.company-hdr{display:flex;align-items:center;gap:6px;}
+.company-badge{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;}
+.score-bar{height:6px;background:var(--b);border-radius:3px;overflow:hidden;margin-top:4px;}
+.score-fill{height:100%;border-radius:3px;}
+.prod-section-title{font-size:13px;font-weight:500;color:var(--t1);margin-bottom:12px;display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:.5px solid var(--b);}
+.insight-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.insight-card{background:var(--bg);border:.5px solid var(--b);border-radius:var(--rl);padding:16px;}
+.insight-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
+.insight-icon i{font-size:16px;}
+.insight-title{font-size:12px;font-weight:500;color:var(--t1);margin-bottom:4px;}
+.insight-text{font-size:11px;color:var(--t2);line-height:1.5;}
+/* PROD DETAIL COLORS */
+.acc-green{background:var(--ok-bg);}
+.acc-green i{color:var(--ok);}
+.acc-amber{background:var(--warn-bg);}
+.acc-amber i{color:var(--warn);}
+.acc-blue{background:var(--info-bg);}
+.acc-blue i{color:var(--info);}
 /* PROJ DETAIL STATS */
 .pd-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px;}
 .pd-stat{background:var(--bg2);border-radius:var(--r);padding:10px 14px;text-align:center;}
@@ -293,6 +330,7 @@ textarea{resize:vertical;min-height:80px;}
   </div>
   <div class="nav-sec">
     <div class="nav-lbl">Equipe</div>
+    <div class="nav-item" onclick="setNav(this,'produtos')"><i class="ti ti-layout-grid"></i> Produtos Prateleira</div>
     <div class="nav-item"><i class="ti ti-users"></i> Membros</div>
     <div class="nav-item"><i class="ti ti-settings"></i> Configuracoes</div>
   </div>
@@ -426,6 +464,27 @@ textarea{resize:vertical;min-height:80px;}
         </div>
         <div id="roadmap-rows"></div>
       </div>
+    </div>
+
+    <!-- PRODUTOS PRATELEIRA -->
+    <div id="produtos-view" style="display:none;">
+      <div style="margin-bottom:24px;">
+        <div style="font-size:15px;font-weight:500;color:var(--t1);margin-bottom:4px;">Produtos de Prateleira</div>
+        <div style="font-size:12px;color:var(--t3);">Mapeamento e comparativo dos produtos disponiveis no mercado por categoria. Use para benchmarking e evolucao dos produtos Finscale.</div>
+      </div>
+
+      <!-- CATEGORY TABS -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;" id="prod-tabs">
+        <button class="prod-tab active" onclick="setProdTab('banking',this)"><i class="ti ti-building-bank"></i> Conta Digital</button>
+        <button class="prod-tab" onclick="setProdTab('credito',this)"><i class="ti ti-coin"></i> Credito Pessoal</button>
+        <button class="prod-tab" onclick="setProdTab('antsal',this)"><i class="ti ti-calendar-dollar"></i> Antecip. Salarial</button>
+        <button class="prod-tab" onclick="setProdTab('antrec',this)"><i class="ti ti-receipt"></i> Antecip. Recebiveis</button>
+        <button class="prod-tab" onclick="setProdTab('ponto',this)"><i class="ti ti-clock-hour-4"></i> Gestao de Ponto</button>
+        <button class="prod-tab" onclick="setProdTab('adq',this)"><i class="ti ti-device-mobile"></i> Adquirencia</button>
+        <button class="prod-tab" onclick="setProdTab('plataforma',this)"><i class="ti ti-server"></i> Plataforma</button>
+      </div>
+
+      <div id="prod-content"></div>
     </div>
 
   </div>
@@ -832,21 +891,22 @@ function filterCards(){
 function filterBy(area,el){curFilter=area;document.querySelectorAll('#board-filters .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');filterCards();}
 function onSearch(){if(curView==='projects')renderProjects(document.getElementById('search-input').value.toLowerCase());else if(curView==='sprints')renderSprints();else filterCards();}
 
-const VIEWS=['board','projects','sprints','dashboard','list','roadmap'];
+const VIEWS=['board','projects','sprints','dashboard','list','roadmap','produtos'];
 function switchView(view,btn){
   curView=view;
   document.querySelectorAll('.vbtn').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
-  const titles={board:'Board de Demandas',list:'Lista de Cards',roadmap:'Roadmap',projects:'Projetos',sprints:'Controle de Sprints',dashboard:'Dashboard de Metricas'};
+  const titles={board:'Board de Demandas',list:'Lista de Cards',roadmap:'Roadmap',projects:'Projetos',sprints:'Controle de Sprints',dashboard:'Dashboard de Metricas',produtos:'Produtos de Prateleira'};
   document.getElementById('page-title').textContent=titles[view]||view;
   VIEWS.forEach(v=>document.getElementById(v+'-view').style.display=v===view?'block':'none');
-  document.getElementById('view-toggle-board').style.display=['projects','sprints','dashboard'].includes(view)?'none':'flex';
-  const lblMap={board:'Novo Card',list:'Novo Card',roadmap:'Novo Card',projects:'Novo Projeto',sprints:'Novo Sprint',dashboard:''};
+  document.getElementById('view-toggle-board').style.display=['projects','sprints','dashboard','produtos'].includes(view)?'none':'flex';
+  const lblMap={board:'Novo Card',list:'Novo Card',roadmap:'Novo Card',projects:'Novo Projeto',sprints:'Novo Sprint',dashboard:'',produtos:''};
   document.getElementById('btn-new-label').textContent=lblMap[view]||'Novo';
   document.getElementById('search-input').placeholder=view==='projects'?'Buscar projetos...':view==='sprints'?'Buscar sprints...':'Buscar cards...';
   if(view==='projects')renderProjects();
   else if(view==='sprints')renderSprints();
   else if(view==='dashboard')renderDashboard();
+  else if(view==='produtos'){renderProdutos();}
   else filterCards();
 }
 function setNav(el,view){
@@ -859,6 +919,7 @@ function handleNewBtn(){
   if(curView==='projects')openNewProj();
   else if(curView==='sprints')openNewSprint();
   else if(curView==='dashboard')return;
+  else if(curView==='produtos')return;
   else openNewCard();
 }
 
@@ -1056,6 +1117,298 @@ function confirmDelete(){
   else{cards=cards.filter(p=>p.id!==delId);svC();filterCards();}
   closeConfirm();
 }
+// ── PRODUTOS DE PRATELEIRA ────────────────────────────────────────────────────
+let curProdTab = 'banking';
+
+const PROD_DATA = {
+  banking: {
+    title: 'Conta Digital (Banking)',
+    icon: 'ti-building-bank',
+    color: '#185FA5',
+    kpis: [
+      {val:'8',lbl:'Empresas mapeadas',sub:'no mercado BR'},
+      {val:'34',lbl:'Funcionalidades',sub:'avaliadas'},
+      {val:'5',lbl:'Diferenciais',sub:'identificados'},
+      {val:'3',lbl:'Gaps',sub:'vs concorrentes'},
+    ],
+    insights: [
+      {icon:'ti-star',cls:'acc-blue',title:'Destaque Finscale',text:'PIX completo com QR dinamico e gestao de limites ja implementado. Diferenciais claros em UX mobile.'},
+      {icon:'ti-alert-triangle',cls:'acc-amber',title:'Ponto de Atencao',text:'Onboarding PJ ainda nao mapeado. Concorrentes como Dock e Celcoin ja oferecem abertura de conta PJ automatizada.'},
+      {icon:'ti-trending-up',cls:'acc-green',title:'Oportunidade',text:'Integracao com open finance ainda pouco explorada pelos concorrentes. Janela de oportunidade aberta.'},
+    ],
+    companies: ['Finscale','Dock','Celcoin','BancoBS2','Stark Bank'],
+    compColors: ['#185FA5','#7C3AED','#059669','#DC2626','#D97706'],
+    features: [
+      {name:'Abertura de conta PF',vals:[1,1,1,1,1]},
+      {name:'Abertura de conta PJ',vals:[0,1,1,1,1]},
+      {name:'Cartao de debito',vals:[1,1,1,1,0]},
+      {name:'Cartao de credito',vals:[1,0,1,1,0]},
+      {name:'PIX completo',vals:[1,1,1,1,1]},
+      {name:'TED / DOC',vals:[1,1,1,1,1]},
+      {name:'Pagamento de boletos',vals:[1,1,1,1,1]},
+      {name:'Extrato e comprovantes',vals:[1,1,1,1,1]},
+      {name:'Autenticacao biometrica',vals:[1,0,1,1,0]},
+      {name:'Multi-dispositivo / Token',vals:[1,1,1,0,1]},
+      {name:'Open Finance',vals:[0,1,0,1,0]},
+      {name:'Dashboard financeiro',vals:[1,0,1,0,1]},
+      {name:'Notificacoes push',vals:[1,1,1,1,0]},
+      {name:'API Banking as a Service',vals:[0,1,1,1,1]},
+    ],
+    scores:[72,88,91,79,65],
+  },
+  credito: {
+    title: 'Credito Pessoal',
+    icon: 'ti-coin',
+    color: '#854F0B',
+    kpis: [
+      {val:'6',lbl:'Empresas mapeadas',sub:'no mercado BR'},
+      {val:'22',lbl:'Funcionalidades',sub:'avaliadas'},
+      {val:'3',lbl:'Diferenciais',sub:'identificados'},
+      {val:'4',lbl:'Gaps',sub:'vs concorrentes'},
+    ],
+    insights: [
+      {icon:'ti-star',cls:'acc-blue',title:'Destaque Finscale',text:'Simulador de credito com politica de credito propria (Creditá/VADU). Assinatura digital integrada via RBM.'},
+      {icon:'ti-alert-triangle',cls:'acc-amber',title:'Ponto de Atencao',text:'Aprovacao manual por analista e processo ainda nao totalmente automatizado. Gera gargalo operacional.'},
+      {icon:'ti-trending-up',cls:'acc-green',title:'Oportunidade',text:'Motor de credito automatizado com score em tempo real e aprovacao instantanea e diferencial nao explorado.'},
+    ],
+    companies: ['Finscale','Rebel','Creditas','Geru','Bx Blue'],
+    compColors: ['#185FA5','#7C3AED','#059669','#DC2626','#D97706'],
+    features: [
+      {name:'Simulador de credito',vals:[1,1,1,1,1]},
+      {name:'Aprovacao automatica',vals:[0,1,1,1,1]},
+      {name:'Aprovacao manual',vals:[1,0,0,0,0]},
+      {name:'Score em tempo real',vals:[0,1,1,1,1]},
+      {name:'Assinatura digital',vals:[1,1,1,0,1]},
+      {name:'Cedula de credito digital',vals:[1,0,1,0,0]},
+      {name:'Parcelamento flexivel',vals:[0.5,1,1,1,1]},
+      {name:'Portabilidade de credito',vals:[0,1,1,1,0]},
+      {name:'Credito consignado',vals:[0,0,1,0,1]},
+      {name:'Refinanciamento',vals:[0,1,1,1,0]},
+      {name:'Majoracao de limite',vals:[1,1,1,0,1]},
+    ],
+    scores:[55,82,90,74,68],
+  },
+  antsal: {
+    title: 'Antecipacao Salarial',
+    icon: 'ti-calendar-dollar',
+    color: '#0F6E56',
+    kpis: [
+      {val:'5',lbl:'Empresas mapeadas',sub:'no mercado BR'},
+      {val:'18',lbl:'Funcionalidades',sub:'avaliadas'},
+      {val:'2',lbl:'Diferenciais',sub:'identificados'},
+      {val:'5',lbl:'Gaps',sub:'vs concorrentes'},
+    ],
+    insights: [
+      {icon:'ti-alert-triangle',cls:'acc-amber',title:'Ponto de Atencao',text:'Produto ainda nao implementado na Finscale. Mercado crescendo fortemente com players como Flash e Creditas.'},
+      {icon:'ti-trending-up',cls:'acc-green',title:'Oportunidade',text:'Integracao com folha de pagamento e parceria com RH das empresas clientes e diferencial competitivo alto.'},
+      {icon:'ti-star',cls:'acc-blue',title:'Referencia de Mercado',text:'Flash e Swile lideram com integracao nativa ao app de beneficios, gerando alto engajamento dos funcionarios.'},
+    ],
+    companies: ['Finscale','Flash','Creditas','Swile','PicPay'],
+    compColors: ['#185FA5','#7C3AED','#059669','#DC2626','#D97706'],
+    features: [
+      {name:'Antecipacao sob demanda',vals:[0,1,1,1,1]},
+      {name:'Limite baseado em salario',vals:[0,1,1,1,1]},
+      {name:'Integracao com DP / RH',vals:[0,1,0,1,0]},
+      {name:'App do colaborador',vals:[0,1,1,1,1]},
+      {name:'Painel do RH',vals:[0,1,0,1,0]},
+      {name:'Taxa zero para colaborador',vals:[0,0,1,0,1]},
+      {name:'Desconto em folha automatico',vals:[0,1,1,1,0]},
+      {name:'Historico de antecipacoes',vals:[0,1,1,1,1]},
+      {name:'Notificacao de disponibilidade',vals:[0,1,0,1,1]},
+    ],
+    scores:[0,85,78,82,60],
+  },
+  antrec: {
+    title: 'Antecipacao de Recebiveis',
+    icon: 'ti-receipt',
+    color: '#3C3489',
+    kpis: [
+      {val:'6',lbl:'Empresas mapeadas',sub:'no mercado BR'},
+      {val:'20',lbl:'Funcionalidades',sub:'avaliadas'},
+      {val:'2',lbl:'Diferenciais',sub:'identificados'},
+      {val:'4',lbl:'Gaps',sub:'vs concorrentes'},
+    ],
+    insights: [
+      {icon:'ti-alert-triangle',cls:'acc-amber',title:'Ponto de Atencao',text:'Produto ainda nao implementado na Finscale. Altamente demandado por PMEs que precisam de capital de giro.'},
+      {icon:'ti-trending-up',cls:'acc-green',title:'Oportunidade',text:'Integracao com maquininhas e agenda de recebiveis BACEN abre janela para produto automatizado e competitivo.'},
+      {icon:'ti-star',cls:'acc-blue',title:'Referencia de Mercado',text:'Blu e Vortx se destacam pela velocidade de analise (menos de 2h) e taxas competitivas por volume.'},
+    ],
+    companies: ['Finscale','Blu','Vortx','Liber','BTG PMEs'],
+    compColors: ['#185FA5','#7C3AED','#059669','#DC2626','#D97706'],
+    features: [
+      {name:'Antecipacao de duplicatas',vals:[0,1,1,1,1]},
+      {name:'Antecipacao de cartoes',vals:[0,1,0,1,1]},
+      {name:'Analise automatizada',vals:[0,1,1,0,1]},
+      {name:'Consulta agenda BACEN',vals:[0,1,1,1,1]},
+      {name:'Simulador de taxa',vals:[0,1,1,1,1]},
+      {name:'Cedula de credito digital',vals:[0,1,1,0,1]},
+      {name:'Integracao ERP',vals:[0,0,1,1,1]},
+      {name:'Gestao de contratos',vals:[0,1,1,1,1]},
+      {name:'Historico de operacoes',vals:[0,1,1,1,1]},
+    ],
+    scores:[0,87,83,71,79],
+  },
+  ponto: {
+    title: 'Gestao de Ponto',
+    icon: 'ti-clock-hour-4',
+    color: '#185FA5',
+    kpis: [
+      {val:'5',lbl:'Empresas mapeadas',sub:'no mercado BR'},
+      {val:'16',lbl:'Funcionalidades',sub:'avaliadas'},
+      {val:'1',lbl:'Diferencial',sub:'identificado'},
+      {val:'3',lbl:'Gaps',sub:'vs concorrentes'},
+    ],
+    insights: [
+      {icon:'ti-alert-triangle',cls:'acc-amber',title:'Ponto de Atencao',text:'Produto ainda nao implementado na Finscale. Forte sinergia com antecipacao salarial para fechar o ecossistema RH.'},
+      {icon:'ti-trending-up',cls:'acc-green',title:'Oportunidade',text:'Ponto via reconhecimento facial e GPS ainda e diferencial no segmento de PMEs e trabalhadores externos.'},
+      {icon:'ti-star',cls:'acc-blue',title:'Referencia de Mercado',text:'Tangerino (agora Senior) e Ahgora lideram com app mobile, reconhecimento facial e integracao folha.'},
+    ],
+    companies: ['Finscale','Tangerino','Ahgora','Ponto Mais','Flash'],
+    compColors: ['#185FA5','#7C3AED','#059669','#DC2626','#D97706'],
+    features: [
+      {name:'Registro via app mobile',vals:[0,1,1,1,1]},
+      {name:'Reconhecimento facial',vals:[0,1,1,0,1]},
+      {name:'GPS e geofence',vals:[0,1,1,1,0]},
+      {name:'Relatorio de horas',vals:[0,1,1,1,1]},
+      {name:'Integracao com folha',vals:[0,1,1,1,1]},
+      {name:'Banco de horas',vals:[0,1,1,1,0]},
+      {name:'Gestao de escalas',vals:[0,0,1,1,0]},
+      {name:'Painel do gestor',vals:[0,1,1,1,1]},
+      {name:'Exportacao para DP',vals:[0,1,1,1,1]},
+    ],
+    scores:[0,84,89,72,65],
+  },
+  adq: {
+    title: 'Adquirencia',
+    icon: 'ti-device-mobile',
+    color: '#059669',
+    kpis: [
+      {val:'7',lbl:'Empresas mapeadas',sub:'no mercado BR'},
+      {val:'24',lbl:'Funcionalidades',sub:'avaliadas'},
+      {val:'3',lbl:'Diferenciais',sub:'identificados'},
+      {val:'3',lbl:'Gaps',sub:'vs concorrentes'},
+    ],
+    insights: [
+      {icon:'ti-alert-triangle',cls:'acc-amber',title:'Ponto de Atencao',text:'Produto nao implementado na Finscale. Alta barreira de entrada por exigencia de licenca BACEN e integracao com bandeiras.'},
+      {icon:'ti-trending-up',cls:'acc-green',title:'Oportunidade',text:'Sub-adquirencia via parceiros (Cielo, Stone) como caminho rapido para oferecer maquininha sem licenca propria.'},
+      {icon:'ti-star',cls:'acc-blue',title:'Referencia de Mercado',text:'Stone e Ton lideram em PMEs com taxas competitivas, antecipacao integrada e suporte 24h.'},
+    ],
+    companies: ['Finscale','Stone','Ton','PagSeguro','SumUp'],
+    compColors: ['#185FA5','#7C3AED','#059669','#DC2626','#D97706'],
+    features: [
+      {name:'Maquininha fisica',vals:[0,1,1,1,1]},
+      {name:'Link de pagamento',vals:[0,1,1,1,1]},
+      {name:'QR Code / PIX',vals:[0,1,1,1,1]},
+      {name:'Tap on Phone',vals:[0,1,0,1,0]},
+      {name:'Antecipacao de recebiveis',vals:[0,1,1,1,0]},
+      {name:'Gestao de vendas',vals:[0,1,0,1,0]},
+      {name:'Split de pagamento',vals:[0,1,0,0,1]},
+      {name:'Recorrencia / assinatura',vals:[0,0,1,1,1]},
+      {name:'Conciliacao automatica',vals:[0,1,0,1,0]},
+      {name:'Dashboard de vendas',vals:[0,1,1,1,1]},
+    ],
+    scores:[0,91,83,78,70],
+  },
+  plataforma: {
+    title: 'Plataforma (Core Banking)',
+    icon: 'ti-server',
+    color: '#7C3AED',
+    kpis: [
+      {val:'6',lbl:'Empresas mapeadas',sub:'no mercado BR'},
+      {val:'28',lbl:'Funcionalidades',sub:'avaliadas'},
+      {val:'4',lbl:'Diferenciais',sub:'identificados'},
+      {val:'2',lbl:'Gaps',sub:'vs concorrentes'},
+    ],
+    insights: [
+      {icon:'ti-star',cls:'acc-blue',title:'Destaque Finscale',text:'Arquitetura de microservicos em evolucao com API Gateway unificado. Base solida para escalar produtos financeiros.'},
+      {icon:'ti-alert-triangle',cls:'acc-amber',title:'Ponto de Atencao',text:'Observabilidade e monitoramento ainda em implantacao (Datadog). Sem isso, SLA e dificil de garantir.'},
+      {icon:'ti-trending-up',cls:'acc-green',title:'Oportunidade',text:'Oferecer Banking as a Service para terceiros usando a propria plataforma como produto, como faz o Celcoin.'},
+    ],
+    companies: ['Finscale','Celcoin','Dock','BMP','Quanto'],
+    compColors: ['#185FA5','#7C3AED','#059669','#DC2626','#D97706'],
+    features: [
+      {name:'API REST moderna',vals:[1,1,1,1,1]},
+      {name:'Microservicos',vals:[0.5,1,1,0,1]},
+      {name:'CI/CD automatizado',vals:[0.5,1,1,1,0]},
+      {name:'Observabilidade (APM)',vals:[0,1,1,1,1]},
+      {name:'Multi-tenant',vals:[0,1,1,0,1]},
+      {name:'SSO / IAM',vals:[1,1,1,1,0]},
+      {name:'Sandbox para parceiros',vals:[0,1,1,0,1]},
+      {name:'Webhooks e eventos',vals:[0,1,1,1,1]},
+      {name:'SLA 99.9%',vals:[0,1,1,1,0]},
+      {name:'Conformidade BACEN',vals:[1,1,1,1,1]},
+      {name:'Open Finance',vals:[0,1,1,0,1]},
+      {name:'Banking as a Service',vals:[0,1,1,0,0]},
+    ],
+    scores:[58,92,88,74,70],
+  },
+};
+
+function setProdTab(tab, el) {
+  curProdTab = tab;
+  document.querySelectorAll('.prod-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderProdutos();
+}
+
+function renderProdutos() {
+  const d = PROD_DATA[curProdTab];
+  if (!d) return;
+  const container = document.getElementById('prod-content');
+
+  // KPIs
+  const kpiHtml = `<div class="prod-overview">${d.kpis.map(k=>`<div class="prod-kpi"><div class="prod-kpi-lbl">${k.lbl}</div><div class="prod-kpi-val">${k.val}</div><div class="prod-kpi-sub">${k.sub}</div></div>`).join('')}</div>`;
+
+  // Insights
+  const insHtml = `<div class="insight-cards">${d.insights.map(i=>`<div class="insight-card"><div class="insight-icon ${i.cls}"><i class="ti ${i.icon}"></i></div><div class="insight-title">${i.title}</div><div class="insight-text">${i.text}</div></div>`).join('')}</div>`;
+
+  // Score row
+  const scoreHtml = `<div style="background:var(--bg);border:.5px solid var(--b);border-radius:var(--rl);padding:16px;margin-bottom:20px;">
+    <div class="prod-section-title"><i class="ti ti-award"></i> Score de Completude por Empresa</div>
+    <div style="display:grid;grid-template-columns:repeat(${d.companies.length},1fr);gap:12px;">
+      ${d.companies.map((c,i)=>{
+        const s=d.scores[i];
+        const clr=s>=80?'#639922':s>=60?'#EF9F27':s===0?'#B4B2A9':'#E24B4A';
+        return `<div style="text-align:center;">
+          <div style="font-size:11px;font-weight:500;color:var(--t1);margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:5px;">
+            <span class="company-badge" style="background:${d.compColors[i]};">${c.substring(0,2).toUpperCase()}</span>${c}
+          </div>
+          <div style="font-size:20px;font-weight:500;color:${clr};">${s===0?'--':s+'%'}</div>
+          <div class="score-bar"><div class="score-fill" style="width:${s}%;background:${clr};"></div></div>
+          <div style="font-size:10px;color:var(--t3);margin-top:3px;">${s===0?'Nao mapeado':s>=80?'Completo':s>=60?'Parcial':'Basico'}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+
+  // Feature comparison table
+  const tableHtml = `<div style="background:var(--bg);border:.5px solid var(--b);border-radius:var(--rl);overflow:hidden;margin-bottom:8px;">
+    <div style="padding:14px 16px;border-bottom:.5px solid var(--b);">
+      <div class="prod-section-title" style="margin-bottom:0;border:none;padding:0;"><i class="ti ti-table"></i> Comparativo de Funcionalidades</div>
+    </div>
+    <table class="comp-table">
+      <thead><tr>
+        <th>Funcionalidade</th>
+        ${d.companies.map((c,i)=>`<th><div class="company-hdr"><span class="company-badge" style="background:${d.compColors[i]};">${c.substring(0,2).toUpperCase()}</span>${c}</div></th>`).join('')}
+      </tr></thead>
+      <tbody>
+        ${d.features.map(f=>`<tr>
+          <td>${f.name}</td>
+          ${f.vals.map(v=>v===1?'<td style="text-align:center;"><span class="feat-yes">✓</span></td>':v===0?'<td style="text-align:center;"><span class="feat-no">✗</span></td>':'<td style="text-align:center;"><span class="feat-part">~</span></td>').join('')}
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+  <div style="font-size:11px;color:var(--t3);display:flex;gap:16px;margin-bottom:4px;">
+    <span><span class="feat-yes" style="font-size:13px;">✓</span> Disponivel</span>
+    <span><span class="feat-part">~</span> Parcial / Em desenvolvimento</span>
+    <span><span class="feat-no" style="font-size:13px;">✗</span> Nao disponivel</span>
+  </div>`;
+
+  container.innerHTML = kpiHtml + insHtml + scoreHtml + tableHtml;
+}
+// ── FIM PRODUTOS ──────────────────────────────────────────────────────────────
+
 function cmo(e,id,fn){if(e.target===document.getElementById(id))fn();}
 
 filterCards();
