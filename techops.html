@@ -720,6 +720,7 @@ const DP=[
   {id:'PRJ-001',name:'Ulrik',owner:'Ana Lima',email:'ana.lima@empresa.com',phone:'(11) 99001-0001',date:'2025-01-10',status:'ativo',scope:'Desenvolvimento completo do aplicativo mobile (Android e iOS) incluindo abertura de conta PF/PJ, login com autenticacao por dispositivo, home dashboard, transferencias, pagamento de boletos, extrato e perfil.'},
   {id:'PRJ-002',name:'Eco Sistemas',owner:'Bruno Costa',email:'bruno.costa@empresa.com',phone:'(11) 99001-0002',date:'2025-02-01',status:'ativo',scope:'Modulo completo de PIX: cadastro e gestao de chaves, transferencia por chave e dados bancarios, QR Code estatico e dinamico, PIX Copia e Cola, extrato, reembolso e gestao de limites.'},
   {id:'PRJ-003',name:'Hub22',owner:'Diego Faria',email:'diego.faria@empresa.com',phone:'(11) 99001-0003',date:'2025-03-01',status:'ativo',scope:'Wallet de cartao de credito: solicitacao, ativacao, historico de faturas, pagamento, gestao de limites e configuracoes.'},
+  {id:'PRJ-004',name:'Logica Distribuicao',owner:'',email:'',phone:'',date:'2026-06-01',status:'ativo',scope:'Marketplace B2B para comercializacao de produtos alimenticios para clientes corporativos. MVP inclui: Home institucional, Catalogo com busca e filtros (categoria, marca, preco, disponibilidade), Pagina de produto com galeria e produtos relacionados, Carrinho, Checkout completo (dados do cliente, endereco via CEP, pagamento PIX e Cartao de credito ate 12x), Area do cliente (dashboard, historico de pedidos, recompra, cadastro, enderecos), Painel administrativo (gestao de produtos, categorias, pedidos e clientes). Integracoes: Gateway de pagamento (PIX + Cartao), preparacao para ERP. Requisitos: HTTPS, LGPD, responsivo, SEO, carregamento menor que 3s.'},
 ];
 const DS=[
   {id:'SP-001',name:'Sprint 1',start:'2025-01-06',end:'2025-01-12',goal:'Setup inicial do projeto e cadastro PF'},
@@ -1624,7 +1625,15 @@ window.onFbProdutos = function(data) {
 window.initApp = function() {
   // Override with Firebase data if available
   if (window._fbCards)    { cards   = window._fbCards;   sv(CK, cards); }
-  if (window._fbProjs)    { projs   = window._fbProjs;   sv(PK, projs); }
+  if (window._fbProjs && window._fbProjs.length >= 4) { projs = window._fbProjs; sv(PK, projs); }
+  else if (window._fbProjs && window._fbProjs.length > 0) {
+    // merge: add any default projects not in Firebase
+    const fbIds = window._fbProjs.map(p=>p.id);
+    const missing = projs.filter(p=>!fbIds.includes(p.id));
+    projs = [...window._fbProjs, ...missing];
+    sv(PK, projs);
+    if(window.fbSave) window.fbSave('projects', projs);
+  }
   if (window._fbSprints)  { sprints = window._fbSprints; sv(SK, sprints); }
   if (window._fbProdutos) {
     Object.keys(window._fbProdutos).forEach(k => {
