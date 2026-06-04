@@ -768,6 +768,24 @@ textarea{resize:vertical;min-height:80px;}
       </div>
       <div class="frow">
         <div><div class="flbl">Ramo de Atividade</div><input type="text" id="cf-sector" placeholder="Ex: Alimenticio, Financeiro, Tecnologia..."></div>
+        <div><div class="flbl">Site do Cliente</div><input type="text" id="cf-website" placeholder="Ex: https://www.cliente.com.br"></div>
+      </div>
+      <div><div class="flbl">Fornecedores Indicados</div><textarea id="cf-suppliers" placeholder="Liste os fornecedores indicados para este projeto..." style="min-height:60px;"></textarea></div>
+      <div>
+        <div class="flbl">Logo do Cliente</div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div id="cf-logo-preview" style="width:60px;height:60px;border-radius:var(--r);border:.5px solid var(--bm);display:flex;align-items:center;justify-content:center;background:var(--bg2);overflow:hidden;flex-shrink:0;">
+            <i class="ti ti-photo" style="font-size:20px;color:var(--t3);"></i>
+          </div>
+          <div style="flex:1;">
+            <input type="file" id="cf-logo-file" accept="image/*" onchange="handleLogoUpload(event)" style="display:none;">
+            <button class="btn-cancel" onclick="document.getElementById('cf-logo-file').click()" style="margin-bottom:6px;width:100%;">Escolher imagem</button>
+            <button class="btn-cancel" onclick="removeLogo()" style="width:100%;font-size:11px;">Remover logo</button>
+          </div>
+        </div>
+      </div>
+      <div class="frow" style="display:none;">
+        <div><div class="flbl">Ramo placeholder</div><input type="text" id="cf-logo-data" style="display:none;"></div>
         <div></div>
       </div>
       <div class="frow">
@@ -810,6 +828,11 @@ textarea{resize:vertical;min-height:80px;}
       <div class="det-sec" style="border:none;padding:0;">
         <div class="det-row"><span class="det-key">Periodo</span><span class="det-val" id="cd-dates"></span></div>
         <div class="det-row"><span class="det-key">Ramo de Atividade</span><span class="det-val" id="cd-sector"></span></div>
+        <div class="det-row"><span class="det-key">Site do Cliente</span><span class="det-val" id="cd-website"></span></div>
+      </div>
+      <div class="det-sec">
+        <div style="font-size:12px;font-weight:500;color:var(--t2);margin-bottom:6px;display:flex;align-items:center;gap:6px;"><i class="ti ti-truck"></i> Fornecedores Indicados</div>
+        <div id="cd-suppliers" style="font-size:13px;color:var(--t2);line-height:1.6;white-space:pre-wrap;"></div>
       </div>
       <div class="det-sec">
         <div style="font-size:12px;font-weight:500;color:var(--t2);margin-bottom:6px;display:flex;align-items:center;gap:6px;"><i class="ti ti-bulb"></i> Oportunidades Levantadas</div>
@@ -1788,7 +1811,7 @@ function renderCases(){
     card.innerHTML=`
       <div class="case-card-banner" style="background:${bg};">
         <i class="ti ${icon} case-card-banner-icon"></i>
-        <span class="case-card-banner-initials">${initials}</span>
+        ${c.logo?`<img src="${c.logo}" style="max-width:80%;max-height:70px;object-fit:contain;z-index:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3));">`:`<span class="case-card-banner-initials" style="font-size:${c.client.length>12?'14px':c.client.length>8?'18px':'22px'};text-align:center;padding:0 12px;">${c.client}</span>`}
       </div>
       <div class="case-card-body">
         <span class="case-seg-badge ${SEG_CLS[c.segment]||'seg-outro'}">${SEG_LABELS[c.segment]||c.segment}</span>
@@ -1811,7 +1834,10 @@ function renderCases(){
 function openNewCase(){
   editCaseId=null;
   document.getElementById('case-form-title').textContent='Novo Case';
-  ['cf-id','cf-client','cf-opportunities','cf-financial','cf-testimonial','cf-sector'].forEach(id=>document.getElementById(id).value='');
+  ['cf-id','cf-client','cf-opportunities','cf-financial','cf-testimonial','cf-sector','cf-website','cf-suppliers'].forEach(id=>document.getElementById(id).value='');
+  window._caseLogo=null;
+  document.getElementById('cf-logo-preview').innerHTML='<i class="ti ti-photo" style="font-size:20px;color:var(--t3);"></i>';
+  document.getElementById('cf-logo-file').value='';
   rebuildSegmentSelect('varejo');
   document.getElementById('cf-date-start').value='';
   document.getElementById('cf-date-end').value='';
@@ -1831,6 +1857,12 @@ function openEditCase(id){
   document.getElementById('cf-financial').value=c.financial||'';
   document.getElementById('cf-testimonial').value=c.testimonial||'';
   document.getElementById('cf-sector').value=c.sector||'';
+  document.getElementById('cf-website').value=c.website||'';
+  document.getElementById('cf-suppliers').value=c.suppliers||'';
+  window._caseLogo=c.logo||null;
+  const prev=document.getElementById('cf-logo-preview');
+  if(c.logo){prev.innerHTML=`<img src="${c.logo}" style="width:100%;height:100%;object-fit:contain;">`;}
+  else{prev.innerHTML='<i class="ti ti-photo" style="font-size:20px;color:var(--t3);"></i>';}
   document.getElementById('cf-date-start').value=c.dateStart||'';
   document.getElementById('cf-date-end').value=c.dateEnd||'';
   window._caseAttachments=c.attachments?[...c.attachments]:[];
@@ -1849,6 +1881,9 @@ function saveCase(){
     client,
     segment:document.getElementById('cf-segment').value,
     sector:document.getElementById('cf-sector').value,
+    website:document.getElementById('cf-website').value,
+    suppliers:document.getElementById('cf-suppliers').value,
+    logo:window._caseLogo||null,
     opportunities:document.getElementById('cf-opportunities').value,
     financial:document.getElementById('cf-financial').value,
     testimonial:document.getElementById('cf-testimonial').value,
@@ -1862,6 +1897,22 @@ function saveCase(){
   saveCases();closeCaseForm();renderCases();
 }
 
+function handleLogoUpload(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    window._caseLogo=ev.target.result;
+    const prev=document.getElementById('cf-logo-preview');
+    prev.innerHTML=`<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:contain;">`;
+  };
+  reader.readAsDataURL(file);
+}
+function removeLogo(){
+  window._caseLogo=null;
+  document.getElementById('cf-logo-preview').innerHTML='<i class="ti ti-photo" style="font-size:20px;color:var(--t3);"></i>';
+  document.getElementById('cf-logo-file').value='';
+}
 function rebuildSegmentSelect(selected){
   const sel=document.getElementById('cf-segment');
   sel.innerHTML=getAllSegments().map(s=>`<option value="${s.id}" ${s.id===selected?'selected':''}>${s.label}</option>`).join('');
@@ -1900,13 +1951,20 @@ function openCaseDetail(id){
   const icon=SEG_ICONS[c.segment]||'ti-briefcase';
   document.getElementById('cd-banner').style.background=bg;
   document.getElementById('cd-banner-icon').className='ti '+icon+' cd-banner-icon';
-  document.getElementById('cd-banner-initials').textContent=getInitials(c.client);
+  if(c.logo){
+    document.getElementById('cd-banner-initials').innerHTML=`<img src="${c.logo}" style="max-height:80px;max-width:200px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,.3));">`;
+  } else {
+    document.getElementById('cd-banner-initials').textContent=getInitials(c.client);
+  }
   document.getElementById('cd-banner-name').textContent=c.client;
   document.getElementById('cd-seg').innerHTML=`<span class="case-seg-badge ${SEG_CLS[c.segment]||'seg-outro'}">${SEG_LABELS[c.segment]||c.segment}</span>`;
   document.getElementById('cd-client').textContent=c.client;
   document.getElementById('cd-id').textContent=c.id;
   document.getElementById('cd-dates').textContent=fmtDate(c.dateStart)+(c.dateEnd?' → '+fmtDate(c.dateEnd):'');
+  document.getElementById('cd-sector').innerHTML=c.website?`<a href="${c.website}" target="_blank" style="color:var(--info);">${c.website}</a>`:(c.sector||'Nao informado');
   document.getElementById('cd-sector').textContent=c.sector||'Nao informado';
+  document.getElementById('cd-website').innerHTML=c.website?`<a href="${c.website}" target="_blank" style="color:var(--info);text-decoration:none;">${c.website} <i class="ti ti-external-link" style="font-size:11px;"></i></a>`:'Nao informado';
+  document.getElementById('cd-suppliers').textContent=c.suppliers||'Nenhum fornecedor indicado.';
   document.getElementById('cd-opportunities').textContent=c.opportunities||'Nao informado.';
   document.getElementById('cd-financial').textContent=c.financial||'Nao informado.';
   document.getElementById('cd-testimonial').textContent=c.testimonial||'Nao informado.';
