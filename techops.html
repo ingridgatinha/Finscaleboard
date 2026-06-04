@@ -53,11 +53,13 @@
     window.fbLoad('projects'),
     window.fbLoad('sprints'),
     window.fbLoad('produtos'),
-  ]).then(([fbCards, fbProjs, fbSprints, fbProdutos]) => {
+    window.fbLoad('cases'),
+  ]).then(([fbCards, fbProjs, fbSprints, fbProdutos, fbCases]) => {
     if (fbCards)    { window._fbCards    = fbCards; }
     if (fbProjs)    { window._fbProjs    = fbProjs; }
     if (fbSprints)  { window._fbSprints  = fbSprints; }
     if (fbProdutos) { window._fbProdutos = fbProdutos; }
+    if (fbCases)    { window._fbCases    = fbCases; }
     window.fbReady = true;
     if (window.initApp) window.initApp();
 
@@ -66,6 +68,7 @@
     window.fbListen('projects', d => { if(window.onFbProjs)    window.onFbProjs(d); });
     window.fbListen('sprints',  d => { if(window.onFbSprints)  window.onFbSprints(d); });
     window.fbListen('produtos', d => { if(window.onFbProdutos) window.onFbProdutos(d); });
+    window.fbListen('cases',    d => { if(window.onFbCases)    window.onFbCases(d); });
   });
 </script>
 <style>
@@ -329,6 +332,37 @@ textarea{resize:vertical;min-height:80px;}
 .confirm-box p{font-size:14px;color:var(--t1);margin-bottom:6px;font-weight:500;}
 .confirm-box small{font-size:12px;color:var(--t2);}
 .confirm-btns{display:flex;gap:10px;justify-content:center;margin-top:18px;}
+/* CASES */
+.cases-grid-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;grid-auto-rows:1fr;}
+.case-card{border-radius:var(--rl);cursor:pointer;display:flex;flex-direction:column;height:100%;overflow:hidden;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.case-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.12);}
+.case-card-banner{height:90px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.case-card-banner-icon{font-size:36px;opacity:.25;position:absolute;right:16px;bottom:-4px;}
+.case-card-banner-initials{font-size:28px;font-weight:800;color:#fff;letter-spacing:-1px;z-index:1;}
+.case-card-body{background:var(--bg);padding:16px;flex:1;display:flex;flex-direction:column;border:.5px solid var(--b);border-top:none;border-radius:0 0 var(--rl) var(--rl);}
+.case-seg-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600;margin-bottom:8px;width:fit-content;}
+.seg-agro{background:#eaf3de;color:#3B6D11;}
+.seg-varejo{background:#e6f1fb;color:#185FA5;}
+.seg-comercio{background:#EEEDFE;color:#3C3489;}
+.seg-industria{background:#faeeda;color:#854F0B;}
+.seg-saude{background:#fcebeb;color:#A32D2D;}
+.seg-educacao{background:#E1F5EE;color:#0F6E56;}
+.seg-outro{background:var(--bg2);color:var(--t2);}
+.case-client{font-size:15px;font-weight:600;color:var(--t1);margin-bottom:4px;}
+.case-meta{font-size:11px;color:var(--t3);display:flex;align-items:center;gap:5px;margin-bottom:10px;}
+.case-desc{font-size:12px;color:var(--t2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:12px;flex:1;}
+.case-footer{border-top:.5px solid var(--b);padding-top:12px;display:flex;align-items:center;justify-content:space-between;}
+.case-attach{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--info);}
+.case-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.case-kpi{background:var(--bg2);border-radius:var(--r);padding:8px;text-align:center;}
+.case-kpi-v{font-size:14px;font-weight:600;color:var(--t1);}
+.case-kpi-l{font-size:9px;color:var(--t3);margin-top:1px;}
+/* DETAIL */
+.cd-banner{height:120px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border-radius:var(--rl) var(--rl) 0 0;}
+.cd-banner-icon{font-size:64px;opacity:.15;position:absolute;right:24px;}
+.cd-banner-content{z-index:1;text-align:center;}
+.cd-banner-initials{font-size:40px;font-weight:800;color:#fff;letter-spacing:-2px;}
+.cd-banner-name{font-size:13px;color:rgba(255,255,255,.8);margin-top:2px;}
 /* PRODUCT TABS */
 .prod-tab{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:20px;border:.5px solid var(--bm);background:var(--bg);font-size:12px;color:var(--t2);cursor:pointer;transition:all .15s;font-family:inherit;}
 .prod-tab:hover,.prod-tab.active{background:var(--acc);color:#fff;border-color:var(--acc);}
@@ -395,6 +429,7 @@ textarea{resize:vertical;min-height:80px;}
   <div class="nav-sec">
     <div class="nav-lbl">Equipe</div>
     <div class="nav-item" onclick="setNav(this,'produtos')"><i class="ti ti-layout-grid"></i> Produtos Prateleira</div>
+    <div class="nav-item" onclick="setNav(this,'cases')"><i class="ti ti-briefcase"></i> Cases Finscale</div>
     <div class="nav-item"><i class="ti ti-users"></i> Membros</div>
     <div class="nav-item"><i class="ti ti-settings"></i> Configuracoes</div>
   </div>
@@ -551,6 +586,32 @@ textarea{resize:vertical;min-height:80px;}
       <div id="prod-content"></div>
     </div>
 
+    <!-- CASES FINSCALE -->
+    <div id="cases-view" style="display:none;">
+      <div style="margin-bottom:20px;display:flex;align-items:flex-start;justify-content:space-between;">
+        <div>
+          <div style="font-size:15px;font-weight:500;color:var(--t1);margin-bottom:3px;">Cases Finscale</div>
+          <div style="font-size:12px;color:var(--t3);">Projetos implementados organizados por segmento. Clique em um case para ver os detalhes.</div>
+        </div>
+      </div>
+      <!-- SEGMENT TABS -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;" id="cases-tabs">
+        <button class="prod-tab active" onclick="setCaseTab('all',this)"><i class="ti ti-layout-grid"></i> Todos</button>
+        <button class="prod-tab" onclick="setCaseTab('agro',this)"><i class="ti ti-plant"></i> Agro</button>
+        <button class="prod-tab" onclick="setCaseTab('varejo',this)"><i class="ti ti-shopping-cart"></i> Varejo</button>
+        <button class="prod-tab" onclick="setCaseTab('comercio',this)"><i class="ti ti-building-store"></i> Comercio</button>
+        <button class="prod-tab" onclick="setCaseTab('industria',this)"><i class="ti ti-building-factory"></i> Industria</button>
+        <button class="prod-tab" onclick="setCaseTab('saude',this)"><i class="ti ti-heart-rate-monitor"></i> Saude</button>
+        <button class="prod-tab" onclick="setCaseTab('educacao',this)"><i class="ti ti-school"></i> Educacao</button>
+      </div>
+      <div id="cases-grid" class="cases-grid-wrap"></div>
+      <div id="cases-empty" style="display:none;text-align:center;padding:60px 0;color:var(--t3);">
+        <i class="ti ti-briefcase-off" style="font-size:36px;display:block;margin-bottom:10px;"></i>
+        <div style="font-size:13px;">Nenhum case cadastrado neste segmento.</div>
+        <div style="font-size:12px;margin-top:4px;">Clique em "Novo Case" para adicionar.</div>
+      </div>
+    </div>
+
   </div>
 </main>
 </div>
@@ -689,6 +750,87 @@ textarea{resize:vertical;min-height:80px;}
       <div><div class="flbl">Objetivo do Sprint</div><textarea id="sf-goal" placeholder="O que o time deve entregar nesse sprint?"></textarea></div>
     </div>
     <div class="modal-foot"><button class="btn-cancel" onclick="closeSprintForm()">Cancelar</button><button class="btn-save" onclick="saveSprint()">Salvar Sprint</button></div>
+  </div>
+</div>
+
+<!-- MODAL CASE FORM -->
+<div class="modal-overlay" id="modal-case" onclick="cmo(event,'modal-case',closeCaseForm)">
+  <div class="modal modal-wide">
+    <div class="modal-hdr"><span class="modal-ttl" id="case-form-title">Novo Case</span><button class="modal-x" onclick="closeCaseForm()"><i class="ti ti-x"></i></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="cf-id">
+      <div class="frow">
+        <div><div class="flbl">Nome do Cliente *</div><input type="text" id="cf-client" placeholder="Ex: Supermercado Boa Vista"></div>
+        <div><div class="flbl">Segmento</div>
+          <select id="cf-segment">
+            <option value="agro">Agro</option>
+            <option value="varejo">Varejo</option>
+            <option value="comercio">Comercio</option>
+            <option value="industria">Industria</option>
+            <option value="saude">Saude</option>
+            <option value="educacao">Educacao</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+      </div>
+      <div class="frow">
+        <div><div class="flbl">Data de Inicio</div><input type="date" id="cf-date-start"></div>
+        <div><div class="flbl">Data de Conclusao</div><input type="date" id="cf-date-end"></div>
+      </div>
+      <div><div class="flbl">Oportunidades Levantadas</div><textarea id="cf-opportunities" placeholder="Descreva as oportunidades identificadas neste projeto..."></textarea></div>
+      <div><div class="flbl">Projecao Financeira</div><textarea id="cf-financial" placeholder="Ex: Receita estimada, ROI, economia gerada..." style="min-height:60px;"></textarea></div>
+      <div><div class="flbl">Depoimento do Cliente</div><textarea id="cf-testimonial" placeholder="Cole aqui o depoimento ou feedback do cliente..." style="min-height:60px;"></textarea></div>
+      <div>
+        <div class="flbl">Anexos (links do Google Drive)</div>
+        <div id="cf-attachments-list" style="margin-bottom:8px;"></div>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="cf-attach-name" placeholder="Nome do arquivo (Ex: Proposta.pdf)" style="flex:1;">
+          <input type="text" id="cf-attach-url" placeholder="Link do Google Drive" style="flex:2;">
+          <button class="btn-save" onclick="addAttachment()" style="white-space:nowrap;padding:7px 12px;">+ Adicionar</button>
+        </div>
+        <div style="font-size:10px;color:var(--t3);margin-top:5px;">No Google Drive: clique com botao direito no arquivo → Compartilhar → Copiar link</div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn-cancel" onclick="closeCaseForm()">Cancelar</button><button class="btn-save" onclick="saveCase()">Salvar Case</button></div>
+  </div>
+</div>
+
+<!-- MODAL CASE DETAIL -->
+<div class="modal-overlay" id="modal-case-detail" onclick="cmo(event,'modal-case-detail',closeCaseDetail)">
+  <div class="modal modal-wide">
+    <div id="cd-banner" class="cd-banner">
+      <i id="cd-banner-icon" class="cd-banner-icon"></i>
+      <div class="cd-banner-content">
+        <div id="cd-banner-initials" class="cd-banner-initials"></div>
+        <div id="cd-banner-name" class="cd-banner-name"></div>
+      </div>
+      <button class="modal-x" onclick="closeCaseDetail()" style="position:absolute;top:12px;right:12px;color:#fff;background:rgba(255,255,255,.2);"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-hdr" style="padding-top:14px;">
+      <div><div id="cd-seg" style="margin-bottom:4px;"></div><div class="modal-ttl" id="cd-client"></div><div style="font-size:11px;color:var(--t3);margin-top:2px;" id="cd-id"></div></div>
+    </div>
+    <div class="modal-body">
+      <div class="det-sec" style="border:none;padding:0;">
+        <div class="det-row"><span class="det-key">Periodo</span><span class="det-val" id="cd-dates"></span></div>
+      </div>
+      <div class="det-sec">
+        <div style="font-size:12px;font-weight:500;color:var(--t2);margin-bottom:6px;display:flex;align-items:center;gap:6px;"><i class="ti ti-bulb"></i> Oportunidades Levantadas</div>
+        <div id="cd-opportunities" style="font-size:13px;color:var(--t2);line-height:1.6;white-space:pre-wrap;"></div>
+      </div>
+      <div class="det-sec">
+        <div style="font-size:12px;font-weight:500;color:var(--t2);margin-bottom:6px;display:flex;align-items:center;gap:6px;"><i class="ti ti-trending-up"></i> Projecao Financeira</div>
+        <div id="cd-financial" style="font-size:13px;color:var(--t2);line-height:1.6;white-space:pre-wrap;"></div>
+      </div>
+      <div class="det-sec">
+        <div style="font-size:12px;font-weight:500;color:var(--t2);margin-bottom:6px;display:flex;align-items:center;gap:6px;"><i class="ti ti-quote"></i> Depoimento do Cliente</div>
+        <div id="cd-testimonial" style="font-size:13px;color:var(--t2);line-height:1.6;font-style:italic;white-space:pre-wrap;"></div>
+      </div>
+      <div class="det-sec">
+        <div style="font-size:12px;font-weight:500;color:var(--t2);margin-bottom:10px;display:flex;align-items:center;gap:6px;"><i class="ti ti-paperclip"></i> Anexos</div>
+        <div id="cd-attachments" style="display:flex;flex-wrap:wrap;"></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn-cancel" onclick="closeCaseDetail()">Fechar</button><button class="btn-save" id="cd-edit-btn">Editar Case</button></div>
   </div>
 </div>
 
@@ -935,21 +1077,21 @@ function filterCards(){
 function filterBy(area,el){curFilter=area;document.querySelectorAll('#board-filters .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');filterCards();}
 function onSearch(){const s=document.getElementById('search-input').value.toLowerCase();if(curView==='projects')renderProjects(s);else if(curView==='sprints')renderSprints(s);else filterCards();}
 
-const VIEWS=['board','projects','sprints','dashboard','list','roadmap','produtos'];
+const VIEWS=['board','projects','sprints','dashboard','list','roadmap','produtos','cases'];
 function switchView(view,btn){
   curView=view;
   localStorage.setItem('techops_last_view', view);
   document.querySelectorAll('.vbtn').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
-  const titles={board:'Board de Demandas',list:'Lista de Cards',roadmap:'Roadmap',projects:'Projetos',sprints:'Controle de Sprints',dashboard:'Dashboard de Metricas',produtos:'Produtos de Prateleira'};
+  const titles={board:'Board de Demandas',list:'Lista de Cards',roadmap:'Roadmap',projects:'Projetos',sprints:'Controle de Sprints',dashboard:'Dashboard de Metricas',produtos:'Produtos de Prateleira',cases:'Cases Finscale'};
   document.getElementById('page-title').textContent=titles[view]||view;
   VIEWS.forEach(v=>document.getElementById(v+'-view').style.display=v===view?'block':'none');
   document.getElementById('view-toggle-board').style.display=['projects','sprints','dashboard','produtos'].includes(view)?'none':'flex';
-  const lblMap={board:'Novo Card',list:'Novo Card',roadmap:'Novo Card',projects:'Novo Projeto',sprints:'Novo Sprint',dashboard:'',produtos:''};
+  const lblMap={board:'Novo Card',list:'Novo Card',roadmap:'Novo Card',projects:'Novo Projeto',sprints:'Novo Sprint',dashboard:'',produtos:'',cases:'Novo Case'};
   document.getElementById('btn-new-label').textContent=lblMap[view]||'Novo';
   document.getElementById('search-input').placeholder=view==='projects'?'Buscar projetos...':view==='sprints'?'Buscar sprints...':'Buscar cards...';
   // Show/hide search box and new button based on view
-  const hideSearch = ['dashboard','roadmap'].includes(view);
+  const hideSearch = ['dashboard','roadmap','cases'].includes(view);
   const hideNew = ['dashboard','roadmap','produtos'].includes(view);
   document.getElementById('search-box').style.display = hideSearch ? 'none' : 'flex';
   document.getElementById('btn-new-main').style.display = hideNew ? 'none' : 'flex';
@@ -957,6 +1099,7 @@ function switchView(view,btn){
   else if(view==='sprints')renderSprints();
   else if(view==='dashboard')renderDashboard();
   else if(view==='produtos'){renderProdutos();}
+  else if(view==='cases')renderCases();
   else filterCards();
 }
 function setNav(el,view){
@@ -970,6 +1113,7 @@ function handleNewBtn(){
   else if(curView==='sprints')openNewSprint();
   else if(curView==='dashboard')return;
   else if(curView==='produtos')return;
+  else if(curView==='cases')openNewCase();
   else openNewCard();
 }
 
@@ -1164,6 +1308,7 @@ function closeConfirm(){delId=null;delType=null;document.getElementById('confirm
 function confirmDelete(){
   if(delType==='project'){cards.forEach(c=>{if(c.project===delId)c.project='';});projs=projs.filter(p=>p.id!==delId);svP();svC();renderProjects();}
   else if(delType==='sprint'){cards.forEach(c=>{if(c.sprint===delId)c.sprint='';});sprints=sprints.filter(s=>s.id!==delId);svS();svC();renderSprints();}
+  else if(delType==='case'){cases_data=cases_data.filter(c=>c.id!==delId);saveCases();renderCases();}
   else{cards=cards.filter(p=>p.id!==delId);svC();filterCards();}
   closeConfirm();
 }
@@ -1551,6 +1696,182 @@ function openEditInsight(ii) {
 }
 // ── FIM PRODUTOS ──────────────────────────────────────────────────────────────
 
+// ── CASES FINSCALE ────────────────────────────────────────────────────────────
+const CASES_KEY = 'techops_cases_v1';
+let cases_data = [];
+try { const s=localStorage.getItem(CASES_KEY); if(s) cases_data=JSON.parse(s); } catch(e){}
+
+function saveCases(){ localStorage.setItem(CASES_KEY,JSON.stringify(cases_data)); if(window.fbSave)window.fbSave('cases',cases_data); }
+
+let curCaseTab='all';
+let editCaseId=null;
+let detailCaseId=null;
+
+const SEG_LABELS={agro:'Agro',varejo:'Varejo',comercio:'Comercio',industria:'Industria',saude:'Saude',educacao:'Educacao',outro:'Outro'};
+const SEG_CLS={agro:'seg-agro',varejo:'seg-varejo',comercio:'seg-comercio',industria:'seg-industria',saude:'seg-saude',educacao:'seg-educacao',outro:'seg-outro'};
+
+function setCaseTab(tab,el){
+  curCaseTab=tab;
+  document.querySelectorAll('#cases-tabs .prod-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderCases();
+}
+
+const SEG_COLORS={agro:'linear-gradient(135deg,#2D6A1F,#5CA63C)',varejo:'linear-gradient(135deg,#0D4B8C,#2E86DE)',comercio:'linear-gradient(135deg,#3B2A8C,#7C6BD1)',industria:'linear-gradient(135deg,#8C4A00,#E8920A)',saude:'linear-gradient(135deg,#8C0A0A,#D94040)',educacao:'linear-gradient(135deg,#0A5C46,#12A67E)',outro:'linear-gradient(135deg,#3A3A3A,#6B6B6B)'};
+const SEG_ICONS={agro:'ti-plant',varejo:'ti-shopping-cart',comercio:'ti-building-store',industria:'ti-building-factory',saude:'ti-heart-rate-monitor',educacao:'ti-school',outro:'ti-briefcase'};
+
+function getInitials(name){return name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();}
+
+function renderCases(){
+  const grid=document.getElementById('cases-grid');
+  const empty=document.getElementById('cases-empty');
+  grid.innerHTML='';
+  let list=curCaseTab==='all'?cases_data:cases_data.filter(c=>c.segment===curCaseTab);
+  if(!list.length){empty.style.display='block';grid.style.display='none';return;}
+  empty.style.display='none';grid.style.display='grid';
+  list.forEach(c=>{
+    const card=document.createElement('div');
+    card.className='case-card';
+    card.onclick=()=>openCaseDetail(c.id);
+    const attachCount=(c.attachments||[]).length;
+    const bg=SEG_COLORS[c.segment]||SEG_COLORS.outro;
+    const icon=SEG_ICONS[c.segment]||'ti-briefcase';
+    const initials=getInitials(c.client);
+    card.innerHTML=`
+      <div class="case-card-banner" style="background:${bg};">
+        <i class="ti ${icon} case-card-banner-icon"></i>
+        <span class="case-card-banner-initials">${initials}</span>
+      </div>
+      <div class="case-card-body">
+        <span class="case-seg-badge ${SEG_CLS[c.segment]||'seg-outro'}">${SEG_LABELS[c.segment]||c.segment}</span>
+        <div class="case-client">${c.client}</div>
+        <div class="case-meta"><i class="ti ti-calendar" style="font-size:12px;"></i>${fmtDate(c.dateStart)}${c.dateEnd?' → '+fmtDate(c.dateEnd):''}</div>
+        <div class="case-desc">${c.opportunities||'Sem descricao cadastrada.'}</div>
+        <div class="case-footer">
+          <div class="case-attach">${attachCount>0?`<i class="ti ti-paperclip"></i>${attachCount} anexo${attachCount>1?'s':''}`:'<span style="color:var(--t3);font-size:11px;">Sem anexos</span>'}</div>
+          <div style="display:flex;gap:6px;" onclick="event.stopPropagation()">
+            <button class="cbtn" onclick="openEditCase('${c.id}')" title="Editar"><i class="ti ti-edit"></i></button>
+            <button class="cbtn del" onclick="askDel('case','${c.id}',event)" title="Excluir"><i class="ti ti-trash"></i></button>
+          </div>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function openNewCase(){
+  editCaseId=null;
+  document.getElementById('case-form-title').textContent='Novo Case';
+  ['cf-id','cf-client','cf-opportunities','cf-financial','cf-testimonial'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cf-segment').value='varejo';
+  document.getElementById('cf-date-start').value='';
+  document.getElementById('cf-date-end').value='';
+  document.getElementById('cf-attachments-list').innerHTML='';
+  window._caseAttachments=[];
+  document.getElementById('modal-case').classList.add('open');
+}
+
+function openEditCase(id){
+  const c=cases_data.find(x=>x.id===id);if(!c)return;
+  editCaseId=id;
+  document.getElementById('case-form-title').textContent='Editar Case';
+  document.getElementById('cf-id').value=c.id;
+  document.getElementById('cf-client').value=c.client||'';
+  document.getElementById('cf-segment').value=c.segment||'varejo';
+  document.getElementById('cf-opportunities').value=c.opportunities||'';
+  document.getElementById('cf-financial').value=c.financial||'';
+  document.getElementById('cf-testimonial').value=c.testimonial||'';
+  document.getElementById('cf-date-start').value=c.dateStart||'';
+  document.getElementById('cf-date-end').value=c.dateEnd||'';
+  window._caseAttachments=c.attachments?[...c.attachments]:[];
+  renderAttachmentsList();
+  document.getElementById('modal-case-detail').classList.remove('open');
+  document.getElementById('modal-case').classList.add('open');
+}
+
+function closeCaseForm(){document.getElementById('modal-case').classList.remove('open');}
+
+function saveCase(){
+  const client=document.getElementById('cf-client').value.trim();
+  if(!client){document.getElementById('cf-client').focus();return;}
+  const obj={
+    id:editCaseId||('CS-'+String(cases_data.length+1).padStart(3,'0')),
+    client,
+    segment:document.getElementById('cf-segment').value,
+    opportunities:document.getElementById('cf-opportunities').value,
+    financial:document.getElementById('cf-financial').value,
+    testimonial:document.getElementById('cf-testimonial').value,
+    dateStart:document.getElementById('cf-date-start').value,
+    dateEnd:document.getElementById('cf-date-end').value,
+    attachments:window._caseAttachments||[],
+    created:editCaseId?(cases_data.find(x=>x.id===editCaseId)||{}).created:new Date().toISOString().split('T')[0],
+  };
+  if(editCaseId){const idx=cases_data.findIndex(x=>x.id===editCaseId);if(idx>=0)cases_data[idx]=obj;}
+  else cases_data.push(obj);
+  saveCases();closeCaseForm();renderCases();
+}
+
+function addAttachment(){
+  const name=document.getElementById('cf-attach-name').value.trim();
+  const url=document.getElementById('cf-attach-url').value.trim();
+  if(!name||!url)return;
+  if(!window._caseAttachments)window._caseAttachments=[];
+  window._caseAttachments.push({name,url,id:'AT-'+Date.now()});
+  document.getElementById('cf-attach-name').value='';
+  document.getElementById('cf-attach-url').value='';
+  renderAttachmentsList();
+}
+
+function removeAttachment(id){
+  window._caseAttachments=(window._caseAttachments||[]).filter(a=>a.id!==id);
+  renderAttachmentsList();
+}
+
+function renderAttachmentsList(){
+  const el=document.getElementById('cf-attachments-list');
+  const list=window._caseAttachments||[];
+  el.innerHTML=list.length?list.map(a=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg2);border-radius:var(--r);margin-bottom:6px;font-size:12px;">
+    <i class="ti ti-paperclip" style="color:var(--t3);font-size:13px;"></i>
+    <span style="flex:1;">${a.name}</span>
+    <button class="cbtn del" onclick="removeAttachment('${a.id}')" style="opacity:.7;"><i class="ti ti-x" style="font-size:11px;"></i></button>
+  </div>`).join(''):'<div style="font-size:11px;color:var(--t3);padding:4px 0;">Nenhum anexo adicionado.</div>';
+}
+
+function openCaseDetail(id){
+  const c=cases_data.find(x=>x.id===id);if(!c)return;
+  detailCaseId=id;
+  const bg=SEG_COLORS[c.segment]||SEG_COLORS.outro;
+  const icon=SEG_ICONS[c.segment]||'ti-briefcase';
+  document.getElementById('cd-banner').style.background=bg;
+  document.getElementById('cd-banner-icon').className='ti '+icon+' cd-banner-icon';
+  document.getElementById('cd-banner-initials').textContent=getInitials(c.client);
+  document.getElementById('cd-banner-name').textContent=c.client;
+  document.getElementById('cd-seg').innerHTML=`<span class="case-seg-badge ${SEG_CLS[c.segment]||'seg-outro'}">${SEG_LABELS[c.segment]||c.segment}</span>`;
+  document.getElementById('cd-client').textContent=c.client;
+  document.getElementById('cd-id').textContent=c.id;
+  document.getElementById('cd-dates').textContent=fmtDate(c.dateStart)+(c.dateEnd?' → '+fmtDate(c.dateEnd):'');
+  document.getElementById('cd-opportunities').textContent=c.opportunities||'Nao informado.';
+  document.getElementById('cd-financial').textContent=c.financial||'Nao informado.';
+  document.getElementById('cd-testimonial').textContent=c.testimonial||'Nao informado.';
+  const attEl=document.getElementById('cd-attachments');
+  const atts=c.attachments||[];
+  attEl.innerHTML=atts.length?atts.map(a=>`<a href="${a.url}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:7px 12px;background:var(--info-bg);color:var(--info);border-radius:var(--r);font-size:12px;text-decoration:none;font-weight:500;margin-right:8px;margin-bottom:8px;"><i class="ti ti-paperclip"></i>${a.name}</a>`).join(''):'<span style="font-size:12px;color:var(--t3);">Sem anexos.</span>';
+  document.getElementById('cd-edit-btn').onclick=()=>openEditCase(id);
+  document.getElementById('modal-case-detail').classList.add('open');
+}
+function closeCaseDetail(){document.getElementById('modal-case-detail').classList.remove('open');detailCaseId=null;}
+
+// Firebase sync for cases
+window.onFbCases=function(data){
+  if(JSON.stringify(data)!==JSON.stringify(cases_data)){
+    cases_data=data;
+    localStorage.setItem(CASES_KEY,JSON.stringify(cases_data));
+    if(curView==='cases')renderCases();
+  }
+};
+// ── FIM CASES ─────────────────────────────────────────────────────────────────
+
 function cmo(e,id,fn){if(e.target===document.getElementById(id))fn();}
 
 // ── FIREBASE REAL-TIME CALLBACKS ─────────────────────────────────────────────
@@ -1599,6 +1920,28 @@ window.initApp = function() {
     Object.keys(window._fbProdutos).forEach(k => {
       if(PROD_DATA[k]) Object.assign(PROD_DATA[k], window._fbProdutos[k]);
     });
+  }
+  if (window._fbCases && window._fbCases.length > 0) {
+    cases_data = window._fbCases;
+    localStorage.setItem(CASES_KEY, JSON.stringify(cases_data));
+  } else if (!window._fbCases && cases_data.length === 0) {
+    // Add example case so page doesnt look empty
+    cases_data = [{
+      id:'CS-001',
+      client:'Claude Tecnologia',
+      segment:'varejo',
+      opportunities:'Digitalizacao do processo de vendas B2B. Reducao de pedidos por WhatsApp e telefone. Implementacao de plataforma de conta digital para os lojistas com PIX, cartao e antecipacao de recebiveis.',
+      financial:'Receita projetada: R$ 480.000/ano. ROI estimado em 14 meses. Reducao de 60% no custo operacional de cobranca.',
+      testimonial:'A Finscale transformou nossa operacao financeira. Em 3 meses ja sentimos a diferenca na reducao de inadimplencia e no tempo que nossa equipe gasta com cobrancas. - Joao Silva, CEO Claude Tecnologia',
+      dateStart:'2025-01-15',
+      dateEnd:'2025-06-30',
+      attachments:[
+        {id:'AT-001',name:'Proposta Comercial',url:'https://drive.google.com'},
+        {id:'AT-002',name:'Apresentacao do Projeto',url:'https://drive.google.com'},
+      ],
+      created:'2025-01-15'
+    }];
+    saveCases();
   }
   restoreView();
 };
