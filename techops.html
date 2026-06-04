@@ -69,6 +69,7 @@
     window.fbListen('sprints',  d => { if(window.onFbSprints)  window.onFbSprints(d); });
     window.fbListen('produtos', d => { if(window.onFbProdutos) window.onFbProdutos(d); });
     window.fbListen('cases',    d => { if(window.onFbCases)    window.onFbCases(d); });
+    window.fbListen('segments', d => { if(d&&Array.isArray(d)){customSegments=d;renderCaseTabs();} });
   });
 </script>
 <style>
@@ -595,15 +596,7 @@ textarea{resize:vertical;min-height:80px;}
         </div>
       </div>
       <!-- SEGMENT TABS -->
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;" id="cases-tabs">
-        <button class="prod-tab active" onclick="setCaseTab('all',this)"><i class="ti ti-layout-grid"></i> Todos</button>
-        <button class="prod-tab" onclick="setCaseTab('agro',this)"><i class="ti ti-plant"></i> Agro</button>
-        <button class="prod-tab" onclick="setCaseTab('varejo',this)"><i class="ti ti-shopping-cart"></i> Varejo</button>
-        <button class="prod-tab" onclick="setCaseTab('comercio',this)"><i class="ti ti-building-store"></i> Comercio</button>
-        <button class="prod-tab" onclick="setCaseTab('industria',this)"><i class="ti ti-building-factory"></i> Industria</button>
-        <button class="prod-tab" onclick="setCaseTab('saude',this)"><i class="ti ti-heart-rate-monitor"></i> Saude</button>
-        <button class="prod-tab" onclick="setCaseTab('educacao',this)"><i class="ti ti-school"></i> Educacao</button>
-      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;align-items:center;" id="cases-tabs"></div>
       <div id="cases-grid" class="cases-grid-wrap"></div>
       <div id="cases-empty" style="display:none;text-align:center;padding:60px 0;color:var(--t3);">
         <i class="ti ti-briefcase-off" style="font-size:36px;display:block;margin-bottom:10px;"></i>
@@ -1715,10 +1708,59 @@ let detailCaseId=null;
 const SEG_LABELS={agro:'Agro',varejo:'Varejo',comercio:'Comercio',industria:'Industria',saude:'Saude',educacao:'Educacao',outro:'Outro'};
 const SEG_CLS={agro:'seg-agro',varejo:'seg-varejo',comercio:'seg-comercio',industria:'seg-industria',saude:'seg-saude',educacao:'seg-educacao',outro:'seg-outro'};
 
+// Default segments
+const DEFAULT_SEGMENTS=[
+  {id:'agro',label:'Agro',icon:'ti-plant'},
+  {id:'varejo',label:'Varejo',icon:'ti-shopping-cart'},
+  {id:'comercio',label:'Comercio',icon:'ti-building-store'},
+  {id:'industria',label:'Industria',icon:'ti-building-factory'},
+  {id:'saude',label:'Saude',icon:'ti-heart-rate-monitor'},
+  {id:'educacao',label:'Educacao',icon:'ti-school'},
+];
+const SEGS_KEY='techops_segments_v1';
+let customSegments=[];
+try{const s=localStorage.getItem(SEGS_KEY);if(s)customSegments=JSON.parse(s);}catch(e){}
+function getAllSegments(){return[...DEFAULT_SEGMENTS,...customSegments];}
+function saveSegments(){localStorage.setItem(SEGS_KEY,JSON.stringify(customSegments));if(window.fbSave)window.fbSave('segments',customSegments);}
+
+function renderCaseTabs(){
+  const tabs=document.getElementById('cases-tabs');
+  const all=getAllSegments();
+  // Update SEG_LABELS and SEG_CLS dynamically
+  all.forEach(s=>{SEG_LABELS[s.id]=s.label;SEG_CLS[s.id]=SEG_CLS[s.id]||'seg-outro';});
+  tabs.innerHTML=`<button class="prod-tab ${curCaseTab==='all'?'active':''}" onclick="setCaseTab('all',this)"><i class="ti ti-layout-grid"></i> Todos</button>`+
+    all.map(s=>`<button class="prod-tab ${curCaseTab===s.id?'active':''}" onclick="setCaseTab('${s.id}',this)" style="display:flex;align-items:center;gap:6px;">
+      <i class="ti ${s.icon}"></i>${s.label}
+      ${customSegments.find(x=>x.id===s.id)?`<span onclick="removeSegment('${s.id}',event)" style="margin-left:2px;font-size:10px;opacity:.7;padding:0 2px;">✕</span>`:''}
+    </button>`).join('')+
+    `<button onclick="addSegment()" style="display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;border:.5px dashed var(--bm);background:transparent;font-size:12px;color:var(--t2);cursor:pointer;font-family:inherit;">
+      <i class="ti ti-plus" style="font-size:12px;"></i> Segmento
+    </button>`;
+}
+
+function addSegment(){
+  const label=prompt('Nome do novo segmento:');
+  if(!label||!label.trim())return;
+  const id=label.trim().toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+  if(getAllSegments().find(s=>s.id===id)){alert('Segmento ja existe!');return;}
+  customSegments.push({id,label:label.trim(),icon:'ti-tag'});
+  saveSegments();
+  renderCaseTabs();
+}
+
+function removeSegment(id,e){
+  e.stopPropagation();
+  if(!confirm('Remover segmento "'+SEG_LABELS[id]+'"?'))return;
+  customSegments=customSegments.filter(s=>s.id!==id);
+  saveSegments();
+  if(curCaseTab===id)curCaseTab='all';
+  renderCaseTabs();
+  renderCases();
+}
+
 function setCaseTab(tab,el){
   curCaseTab=tab;
-  document.querySelectorAll('#cases-tabs .prod-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
+  renderCaseTabs();
   renderCases();
 }
 
@@ -1728,6 +1770,7 @@ const SEG_ICONS={agro:'ti-plant',varejo:'ti-shopping-cart',comercio:'ti-building
 function getInitials(name){return name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();}
 
 function renderCases(){
+  renderCaseTabs();
   const grid=document.getElementById('cases-grid');
   const empty=document.getElementById('cases-empty');
   grid.innerHTML='';
@@ -1769,7 +1812,7 @@ function openNewCase(){
   editCaseId=null;
   document.getElementById('case-form-title').textContent='Novo Case';
   ['cf-id','cf-client','cf-opportunities','cf-financial','cf-testimonial','cf-sector'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('cf-segment').value='varejo';
+  rebuildSegmentSelect('varejo');
   document.getElementById('cf-date-start').value='';
   document.getElementById('cf-date-end').value='';
   document.getElementById('cf-attachments-list').innerHTML='';
@@ -1783,7 +1826,7 @@ function openEditCase(id){
   document.getElementById('case-form-title').textContent='Editar Case';
   document.getElementById('cf-id').value=c.id;
   document.getElementById('cf-client').value=c.client||'';
-  document.getElementById('cf-segment').value=c.segment||'varejo';
+  rebuildSegmentSelect(c.segment||'varejo');
   document.getElementById('cf-opportunities').value=c.opportunities||'';
   document.getElementById('cf-financial').value=c.financial||'';
   document.getElementById('cf-testimonial').value=c.testimonial||'';
@@ -1817,6 +1860,11 @@ function saveCase(){
   if(editCaseId){const idx=cases_data.findIndex(x=>x.id===editCaseId);if(idx>=0)cases_data[idx]=obj;}
   else cases_data.push(obj);
   saveCases();closeCaseForm();renderCases();
+}
+
+function rebuildSegmentSelect(selected){
+  const sel=document.getElementById('cf-segment');
+  sel.innerHTML=getAllSegments().map(s=>`<option value="${s.id}" ${s.id===selected?'selected':''}>${s.label}</option>`).join('');
 }
 
 function addAttachment(){
