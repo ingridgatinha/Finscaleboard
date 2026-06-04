@@ -716,41 +716,9 @@ const PS_M={ativo:{label:'Ativo',cls:'ps-ativo'},pausado:{label:'Pausado',cls:'p
 function ld(k,d){try{const s=localStorage.getItem(k);if(s)return JSON.parse(s);}catch(e){}return JSON.parse(JSON.stringify(d));}
 function sv(k,v){localStorage.setItem(k,JSON.stringify(v));}
 
-const DP=[
-  {id:'PRJ-001',name:'Ulrik',owner:'Ana Lima',email:'ana.lima@empresa.com',phone:'(11) 99001-0001',date:'2025-01-10',status:'ativo',scope:'Desenvolvimento completo do aplicativo mobile (Android e iOS) incluindo abertura de conta PF/PJ, login com autenticacao por dispositivo, home dashboard, transferencias, pagamento de boletos, extrato e perfil.'},
-  {id:'PRJ-002',name:'Eco Sistemas',owner:'Bruno Costa',email:'bruno.costa@empresa.com',phone:'(11) 99001-0002',date:'2025-02-01',status:'ativo',scope:'Modulo completo de PIX: cadastro e gestao de chaves, transferencia por chave e dados bancarios, QR Code estatico e dinamico, PIX Copia e Cola, extrato, reembolso e gestao de limites.'},
-  {id:'PRJ-003',name:'Hub22',owner:'Diego Faria',email:'diego.faria@empresa.com',phone:'(11) 99001-0003',date:'2025-03-01',status:'ativo',scope:'Wallet de cartao de credito: solicitacao, ativacao, historico de faturas, pagamento, gestao de limites e configuracoes.'},
-  {id:'PRJ-004',name:'Logica Distribuicao',owner:'',email:'',phone:'',date:'2026-06-01',status:'ativo',scope:'Marketplace B2B para comercializacao de produtos alimenticios para clientes corporativos. MVP inclui: Home institucional, Catalogo com busca e filtros (categoria, marca, preco, disponibilidade), Pagina de produto com galeria e produtos relacionados, Carrinho, Checkout completo (dados do cliente, endereco via CEP, pagamento PIX e Cartao de credito ate 12x), Area do cliente (dashboard, historico de pedidos, recompra, cadastro, enderecos), Painel administrativo (gestao de produtos, categorias, pedidos e clientes). Integracoes: Gateway de pagamento (PIX + Cartao), preparacao para ERP. Requisitos: HTTPS, LGPD, responsivo, SEO, carregamento menor que 3s.'},
-];
-const DS=[
-  {id:'SP-001',name:'Sprint 1',start:'2025-01-06',end:'2025-01-12',goal:'Setup inicial do projeto e cadastro PF'},
-  {id:'SP-002',name:'Sprint 2',start:'2025-01-13',end:'2025-01-19',goal:'Login e autenticacao por dispositivo'},
-  {id:'SP-003',name:'Sprint 3',start:'2025-05-19',end:'2025-05-25',goal:'Home dashboard e extrato'},
-];
-const DC=[
-  {id:'TK-001',title:'Cadastro PF - Abertura de Conta',desc:'Fluxo de abertura de conta para pessoa fisica. Informar CPF, dados pessoais, endereco (autocomplete via CEP), telefone e envio de documentos.',epic:'conta',area:'backend',priority:'high',status:'doing',owner:'Ana Lima',date:'2025-07-30',created:'2025-01-10',project:'PRJ-001',sprint:'SP-001',hoursEst:16,hoursDone:8,comments:[],roadmapStart:1,roadmapSpan:2},
-  {id:'TK-002',title:'Login - Verificacao de Status de Conta',desc:'Ao inserir o CPF, o sistema verifica 3 estados: conta ativa, CPF nao cadastrado ou documentacao pendente. Bloqueio apos 3 tentativas.',epic:'conta',area:'backend',priority:'high',status:'doing',owner:'Bruno Costa',date:'2025-06-30',created:'2025-01-10',project:'PRJ-001',sprint:'SP-002',hoursEst:12,hoursDone:10,comments:[],roadmapStart:1,roadmapSpan:2},
-  {id:'TK-003',title:'Login - Autenticacao em Novo Dispositivo',desc:'Ao logar em dispositivo diferente do cadastrado, o sistema envia codigo de seguranca por SMS/e-mail para validacao.',epic:'conta',area:'backend',priority:'high',status:'todo',owner:'Ana Lima',date:'2025-07-15',created:'2025-01-15',project:'PRJ-001',sprint:'SP-002',hoursEst:8,hoursDone:0,comments:[],roadmapStart:2,roadmapSpan:1},
-  {id:'TK-004',title:'Esqueci Minha Senha',desc:'Fluxo de reset: usuario informa CPF, recebe token por e-mail, insere senha temporaria e cadastra nova senha transacional.',epic:'conta',area:'frontend',priority:'med',status:'todo',owner:'Carla Melo',date:'2025-07-30',created:'2025-01-20',project:'PRJ-001',sprint:'',hoursEst:6,hoursDone:0,comments:[],roadmapStart:2,roadmapSpan:1},
-  {id:'TK-005',title:'Home - Dashboard da Conta',desc:'Tela principal com acesso a: saldo, credito, PIX, extrato, pagamento de boleto, TED e transferencia. Layout com atalhos rapidos.',epic:'conta',area:'design',priority:'high',status:'testing',owner:'Diego Faria',date:'2025-06-15',created:'2025-01-05',project:'PRJ-001',sprint:'SP-003',hoursEst:20,hoursDone:18,comments:[],roadmapStart:1,roadmapSpan:3},
-  {id:'TK-006',title:'Perfil - Dados Cadastrais e Foto',desc:'Visualizacao e edicao de dados cadastrais. Upload de foto de perfil. Edicao permitida apenas para endereco.',epic:'conta',area:'frontend',priority:'low',status:'todo',owner:'Ester Rocha',date:'2025-08-30',created:'2025-02-01',project:'PRJ-001',sprint:'',hoursEst:8,hoursDone:0,comments:[],roadmapStart:3,roadmapSpan:2},
-  {id:'TK-007',title:'Perfil - Autenticacao Biometrica',desc:'Habilitacao de face ID ou touch ID para substituir senha de acesso. Disponivel apenas para dispositivos compativeis.',epic:'conta',area:'frontend',priority:'med',status:'todo',owner:'Bruno Costa',date:'2025-09-30',created:'2025-02-01',project:'PRJ-001',sprint:'',hoursEst:10,hoursDone:0,comments:[],roadmapStart:4,roadmapSpan:2},
-  {id:'TK-008',title:'Extrato - Listagem de Transacoes',desc:'Extrato com saldo atual e historico de transacoes cash-in (+) e cash-out (-). Acesso ao detalhe de cada transacao.',epic:'conta',area:'frontend',priority:'high',status:'doing',owner:'Ana Lima',date:'2025-07-15',created:'2025-01-10',project:'PRJ-001',sprint:'SP-003',hoursEst:14,hoursDone:6,comments:[],roadmapStart:2,roadmapSpan:2},
-  {id:'TK-009',title:'PIX - Home e Tutorial de Primeiro Acesso',desc:'Tela home do PIX com todas funcionalidades. No primeiro acesso exibe tutorial explicativo.',epic:'pix',area:'design',priority:'high',status:'doing',owner:'Diego Faria',date:'2025-06-30',created:'2025-01-15',project:'PRJ-002',sprint:'SP-003',hoursEst:12,hoursDone:8,comments:[],roadmapStart:2,roadmapSpan:2},
-  {id:'TK-010',title:'PIX - Cadastro e Gestao de Chaves',desc:'Cadastro de chaves PIX: CPF, celular, e-mail ou chave aleatoria. Limite de 5 chaves por PF. Portabilidade e reivindicacao.',epic:'pix',area:'backend',priority:'high',status:'todo',owner:'Ana Lima',date:'2025-08-30',created:'2025-02-01',project:'PRJ-002',sprint:'',hoursEst:16,hoursDone:0,comments:[],roadmapStart:3,roadmapSpan:2},
-  {id:'TK-011',title:'PIX - Transferencia por Chave',desc:'Transferencia informando tipo de chave. Confirmacao, senha transacional e token. Opcao de salvar favorito e agendar.',epic:'pix',area:'backend',priority:'high',status:'todo',owner:'Bruno Costa',date:'2025-08-30',created:'2025-02-01',project:'PRJ-002',sprint:'',hoursEst:14,hoursDone:0,comments:[],roadmapStart:3,roadmapSpan:2},
-  {id:'TK-012',title:'PIX - Pagar com QR Code e Copia e Cola',desc:'Leitura de QR Code via camera. Validacao de dados do destinatario. Suporte a QR estatico e dinamico.',epic:'pix',area:'frontend',priority:'med',status:'todo',owner:'Carla Melo',date:'2025-09-30',created:'2025-02-15',project:'PRJ-002',sprint:'',hoursEst:12,hoursDone:0,comments:[],roadmapStart:4,roadmapSpan:2},
-  {id:'TK-013',title:'PIX - Cobrar por QR Code',desc:'Geracao de QR Code estatico e dinamico para recebimento. Dinamico inclui dados do devedor, vencimento, juros e multa.',epic:'pix',area:'frontend',priority:'med',status:'todo',owner:'Ester Rocha',date:'2025-10-30',created:'2025-03-01',project:'PRJ-002',sprint:'',hoursEst:10,hoursDone:0,comments:[],roadmapStart:4,roadmapSpan:2},
-  {id:'TK-014',title:'PIX - Meus Limites e Notificacoes',desc:'Gestao de limites PIX. Notificacoes de PIX recebido, realizado, agendado e portabilidade.',epic:'pix',area:'backend',priority:'low',status:'todo',owner:'Ana Lima',date:'2025-11-30',created:'2025-03-01',project:'PRJ-002',sprint:'',hoursEst:8,hoursDone:0,comments:[],roadmapStart:5,roadmapSpan:1},
-  {id:'TK-015',title:'Cartao - Solicitacao de Cartao de Credito',desc:'Fluxo para clientes com credito disponivel. Escolha de limite minimo R$5.000. Cartao enviado a unidade de relacionamento.',epic:'cartao',area:'backend',priority:'high',status:'todo',owner:'Diego Faria',date:'2025-09-30',created:'2025-02-01',project:'PRJ-003',sprint:'',hoursEst:20,hoursDone:0,comments:[],roadmapStart:3,roadmapSpan:3},
-  {id:'TK-016',title:'Cartao - Ativacao e Criacao de Senha',desc:'Ativacao informando digitos do cartao e criando senha de 4 digitos numericos nao sequenciais.',epic:'cartao',area:'frontend',priority:'high',status:'todo',owner:'Ester Rocha',date:'2025-09-30',created:'2025-02-15',project:'PRJ-003',sprint:'',hoursEst:8,hoursDone:0,comments:[],roadmapStart:4,roadmapSpan:2},
-  {id:'TK-017',title:'Cartao - Historico de Faturas',desc:'Fatura atual com transacoes: data/hora, valor, nome do estabelecimento. Acesso a faturas pagas.',epic:'cartao',area:'frontend',priority:'med',status:'todo',owner:'Bruno Costa',date:'2025-10-30',created:'2025-03-01',project:'PRJ-003',sprint:'',hoursEst:10,hoursDone:0,comments:[],roadmapStart:4,roadmapSpan:2},
-  {id:'TK-018',title:'Cartao - Pagamento de Fatura',desc:'Pagamento total da fatura com senha transacional. Limite liberado apos confirmacao.',epic:'cartao',area:'backend',priority:'high',status:'todo',owner:'Ana Lima',date:'2025-10-30',created:'2025-03-01',project:'PRJ-003',sprint:'',hoursEst:10,hoursDone:0,comments:[],roadmapStart:4,roadmapSpan:2},
-  {id:'TK-019',title:'Cartao - Configuracoes',desc:'Bloqueio/desbloqueio sem senha. Alteracao de senha. Cancelamento com confirmacao e opcao de reativacao.',epic:'cartao',area:'frontend',priority:'med',status:'todo',owner:'Carla Melo',date:'2025-11-30',created:'2025-03-15',project:'PRJ-003',sprint:'',hoursEst:8,hoursDone:0,comments:[],roadmapStart:5,roadmapSpan:2},
-  {id:'TK-020',title:'Credito - Simulador e Contratacao',desc:'Simulacao de credito com limites, parcelas (1 a 3x). Contratacao com assinatura digital e aprovacao manual.',epic:'credito',area:'backend',priority:'high',status:'todo',owner:'Diego Faria',date:'2025-10-30',created:'2025-02-01',project:'',sprint:'',hoursEst:24,hoursDone:0,comments:[],roadmapStart:4,roadmapSpan:3},
-  {id:'TK-021',title:'Credito - Controle de Limite e Meus Contratos',desc:'Visualizacao de credito total, disponivel e utilizado. Contratos agrupados com boletos parcelados.',epic:'credito',area:'frontend',priority:'med',status:'todo',owner:'Ester Rocha',date:'2025-11-30',created:'2025-03-01',project:'',sprint:'',hoursEst:12,hoursDone:0,comments:[],roadmapStart:5,roadmapSpan:2},
-  {id:'TK-022',title:'Credito - Majoracao de Limite',desc:'Solicitacao de aumento de limite com envio de documentos. Analise manual. Retorna para contratacao se aprovado.',epic:'credito',area:'backend',priority:'low',status:'todo',owner:'Bruno Costa',date:'2025-12-30',created:'2025-03-15',project:'',sprint:'',hoursEst:10,hoursDone:0,comments:[],roadmapStart:5,roadmapSpan:2},
-];
+const DP=[];
+const DS=[];
+const DC=[];
 
 let cards=ld(CK,DC);
 let projs=ld(PK,DP);
@@ -982,7 +950,7 @@ function switchView(view,btn){
   document.getElementById('search-input').placeholder=view==='projects'?'Buscar projetos...':view==='sprints'?'Buscar sprints...':'Buscar cards...';
   // Show/hide search box and new button based on view
   const hideSearch = ['dashboard','roadmap'].includes(view);
-  const hideNew = ['dashboard','roadmap','produtos','sprints'].includes(view);
+  const hideNew = ['dashboard','roadmap','produtos'].includes(view);
   document.getElementById('search-box').style.display = hideSearch ? 'none' : 'flex';
   document.getElementById('btn-new-main').style.display = hideNew ? 'none' : 'flex';
   if(view==='projects')renderProjects();
@@ -1623,23 +1591,10 @@ window.onFbProdutos = function(data) {
 
 // ── INIT APP ─────────────────────────────────────────────────────────────────
 window.initApp = function() {
-  // Firebase ALWAYS wins — never overwrite with defaults if Firebase has data
-  if (window._fbCards && window._fbCards.length > 0) {
-    cards = window._fbCards; sv(CK, cards);
-  } else if (!window._fbCards) {
-    // First time ever — push defaults to Firebase
-    if(window.fbSave) window.fbSave('cards', cards);
-  }
-  if (window._fbProjs && window._fbProjs.length > 0) {
-    projs = window._fbProjs; sv(PK, projs);
-  } else if (!window._fbProjs) {
-    if(window.fbSave) window.fbSave('projects', projs);
-  }
-  if (window._fbSprints && window._fbSprints.length > 0) {
-    sprints = window._fbSprints; sv(SK, sprints);
-  } else if (!window._fbSprints) {
-    if(window.fbSave) window.fbSave('sprints', sprints);
-  }
+  // Firebase is the ONLY source of truth
+  if (window._fbCards)   { cards   = window._fbCards;   sv(CK, cards); }
+  if (window._fbProjs)   { projs   = window._fbProjs;   sv(PK, projs); }
+  if (window._fbSprints) { sprints = window._fbSprints; sv(SK, sprints); }
   if (window._fbProdutos) {
     Object.keys(window._fbProdutos).forEach(k => {
       if(PROD_DATA[k]) Object.assign(PROD_DATA[k], window._fbProdutos[k]);
