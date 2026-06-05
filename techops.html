@@ -301,6 +301,17 @@ textarea{resize:vertical;min-height:80px;}
 .btn-save{padding:7px 16px;background:var(--acc);border:none;border-radius:var(--r);font-size:13px;color:#fff;cursor:pointer;font-weight:500;}
 .btn-save:hover{opacity:.85;}
 .btn-danger{padding:7px 20px;background:#E24B4A;border:none;border-radius:var(--r);font-size:13px;color:#fff;cursor:pointer;font-weight:500;}
+/* RICH TEXT EDITOR */
+.rte-wrap{border:.5px solid var(--bm);border-radius:var(--r);overflow:hidden;}
+.rte-toolbar{display:flex;align-items:center;gap:2px;padding:6px 8px;background:var(--bg2);border-bottom:.5px solid var(--b);flex-wrap:wrap;}
+.rte-btn{background:none;border:none;cursor:pointer;padding:4px 7px;border-radius:5px;color:var(--t2);font-size:13px;font-family:inherit;transition:all .15s;}
+.rte-btn:hover{background:var(--bg);color:var(--t1);}
+.rte-btn.active{background:var(--acc);color:#fff;}
+.rte-sep{width:.5px;height:18px;background:var(--b);margin:0 4px;}
+.rte-content{min-height:80px;padding:10px 12px;outline:none;font-size:13px;color:var(--t1);line-height:1.6;background:var(--bg);}
+.rte-content:empty:before{content:attr(data-placeholder);color:var(--t3);}
+.rte-color-btn{width:18px;height:18px;border-radius:50%;border:2px solid var(--bg);cursor:pointer;flex-shrink:0;transition:transform .15s;}
+.rte-color-btn:hover{transform:scale(1.2);}
 /* DETAIL */
 .det-sec{border-top:.5px solid var(--b);padding-top:14px;margin-top:2px;}
 .det-row{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start;}
@@ -358,6 +369,17 @@ textarea{resize:vertical;min-height:80px;}
 .case-kpi{background:var(--bg2);border-radius:var(--r);padding:8px;text-align:center;}
 .case-kpi-v{font-size:14px;font-weight:600;color:var(--t1);}
 .case-kpi-l{font-size:9px;color:var(--t3);margin-top:1px;}
+/* RICH TEXT EDITOR */
+.rte-wrap{border:.5px solid var(--bm);border-radius:var(--r);overflow:hidden;}
+.rte-toolbar{display:flex;align-items:center;gap:2px;padding:6px 8px;background:var(--bg2);border-bottom:.5px solid var(--b);flex-wrap:wrap;}
+.rte-btn{background:none;border:none;cursor:pointer;padding:4px 7px;border-radius:5px;color:var(--t2);font-size:13px;font-family:inherit;transition:all .15s;}
+.rte-btn:hover{background:var(--bg);color:var(--t1);}
+.rte-btn.active{background:var(--acc);color:#fff;}
+.rte-sep{width:.5px;height:18px;background:var(--b);margin:0 4px;}
+.rte-content{min-height:80px;padding:10px 12px;outline:none;font-size:13px;color:var(--t1);line-height:1.6;background:var(--bg);}
+.rte-content:empty:before{content:attr(data-placeholder);color:var(--t3);}
+.rte-color-btn{width:18px;height:18px;border-radius:50%;border:2px solid var(--bg);cursor:pointer;flex-shrink:0;transition:transform .15s;}
+.rte-color-btn:hover{transform:scale(1.2);}
 /* DETAIL */
 .cd-banner{height:120px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border-radius:var(--rl) var(--rl) 0 0;}
 .cd-banner-icon{font-size:64px;opacity:.15;position:absolute;right:24px;}
@@ -770,7 +792,27 @@ textarea{resize:vertical;min-height:80px;}
         <div><div class="flbl">Ramo de Atividade</div><input type="text" id="cf-sector" placeholder="Ex: Alimenticio, Financeiro, Tecnologia..."></div>
         <div><div class="flbl">Site do Cliente</div><input type="text" id="cf-website" placeholder="Ex: https://www.cliente.com.br"></div>
       </div>
-      <div><div class="flbl">Fornecedores Indicados</div><textarea id="cf-suppliers" placeholder="Liste os fornecedores indicados para este projeto..." style="min-height:60px;"></textarea></div>
+      <div>
+        <div class="flbl">Fornecedores Indicados</div>
+        <div class="rte-wrap">
+          <div class="rte-toolbar">
+            <button class="rte-btn" onclick="rteCmd('suppliers','bold')"><b>B</b></button>
+            <button class="rte-btn" onclick="rteCmd('suppliers','italic')"><i>I</i></button>
+            <button class="rte-btn" onclick="rteCmd('suppliers','underline')"><u>U</u></button>
+            <div class="rte-sep"></div>
+            <button class="rte-btn" onclick="rteCmd('suppliers','insertUnorderedList')"><i class="ti ti-list"></i></button>
+            <div class="rte-sep"></div>
+            <div class="rte-color-btn" style="background:#E24B4A;" onclick="rteColor('suppliers','#E24B4A')"></div>
+            <div class="rte-color-btn" style="background:#EF9F27;" onclick="rteColor('suppliers','#EF9F27')"></div>
+            <div class="rte-color-btn" style="background:#639922;" onclick="rteColor('suppliers','#639922')"></div>
+            <div class="rte-color-btn" style="background:#185FA5;" onclick="rteColor('suppliers','#185FA5')"></div>
+            <div class="rte-color-btn" style="background:#7C3AED;" onclick="rteColor('suppliers','#7C3AED')"></div>
+            <div class="rte-sep"></div>
+            <button class="rte-btn" onclick="rteClear('suppliers')" style="font-size:11px;">Tx</button>
+          </div>
+          <div class="rte-content" id="rte-suppliers" contenteditable="true" data-placeholder="Liste os fornecedores indicados para este projeto..."></div>
+        </div>
+      </div>
       <div>
         <div class="flbl">Logo do Cliente</div>
         <div style="display:flex;align-items:center;gap:12px;">
@@ -792,9 +834,69 @@ textarea{resize:vertical;min-height:80px;}
         <div><div class="flbl">Data de Inicio</div><input type="date" id="cf-date-start"></div>
         <div><div class="flbl">Data de Conclusao</div><input type="date" id="cf-date-end"></div>
       </div>
-      <div><div class="flbl">Oportunidades Levantadas</div><textarea id="cf-opportunities" placeholder="Descreva as oportunidades identificadas neste projeto..."></textarea></div>
-      <div><div class="flbl">Projecao Financeira</div><textarea id="cf-financial" placeholder="Ex: Receita estimada, ROI, economia gerada..." style="min-height:60px;"></textarea></div>
-      <div><div class="flbl">Depoimento do Cliente</div><textarea id="cf-testimonial" placeholder="Cole aqui o depoimento ou feedback do cliente..." style="min-height:60px;"></textarea></div>
+      <div>
+        <div class="flbl">Oportunidades Levantadas</div>
+        <div class="rte-wrap">
+          <div class="rte-toolbar" id="rte-toolbar-opp">
+            <button class="rte-btn" onclick="rteCmd('opportunities','bold')" title="Negrito"><b>B</b></button>
+            <button class="rte-btn" onclick="rteCmd('opportunities','italic')" title="Italico"><i>I</i></button>
+            <button class="rte-btn" onclick="rteCmd('opportunities','underline')" title="Sublinhado"><u>U</u></button>
+            <div class="rte-sep"></div>
+            <button class="rte-btn" onclick="rteCmd('opportunities','insertUnorderedList')" title="Lista"><i class="ti ti-list"></i></button>
+            <button class="rte-btn" onclick="rteCmd('opportunities','insertOrderedList')" title="Lista numerada"><i class="ti ti-list-numbers"></i></button>
+            <div class="rte-sep"></div>
+            <div class="rte-color-btn" style="background:#E24B4A;" onclick="rteColor('opportunities','#E24B4A')" title="Vermelho"></div>
+            <div class="rte-color-btn" style="background:#EF9F27;" onclick="rteColor('opportunities','#EF9F27')" title="Laranja"></div>
+            <div class="rte-color-btn" style="background:#639922;" onclick="rteColor('opportunities','#639922')" title="Verde"></div>
+            <div class="rte-color-btn" style="background:#185FA5;" onclick="rteColor('opportunities','#185FA5')" title="Azul"></div>
+            <div class="rte-color-btn" style="background:#7C3AED;" onclick="rteColor('opportunities','#7C3AED')" title="Roxo"></div>
+            <div class="rte-sep"></div>
+            <button class="rte-btn" onclick="rteClear('opportunities')" title="Limpar formatacao" style="font-size:11px;">Tx</button>
+          </div>
+          <div class="rte-content" id="rte-opportunities" contenteditable="true" data-placeholder="Descreva as oportunidades identificadas neste projeto..."></div>
+        </div>
+      </div>
+      <div>
+        <div class="flbl">Projecao Financeira</div>
+        <div class="rte-wrap">
+          <div class="rte-toolbar">
+            <button class="rte-btn" onclick="rteCmd('financial','bold')"><b>B</b></button>
+            <button class="rte-btn" onclick="rteCmd('financial','italic')"><i>I</i></button>
+            <button class="rte-btn" onclick="rteCmd('financial','underline')"><u>U</u></button>
+            <div class="rte-sep"></div>
+            <button class="rte-btn" onclick="rteCmd('financial','insertUnorderedList')"><i class="ti ti-list"></i></button>
+            <button class="rte-btn" onclick="rteCmd('financial','insertOrderedList')"><i class="ti ti-list-numbers"></i></button>
+            <div class="rte-sep"></div>
+            <div class="rte-color-btn" style="background:#E24B4A;" onclick="rteColor('financial','#E24B4A')"></div>
+            <div class="rte-color-btn" style="background:#EF9F27;" onclick="rteColor('financial','#EF9F27')"></div>
+            <div class="rte-color-btn" style="background:#639922;" onclick="rteColor('financial','#639922')"></div>
+            <div class="rte-color-btn" style="background:#185FA5;" onclick="rteColor('financial','#185FA5')"></div>
+            <div class="rte-color-btn" style="background:#7C3AED;" onclick="rteColor('financial','#7C3AED')"></div>
+            <div class="rte-sep"></div>
+            <button class="rte-btn" onclick="rteClear('financial')" style="font-size:11px;">Tx</button>
+          </div>
+          <div class="rte-content" id="rte-financial" contenteditable="true" data-placeholder="Ex: Receita estimada, ROI, economia gerada..."></div>
+        </div>
+      </div>
+      <div>
+        <div class="flbl">Depoimento do Cliente</div>
+        <div class="rte-wrap">
+          <div class="rte-toolbar">
+            <button class="rte-btn" onclick="rteCmd('testimonial','bold')"><b>B</b></button>
+            <button class="rte-btn" onclick="rteCmd('testimonial','italic')"><i>I</i></button>
+            <button class="rte-btn" onclick="rteCmd('testimonial','underline')"><u>U</u></button>
+            <div class="rte-sep"></div>
+            <div class="rte-color-btn" style="background:#E24B4A;" onclick="rteColor('testimonial','#E24B4A')"></div>
+            <div class="rte-color-btn" style="background:#EF9F27;" onclick="rteColor('testimonial','#EF9F27')"></div>
+            <div class="rte-color-btn" style="background:#639922;" onclick="rteColor('testimonial','#639922')"></div>
+            <div class="rte-color-btn" style="background:#185FA5;" onclick="rteColor('testimonial','#185FA5')"></div>
+            <div class="rte-color-btn" style="background:#7C3AED;" onclick="rteColor('testimonial','#7C3AED')"></div>
+            <div class="rte-sep"></div>
+            <button class="rte-btn" onclick="rteClear('testimonial')" style="font-size:11px;">Tx</button>
+          </div>
+          <div class="rte-content" id="rte-testimonial" contenteditable="true" data-placeholder="Cole aqui o depoimento ou feedback do cliente..."></div>
+        </div>
+      </div>
       <div>
         <div class="flbl">Anexos (links do Google Drive)</div>
         <div id="cf-attachments-list" style="margin-bottom:8px;"></div>
@@ -832,19 +934,19 @@ textarea{resize:vertical;min-height:80px;}
       </div>
       <div class="det-sec">
         <div style="font-size:12px;font-weight:500;color:var(--t2);margin-bottom:6px;display:flex;align-items:center;gap:6px;"><i class="ti ti-truck"></i> Fornecedores Indicados</div>
-        <div id="cd-suppliers" style="font-size:13px;color:var(--t2);line-height:1.6;white-space:pre-wrap;"></div>
+        <div id="cd-suppliers" style="font-size:13px;color:var(--t2);line-height:1.6;"></div>
       </div>
       <div class="det-sec">
         <div style="font-size:12px;font-weight:500;color:var(--t2);margin-bottom:6px;display:flex;align-items:center;gap:6px;"><i class="ti ti-bulb"></i> Oportunidades Levantadas</div>
-        <div id="cd-opportunities" style="font-size:13px;color:var(--t2);line-height:1.6;white-space:pre-wrap;"></div>
+        <div id="cd-opportunities" style="font-size:13px;color:var(--t2);line-height:1.6;"></div>
       </div>
       <div class="det-sec">
         <div style="font-size:12px;font-weight:500;color:var(--t2);margin-bottom:6px;display:flex;align-items:center;gap:6px;"><i class="ti ti-trending-up"></i> Projecao Financeira</div>
-        <div id="cd-financial" style="font-size:13px;color:var(--t2);line-height:1.6;white-space:pre-wrap;"></div>
+        <div id="cd-financial" style="font-size:13px;color:var(--t2);line-height:1.6;"></div>
       </div>
       <div class="det-sec">
         <div style="font-size:12px;font-weight:500;color:var(--t2);margin-bottom:6px;display:flex;align-items:center;gap:6px;"><i class="ti ti-quote"></i> Depoimento do Cliente</div>
-        <div id="cd-testimonial" style="font-size:13px;color:var(--t2);line-height:1.6;font-style:italic;white-space:pre-wrap;"></div>
+        <div id="cd-testimonial" style="font-size:13px;color:var(--t2);line-height:1.6;font-style:italic;"></div>
       </div>
       <div class="det-sec">
         <div style="font-size:12px;font-weight:500;color:var(--t2);margin-bottom:10px;display:flex;align-items:center;gap:6px;"><i class="ti ti-paperclip"></i> Anexos</div>
@@ -1834,7 +1936,8 @@ function renderCases(){
 function openNewCase(){
   editCaseId=null;
   document.getElementById('case-form-title').textContent='Novo Case';
-  ['cf-id','cf-client','cf-opportunities','cf-financial','cf-testimonial','cf-sector','cf-website','cf-suppliers'].forEach(id=>document.getElementById(id).value='');
+  ['cf-id','cf-client','cf-sector','cf-website'].forEach(id=>document.getElementById(id).value='');
+  rteClearAll();
   window._caseLogo=null;
   document.getElementById('cf-logo-preview').innerHTML='<i class="ti ti-photo" style="font-size:20px;color:var(--t3);"></i>';
   document.getElementById('cf-logo-file').value='';
@@ -1857,6 +1960,10 @@ function openEditCase(id){
   document.getElementById('cf-financial').value=c.financial||'';
   document.getElementById('cf-testimonial').value=c.testimonial||'';
   document.getElementById('cf-sector').value=c.sector||'';
+  rteSet('opportunities',c.opportunities||'');
+  rteSet('financial',c.financial||'');
+  rteSet('testimonial',c.testimonial||'');
+  rteSet('suppliers',c.suppliers||'');
   document.getElementById('cf-website').value=c.website||'';
   document.getElementById('cf-suppliers').value=c.suppliers||'';
   window._caseLogo=c.logo||null;
@@ -1882,11 +1989,11 @@ function saveCase(){
     segment:document.getElementById('cf-segment').value,
     sector:document.getElementById('cf-sector').value,
     website:document.getElementById('cf-website').value,
-    suppliers:document.getElementById('cf-suppliers').value,
+    suppliers:rteGet('suppliers'),
     logo:window._caseLogo||null,
-    opportunities:document.getElementById('cf-opportunities').value,
-    financial:document.getElementById('cf-financial').value,
-    testimonial:document.getElementById('cf-testimonial').value,
+    opportunities:rteGet('opportunities'),
+    financial:rteGet('financial'),
+    testimonial:rteGet('testimonial'),
     dateStart:document.getElementById('cf-date-start').value,
     dateEnd:document.getElementById('cf-date-end').value,
     attachments:window._caseAttachments||[],
@@ -1896,6 +2003,35 @@ function saveCase(){
   else cases_data.push(obj);
   saveCases();closeCaseForm();renderCases();
 }
+
+// ── RICH TEXT EDITOR ─────────────────────────────────────────────────────────
+function rteCmd(field, cmd) {
+  const el = document.getElementById('rte-'+field);
+  el.focus();
+  document.execCommand(cmd, false, null);
+}
+function rteColor(field, color) {
+  const el = document.getElementById('rte-'+field);
+  el.focus();
+  document.execCommand('foreColor', false, color);
+}
+function rteClear(field) {
+  const el = document.getElementById('rte-'+field);
+  el.focus();
+  document.execCommand('removeFormat', false, null);
+}
+function rteGet(field) {
+  const el = document.getElementById('rte-'+field);
+  return el ? el.innerHTML : '';
+}
+function rteSet(field, html) {
+  const el = document.getElementById('rte-'+field);
+  if(el) el.innerHTML = html || '';
+}
+function rteClearAll() {
+  ['opportunities','financial','testimonial','suppliers'].forEach(f => rteSet(f,''));
+}
+// ── FIM RTE ───────────────────────────────────────────────────────────────────
 
 function handleLogoUpload(e){
   const file=e.target.files[0];
@@ -1964,10 +2100,10 @@ function openCaseDetail(id){
   document.getElementById('cd-sector').innerHTML=c.website?`<a href="${c.website}" target="_blank" style="color:var(--info);">${c.website}</a>`:(c.sector||'Nao informado');
   document.getElementById('cd-sector').textContent=c.sector||'Nao informado';
   document.getElementById('cd-website').innerHTML=c.website?`<a href="${c.website}" target="_blank" style="color:var(--info);text-decoration:none;">${c.website} <i class="ti ti-external-link" style="font-size:11px;"></i></a>`:'Nao informado';
-  document.getElementById('cd-suppliers').textContent=c.suppliers||'Nenhum fornecedor indicado.';
-  document.getElementById('cd-opportunities').textContent=c.opportunities||'Nao informado.';
-  document.getElementById('cd-financial').textContent=c.financial||'Nao informado.';
-  document.getElementById('cd-testimonial').textContent=c.testimonial||'Nao informado.';
+  document.getElementById('cd-suppliers').innerHTML=c.suppliers||'<span style="color:var(--t3)">Nenhum fornecedor indicado.</span>';
+  document.getElementById('cd-opportunities').innerHTML=c.opportunities||'<span style="color:var(--t3)">Nao informado.</span>';
+  document.getElementById('cd-financial').innerHTML=c.financial||'<span style="color:var(--t3)">Nao informado.</span>';
+  document.getElementById('cd-testimonial').innerHTML=c.testimonial||'<span style="color:var(--t3)">Nao informado.</span>';
   const attEl=document.getElementById('cd-attachments');
   const atts=c.attachments||[];
   attEl.innerHTML=atts.length?atts.map(a=>`<a href="${a.url}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:7px 12px;background:var(--info-bg);color:var(--info);border-radius:var(--r);font-size:12px;text-decoration:none;font-weight:500;margin-right:8px;margin-bottom:8px;"><i class="ti ti-paperclip"></i>${a.name}</a>`).join(''):'<span style="font-size:12px;color:var(--t3);">Sem anexos.</span>';
