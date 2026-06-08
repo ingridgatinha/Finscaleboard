@@ -1984,7 +1984,7 @@ function saveCase(){
   const client=document.getElementById('cf-client').value.trim();
   if(!client){document.getElementById('cf-client').focus();return;}
   const obj={
-    id:editCaseId||('CS-'+String(cases_data.length+1).padStart(3,'0')),
+    id:editCaseId||('CS-'+Date.now()),
     client,
     segment:document.getElementById('cf-segment').value,
     sector:document.getElementById('cf-sector').value,
